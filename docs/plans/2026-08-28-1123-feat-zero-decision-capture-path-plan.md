@@ -21,7 +21,7 @@ product_contract_source: ce-brainstorm
 
 ### Summary
 
-A single keyboard shortcut files the active tab to GlassFrog as a tension with `status: unprocessed`, against a capture role the practitioner configures once. The extension action opens a popup exposing the same capture with role and work type editable, for captures where the practitioner already knows them. Triage happens in GlassFrog's own unprocessed queue; the extension builds no inbox of its own.
+A single keyboard shortcut files the active tab to GlassFrog as a tension against a capture role the practitioner configures once, where it sits unprocessed until triage. The extension action opens a popup exposing the same capture with role, work type, and a note editable, for captures where the practitioner already knows them. Triage happens in GlassFrog's own unprocessed queue; the extension builds no inbox of its own.
 
 ### Problem Frame
 
@@ -34,7 +34,7 @@ So the API inverts the expected constraint. Filing with no text is fine. Filing 
 ### Key Decisions
 
 - KD1. **A capture role is configured once and overridden in the popup, never resolved per-capture.** (session-settled: user-directed — chosen over most-recently-used role and a local staging queue: MRU fails invisibly when context switches mid-session, and a local queue becomes the second GlassFrog client STRATEGY.md Boundaries forbid.) Governs R3, R5.
-- KD2. **A capture with no work type files as a tension with `status: unprocessed`.** (session-settled: user-directed — chosen over last-used type and over marking auto-defaulted items provisional: the practitioner works GlassFrog's unprocessed queue as their real triage surface, so every defaulted item is seen anyway and a provisional marker carries cost without benefit.) Governs R4.
+- KD2. **A capture with no work type files as a tension, which GlassFrog reports as `unprocessed` while it has no associations.** (session-settled: user-directed — chosen over last-used type and over marking auto-defaulted items provisional: the practitioner works GlassFrog's unprocessed queue as their real triage surface, so every defaulted item is seen anyway and a provisional marker carries cost without benefit.) Governs R4.
 - KD3. **Actions and projects take a configurable default status, either `current` or `someday`.** (session-settled: user-directed — chosen over hardcoding either: neither maps to `unprocessed`, and which holding state fits depends on the practitioner's own triage rhythm.) Governs R6.
 
 - KD4. **An unconfigured capture opens the options page and carries the pending capture through to filing.** (session-settled: user-directed — chosen over a notification that discards the capture and over blocking capture at install: the first keystroke is where a practitioner decides whether the tool works, so a dead end there is the most expensive failure available.) Governs R9. Holding one pending capture until configuration completes is not the local staging queue KD1 rejected; it has no steady state and nothing accumulates in it.
@@ -60,7 +60,7 @@ This plan owns **Capture surface**, one of four tracks in [STRATEGY.md](STRATEGY
 **Attribution and defaults**
 
 - R3. A capture role is read from extension configuration and used as the `role_id` path parameter for every filing that does not name one.
-- R4. A capture with no work type set files as a tension with `status: unprocessed`.
+- R4. A capture with no work type set files as a tension, which GlassFrog reports as `unprocessed` until an action, project, proposal, or agenda item is associated with it.
 - R5. A role or work type the practitioner sets in the popup is used as given and is never replaced by a configured or defaulted value.
 - R6. A capture filed as an action or project uses the practitioner's configured default status, restricted to `current` or `someday`.
 - R17. A note the practitioner enters in the popup is carried into the filed item alongside the page evidence.
@@ -85,7 +85,7 @@ This plan owns **Capture surface**, one of four tracks in [STRATEGY.md](STRATEGY
 
 - F1. **Quick capture.**
   - **Trigger:** the `quick-capture` keyboard command.
-  - **Steps:** read active tab URL, title, and selection → read configured capture role and API key → `POST /roles/{role_id}/tensions` with `status: unprocessed` → confirm without stealing focus.
+  - **Steps:** read active tab URL, title, and selection → read configured capture role and API key → `POST /roles/{role_id}/tensions` → confirm without stealing focus.
   - **Outcome:** an unprocessed tension on the capture role, with the page as evidence. No prompt was shown.
   - **Covers R1, R3, R4, R7, R9, R11, R14.**
 
@@ -100,11 +100,11 @@ flowchart TD
     K["Keyboard shortcut"] --> C["Read tab: URL, title, selection"]
     A["Extension action"] --> C
     C --> D{"Invoked from<br/>the popup?"}
-    D -- "No (F1)" --> E["role = configured capture role<br/>type = tension<br/>status = unprocessed"]
+    D -- "No (F1)" --> E["role = configured capture role<br/>type = tension"]
     D -- "Yes (F2)" --> G["role = chosen or configured<br/>type = chosen or tension"]
     G --> H{"Type is action<br/>or project?"}
     H -- Yes --> I["status = configured default<br/>(current | someday)"]
-    H -- No --> J["status = unprocessed"]
+    H -- No --> J["no status sent"]
     E --> P["POST /roles/{role_id}/{type}"]
     I --> P
     J --> P
@@ -172,3 +172,4 @@ None block planning.
 - `glassfrog-sdk-ts` repo, `src/client.ts` — v5 auth is `X-Auth-Token` against `https://api.glassfrog.com/api/v5`. There is no OAuth.
 - `glassfrog-mcp-server` repo, `docs/adr/0002-oauth2-embedded-auth-server.md` — prior art confirming the absence of upstream OAuth; that repo built its own authorization server wrapping the user's v5 key.
 - Status vocabularies, verbatim from the schema: tensions take `unprocessed | processed | archived`; actions and projects take `archived | cancelled | completed | current | scheduled | someday | waiting`. No shared value exists between them, which is what forces KD3.
+- Tension status is server-derived. The schema states that `unprocessed` and `processed` are "auto-computed from the presence of associated actions/projects/proposals/agenda-items" and that clients may set only `archived`, via PATCH. The extension therefore never sends a tension status; a new tension reports as `unprocessed` because it has no associations.

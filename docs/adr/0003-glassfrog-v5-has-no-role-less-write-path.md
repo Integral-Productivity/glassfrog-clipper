@@ -28,13 +28,15 @@ This is not an SDK limitation to route around. It reflects Holacracy's own model
 
 A second consequence surfaced alongside it. The status vocabularies do not overlap: tensions take `unprocessed | processed | archived`, while actions and projects take `archived | cancelled | completed | current | scheduled | someday | waiting`. There is no `unprocessed` for actions or projects, so "capture now, classify later" has a native home for one of the three shapes and not the other two.
 
+Tension status is also not a field a client controls. The v5 schema states that `unprocessed` and `processed` are auto-computed from the presence of associated actions, projects, proposals, or agenda items, and that only `archived` can be set explicitly. A newly filed tension has none of those associations, so it reports as `unprocessed` — the deferred state is a consequence of the tension being new, not something the extension asks for.
+
 ## Decision
 
 Resolve the role outside the capture moment, and say so in the strategy rather than letting the policy quietly overstate itself.
 
 1. A capture role is configured once in extension options and used as the `role_id` for any filing that does not name one. The popup may override it per capture.
 2. STRATEGY.md's Positioning is amended to read "never blocks on a decision **at capture time** ... **given a capture role configured once in advance**." The commitment is unchanged; its scope is now stated.
-3. Captures with no work type file as tensions with `status: unprocessed`, which is the only native deferred state the API offers.
+3. Captures with no work type file as tensions. The extension does not set `status`; a newly filed tension reports as `unprocessed` because it has no associations yet, and that is the only native deferred state among the three shapes.
 4. Actions and projects filed through the structured path take a configurable default status of `current` or `someday`, since neither vocabulary offers a deferred state and which one fits depends on the practitioner's triage rhythm.
 
 ## Consequences
