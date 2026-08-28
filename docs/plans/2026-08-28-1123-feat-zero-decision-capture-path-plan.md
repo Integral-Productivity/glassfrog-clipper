@@ -15,7 +15,7 @@ product_contract_source: ce-brainstorm
 - **Objective** — Ship the Capture surface track: a keystroke that files the current page to GlassFrog as an unprocessed tension with no prompts, and a popup that exposes the same capture with role and work type editable.
 - **Product authority** — [STRATEGY.md](STRATEGY.md) (Positioning, Boundaries, Key metrics) and [docs/adr/0002-glassfrog-authentication-and-write-path-for-the-browser-extension.md](docs/adr/0002-glassfrog-authentication-and-write-path-for-the-browser-extension.md).
 - **Active scope** — Capture surface only. Role & identity resolution, Round-trip & triage, and Distribution & trust are context, not scope.
-- **Open blockers** — One: what the keystroke does when no capture role is configured (OQ1). Planning cannot invent this.
+- **Open blockers** — None. The unconfigured-capture behavior is settled in KD4.
 
 ## Product Contract
 
@@ -36,6 +36,8 @@ So the API inverts the expected constraint. Filing with no text is fine. Filing 
 - KD1. **A capture role is configured once and overridden in the popup, never resolved per-capture.** (session-settled: user-directed — chosen over most-recently-used role and a local staging queue: MRU fails invisibly when context switches mid-session, and a local queue becomes the second GlassFrog client STRATEGY.md Boundaries forbid.) Governs R3, R5.
 - KD2. **A capture with no work type files as a tension with `status: unprocessed`.** (session-settled: user-directed — chosen over last-used type and over marking auto-defaulted items provisional: the practitioner works GlassFrog's unprocessed queue as their real triage surface, so every defaulted item is seen anyway and a provisional marker carries cost without benefit.) Governs R4.
 - KD3. **Actions and projects take a configurable default status, either `current` or `someday`.** (session-settled: user-directed — chosen over hardcoding either: neither maps to `unprocessed`, and which holding state fits depends on the practitioner's own triage rhythm.) Governs R6.
+
+- KD4. **An unconfigured capture opens the options page and carries the pending capture through to filing.** (session-settled: user-directed — chosen over a notification that discards the capture and over blocking capture at install: the first keystroke is where a practitioner decides whether the tool works, so a dead end there is the most expensive failure available.) Governs R9. Holding one pending capture until configuration completes is not the local staging queue KD1 rejected; it has no steady state and nothing accumulates in it.
 
 <!-- ce-section: work-relationships -->
 ### How This Work Fits Together
@@ -68,7 +70,8 @@ This plan owns **Capture surface**, one of four tracks in [STRATEGY.md](STRATEGY
 **Configuration and failure**
 
 - R8. Extension options accept a GlassFrog v5 API key, a capture role, and the default action/project status.
-- R9. A capture that cannot be filed — no API key, no capture role, or a failed request — surfaces the failure and preserves the captured content rather than discarding it. The recovery path is OQ1.
+- R9. A capture invoked while the extension is unconfigured opens the options page holding the pending capture, and files it once a capture role and API key are saved.
+- R10. A capture that fails after configuration — a rejected request or a network failure — surfaces the failure and preserves the captured content rather than discarding it.
 
 ### Key Flows
 
@@ -76,7 +79,7 @@ This plan owns **Capture surface**, one of four tracks in [STRATEGY.md](STRATEGY
   - **Trigger:** the `quick-capture` keyboard command.
   - **Steps:** read active tab URL, title, and selection → read configured capture role and API key → `POST /roles/{role_id}/tensions` with `status: unprocessed` → confirm without stealing focus.
   - **Outcome:** an unprocessed tension on the capture role, with the page as evidence. No prompt was shown.
-  - **Covers R1, R3, R4, R7.**
+  - **Covers R1, R3, R4, R7, R9.**
 
 - F2. **Structured capture.**
   - **Trigger:** the extension action.
@@ -99,16 +102,17 @@ flowchart TD
     J --> P
     P --> Q{"Filed?"}
     Q -- Yes --> R["Confirm, keep focus"]
-    Q -- No --> S["Surface failure,<br/>preserve capture (R9)"]
+    Q -- No --> S["Surface failure,<br/>preserve capture (R9, R10)"]
 ```
 
 ### Acceptance Examples
 
-- AE1. **Given** no capture role is configured, **when** the practitioner invokes the shortcut, **then** the capture is preserved and the failure is surfaced rather than silently dropped. **Covers R9.**
+- AE1. **Given** no capture role is configured, **when** the practitioner invokes the shortcut, **then** the options page opens with the capture held, and the item files as soon as a capture role and API key are saved. **Covers R9.**
 - AE2. **Given** the practitioner has text selected, **when** they invoke the shortcut, **then** the filed tension carries the selection alongside the page URL and title. **Covers R7.**
 - AE3. **Given** the default action/project status is `someday`, **when** the practitioner files an action from the popup, **then** the action is created with `status: someday`. **Covers R6.**
 - AE4. **Given** a capture role is configured, **when** the practitioner names a different role in the popup, **then** the item is filed against the named role and the configured role is not used. **Covers R5.**
 - AE5. **Given** the practitioner opens the popup and changes nothing, **when** they file, **then** the result matches what the shortcut would have produced. **Covers R2, R4.**
+- AE6. **Given** the extension is configured, **when** the API rejects the request, **then** the failure is surfaced and the captured content is not discarded. **Covers R10.**
 
 ### Scope Boundaries
 
@@ -138,15 +142,14 @@ flowchart TD
 
 ### Outstanding Questions
 
-**Resolve Before Planning**
-
-- OQ1. What R9's recovery path is when no capture role or API key is configured — open the options page, open the popup pre-filled, or surface a notification that retries. This changes F1's failure behavior and cannot be chosen during implementation without inventing product behavior.
+None block planning.
 
 **Deferred to Planning**
 
 - OQ2. Where page evidence lands in a tension: `TensionInput.tension.body`, `TensionInput.tension.label`, or both. `label` exists in v5 and is unused by the current design.
 - OQ3. Whether reading the practitioner's selection needs a content script, or whether `activeTab` alone suffices for F1. Affects the manifest's permission list, which the Distribution & trust track treats as an adoption gate.
 - OQ4. Whether `meeting_type` (`tactical`, `governance`, `null`) should be set at capture or left null for triage.
+- OQ5. Retry semantics for R10 — whether a post-configuration failure retries automatically, holds for manual retry, or only reports. R10 fixes the intent; the mechanism is a planning choice.
 
 ### Sources / Research
 
