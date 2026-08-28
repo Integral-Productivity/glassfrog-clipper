@@ -141,6 +141,7 @@ flowchart TD
 
 **Deferred for later**
 
+- Telemetry instrumentation (issue #3). No unit here implements it; R13 governs it when it is built, and this plan's Definition of Done already forbids the API key reaching any telemetry field.
 - Mobile share-sheet capture (issue #4).
 - AI-suggested role or work type (issue #5).
 - Proposing a sensing role from page content or history — the Role & identity resolution track.
@@ -166,12 +167,11 @@ flowchart TD
 
 ### Outstanding Questions
 
-None block implementation. Planning resolved OQ2 (evidence placement — KTD5), OQ3 (selection permission — KTD6), OQ6 (pending-capture storage — KTD3), and OQ7 (unreadable tabs — a capture that cannot read its tab fails visibly rather than filing an empty tension, verified manually in U5).
+None block implementation. Planning resolved OQ2 (evidence placement — KTD5), OQ3 (selection permission — KTD6), OQ5 (retry semantics — KTD7 forbids auto-refiling, so a preserved capture is surfaced and retried by the practitioner; the SDK's internal 429 retry is the only automatic one), OQ6 (pending-capture storage — KTD3), and OQ7 (unreadable tabs — a capture that cannot read its tab fails visibly rather than filing an empty tension, verified manually in U5).
 
 **Deferred to implementation**
 
 - OQ4. Whether `meeting_type` (`tactical`, `governance`, `null`) is set at capture or left null for triage. Null is the current behavior; changing it is a one-field addition in U4.
-- OQ5. Whether a capture preserved by R10 retries automatically, holds for manual retry, or only reports. The SDK already retries 429 internally, so this governs only the classes it does not.
 
 **Deferred to product**
 
@@ -197,7 +197,7 @@ None block implementation. Planning resolved OQ2 (evidence placement — KTD5), 
 - KTD4. **The popup gets its own `chrome.commands` entry.** (session-settled: user-directed — chosen over leaving F2 mouse-only: `_execute_action` does not fire `onCommand` and cannot be the quick-capture command, so without a second entry the structured path is mouse-only — and structure-at-capture rate is the plan's own falsification test for the positioning.) Governs R2, R20.
 - KTD5. **The provenance marker and the page title ride in the tension's `label`; the note and page evidence ride in `body`.** (session-settled: user-directed — chosen over composing everything into `body`: GlassFrog exposes no provenance field and tags are read-only at create, so the marker must be text. Keeping it in a separate field means truncating a long selection can never silently destroy it.) Governs R7, R11, R17.
 - KTD6. **Selection is read with `chrome.scripting.executeScript` on the invoking gesture, not a declared content script.** `activeTab` alone yields `url` and `title` but not the selection; a keyboard command is a qualifying gesture. A declared content script would need `matches` broad enough to be `<all_urls>`, buying the broad-access install warning `activeTab` exists to avoid. Final permission list: `activeTab`, `scripting`, `storage`, `notifications`. Governs R7. Resolves OQ3.
-- KTD7. **At-most-once is enforced by an in-flight marker written before the POST; a capture found in-flight at startup is surfaced, never auto-refiled.** GlassFrog v5 has no idempotency key, and the worker can die between a successful POST and the storage clear. Auto-refiling would silently duplicate tensions on the capture role and corrupt the triage-survival metric; surfacing hands the ambiguity to the one party who can resolve it. Governs R19.
+- KTD7. **At-most-once is enforced by an in-flight marker written before the POST; a capture found in-flight at startup is surfaced, never auto-refiled — so there is no automatic retry beyond the SDK's internal 429 handling.** GlassFrog v5 has no idempotency key, and the worker can die between a successful POST and the storage clear. Auto-refiling would silently duplicate tensions on the capture role and corrupt the triage-survival metric; surfacing hands the ambiguity to the one party who can resolve it. Governs R19.
 - KTD8. **The API key is validated at save time with `me.get({ include: ['roles'] })`, which also populates the role picker.** One call proves the key and supplies the roles, and it is the same probe `glassfrog-mcp-server` uses at `api/oauth/authorize.ts`. Governs R8, R21.
 - KTD9. **Failures classify four ways, not two.** `TypeError` from the SDK's id validation means a malformed stored role id and never reaches the network; `403`/`404` on the role path means an unusable role; `429` is rate limiting the SDK already retried; `status: 0` is network or timeout. R18's reconfigure path belongs to the first two only. Governs R10, R18.
 
