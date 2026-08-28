@@ -255,7 +255,7 @@ flowchart TD
 
 ### Sequencing
 
-U1 first — the build is currently broken in a way that reports success, so every later unit would be validated against a bundle that cannot load. U2 establishes the storage contract every other unit reads. U3 and U4 can proceed in parallel once U2 lands. U5 and U6 depend on U4. U7 depends on U2 and U4. U8 is independent and can land any time after U1.
+U1 first — the build is currently broken in a way that reports success, so every later unit would be validated against a bundle that cannot load. U2 establishes the storage contract every other unit reads. U3 and U4 can proceed in parallel once U2 lands. U5 and U6 depend on U4. U7 depends on U2 and U4. U8 lands immediately after U1 — its whole purpose is regression safety for U2-U7, and sequencing it last spends that protection after the risk has passed.
 
 ---
 
@@ -372,7 +372,7 @@ U1 first — the build is currently broken in a way that reports success, so eve
 
 - **Goal:** KD4's promise holds across service-worker death, repeat captures, and abandonment.
 - **Requirements:** R9, R15, R16, R19. Covers AE9. Implements KTD3, KTD7.
-- **Dependencies:** U4.
+- **Dependencies:** U4. Shares R18's reconfigure trigger with U5, which owns the failure classification; the trigger itself needs only U2/U3/U4 state.
 - **Files:** `src/pending.ts`, `src/background.ts`, `test/pending.test.ts`
 - **Approach:**
   1. An unconfigured capture writes the pending slot, then calls `openOptionsPage()`.
