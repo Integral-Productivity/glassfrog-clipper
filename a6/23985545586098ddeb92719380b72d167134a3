@@ -1,0 +1,27 @@
+src/notify.ts
+  s_bf01341bbdf16a::t_c731f6bf6a7bfa 1-94
+src/errors.ts
+  s_bf01341bbdf16a::t_e4422ad663368d 1-96
+test/support/chrome.ts
+  s_bf01341bbdf16a::t_7d459229f8ab47 18-22,31-54,57-66,130,138-177,179-185,187-188
+public/manifest.json
+  s_bf01341bbdf16a::t_854a6d2aa7ff9d 7-9,24-25
+test/errors.test.ts
+  s_bf01341bbdf16a::t_59e9f81d1ba5f2 1-177
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "a623985545586098ddeb92719380b72d167134a3",
+  "prompts": {},
+  "sessions": {
+    "s_bf01341bbdf16a": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "27a645a7-c9f3-4a1d-ac97-28006bc732b6",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Kraig Parkinson <kraig.parkinson@gmail.com>"
+    }
+  }
+}
