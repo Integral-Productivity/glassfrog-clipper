@@ -214,6 +214,37 @@ export async function clearDraft(): Promise<void> {
   await area().remove(STORAGE_KEYS.popupDraft);
 }
 
+/* -------------------------------------------------------------- listeners */
+
+/**
+ * Subscribes to configuration becoming valid (or changing).
+ *
+ * Exposed here rather than letting callers reach for chrome.storage.onChanged
+ * themselves: this module owns which keys constitute configuration, and that
+ * knowledge leaking into the service worker is exactly how two definitions of
+ * "configured" come to disagree.
+ */
+export function onConfigurationChanged(listener: () => void): void {
+  chrome.storage.onChanged.addListener((changes, areaName) => {
+    if (areaName !== 'local') return;
+    if (STORAGE_KEYS.apiKey in changes || STORAGE_KEYS.captureRoleId in changes) listener();
+  });
+}
+
+/**
+ * Subscribes to the pending slot changing.
+ *
+ * U3 needs this because `openOptionsPage()` may only *focus* a page that is
+ * already open, in which case its load-time read never runs and a newly-held
+ * capture would never appear (AE9).
+ */
+export function onPendingCaptureChanged(listener: () => void): void {
+  chrome.storage.onChanged.addListener((changes, areaName) => {
+    if (areaName !== 'local') return;
+    if (STORAGE_KEYS.pendingCapture in changes) listener();
+  });
+}
+
 /* ------------------------------------------------------------ access level */
 
 /**

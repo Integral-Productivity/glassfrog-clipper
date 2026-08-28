@@ -47,6 +47,7 @@ export interface FakeChrome {
   runtime: {
     getManifest(): { commands?: Record<string, unknown> };
     getURL(path: string): string;
+    openOptionsPage(): Promise<void>;
     lastError?: { message: string };
   };
   tabs: {
@@ -64,6 +65,7 @@ export interface FakeChrome {
   __tabs: chrome.tabs.Tab[];
   /** True if anything took focus — nothing in the capture path may (R14). */
   __focusTaken: boolean;
+  __optionsPageOpened: number;
 }
 
 type StorageListener = (
@@ -169,6 +171,9 @@ export function createFakeChrome(options: FakeChromeOptions = {}): FakeChrome {
     runtime: {
       getManifest: () => ({ commands: fake.__manifestCommands }),
       getURL: (path) => `chrome-extension://fake/${path}`,
+      async openOptionsPage() {
+        fake.__optionsPageOpened += 1;
+      },
     },
     tabs: {
       async query() {
@@ -183,6 +188,7 @@ export function createFakeChrome(options: FakeChromeOptions = {}): FakeChrome {
     __manifestCommands: {},
     __tabs: [],
     __focusTaken: false,
+    __optionsPageOpened: 0,
   };
 
   return fake;
