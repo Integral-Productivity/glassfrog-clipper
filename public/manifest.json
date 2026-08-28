@@ -4,6 +4,9 @@
   "version": "0.0.1",
   "description": "Clip the page you're on into GlassFrog as a tension, action, or project.",
   "minimum_chrome_version": "120",
+  "icons": {
+    "128": "icon128.png"
+  },
   "permissions": [
     "storage",
     "activeTab",
@@ -18,7 +21,8 @@
   },
   "action": {
     "default_popup": "popup.html",
-    "default_title": "Clip to GlassFrog"
+    "default_title": "Clip to GlassFrog",
+    "default_icon": "icon128.png"
   },
   "commands": {
     "quick-capture": {

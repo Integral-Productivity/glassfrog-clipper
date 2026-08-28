@@ -15,6 +15,11 @@ export interface FakeStorageArea {
   setAccessLevel?(options: { accessLevel: string }): Promise<void>;
 }
 
+export interface FakeNotification {
+  id: string;
+  options: { title?: string; message?: string; type?: string; iconUrl?: string };
+}
+
 export interface FakeChrome {
   storage: {
     local: FakeStorageArea;
@@ -23,8 +28,42 @@ export interface FakeChrome {
       removeListener(listener: StorageListener): void;
     };
   };
+  action: {
+    setBadgeText(details: { text: string }): Promise<void>;
+    setBadgeBackgroundColor(details: { color: string }): Promise<void>;
+    getBadgeText(details?: Record<string, unknown>): Promise<string>;
+  };
+  notifications: {
+    create(id: string, options: FakeNotification['options']): Promise<string>;
+  };
+  alarms: {
+    create(name: string, info: { delayInMinutes?: number }): Promise<void>;
+    clear(name: string): Promise<boolean>;
+    onAlarm: { addListener(listener: (alarm: { name: string }) => void): void };
+  };
+  commands: {
+    getAll(): Promise<Array<{ name?: string; shortcut?: string; description?: string }>>;
+  };
+  runtime: {
+    getManifest(): { commands?: Record<string, unknown> };
+    getURL(path: string): string;
+    lastError?: { message: string };
+  };
+  tabs: {
+    query(info: Record<string, unknown>): Promise<chrome.tabs.Tab[]>;
+  };
   /** Everything currently stored, for assertions about slot occupancy. */
   __dump(): Record<string, unknown>;
+  /** What the extension surfaced, in order. */
+  __notifications: FakeNotification[];
+  __badge: { text: string; color?: string };
+  __alarms: Map<string, { delayInMinutes?: number }>;
+  /** Set by a test to control what chrome.commands.getAll() reports. */
+  __boundCommands: Array<{ name?: string; shortcut?: string }>;
+  __manifestCommands: Record<string, unknown>;
+  __tabs: chrome.tabs.Tab[];
+  /** True if anything took focus — nothing in the capture path may (R14). */
+  __focusTaken: boolean;
 }
 
 type StorageListener = (
@@ -88,7 +127,7 @@ export function createFakeChrome(options: FakeChromeOptions = {}): FakeChrome {
     local.setAccessLevel = async () => undefined;
   }
 
-  return {
+  const fake: FakeChrome = {
     storage: {
       local,
       onChanged: {
@@ -96,8 +135,57 @@ export function createFakeChrome(options: FakeChromeOptions = {}): FakeChrome {
         removeListener: (listener) => void listeners.delete(listener),
       },
     },
+    action: {
+      async setBadgeText(details) {
+        fake.__badge.text = details.text;
+      },
+      async setBadgeBackgroundColor(details) {
+        fake.__badge.color = details.color;
+      },
+      async getBadgeText() {
+        return fake.__badge.text;
+      },
+    },
+    notifications: {
+      async create(id, options) {
+        fake.__notifications.push({ id, options });
+        return id;
+      },
+    },
+    alarms: {
+      async create(name, info) {
+        fake.__alarms.set(name, info);
+      },
+      async clear(name) {
+        return fake.__alarms.delete(name);
+      },
+      onAlarm: { addListener: () => undefined },
+    },
+    commands: {
+      async getAll() {
+        return fake.__boundCommands;
+      },
+    },
+    runtime: {
+      getManifest: () => ({ commands: fake.__manifestCommands }),
+      getURL: (path) => `chrome-extension://fake/${path}`,
+    },
+    tabs: {
+      async query() {
+        return fake.__tabs;
+      },
+    },
     __dump: () => Object.fromEntries(store),
+    __notifications: [],
+    __badge: { text: '' },
+    __alarms: new Map(),
+    __boundCommands: [],
+    __manifestCommands: {},
+    __tabs: [],
+    __focusTaken: false,
   };
+
+  return fake;
 }
 
 /**
