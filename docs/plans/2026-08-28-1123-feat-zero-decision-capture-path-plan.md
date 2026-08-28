@@ -16,7 +16,7 @@ execution: code
 - **Objective** — Ship the Capture surface track: a keystroke that files the current page to GlassFrog as an unprocessed tension with no prompts, and a popup that exposes the same capture with role and work type editable.
 - **Product authority** — [STRATEGY.md](STRATEGY.md) (Positioning, Boundaries, Key metrics) and [docs/adr/0002-glassfrog-authentication-and-write-path-for-the-browser-extension.md](docs/adr/0002-glassfrog-authentication-and-write-path-for-the-browser-extension.md).
 - **Active scope** — Capture surface only. Role & identity resolution, Round-trip & triage, and Distribution & trust are context, not scope.
-- **Means** — a Chrome MV3 extension with one keyboard command filing through the service worker, a second opening a popup for the structured path, and an options page owning configuration (KTD1).
+- **Means** — a Chrome MV3 extension with one keyboard command filing through the service worker, a second opening a popup for the structured path, and an options page owning configuration (KTD1 for the write path, KD4 and KTD8 for configuration).
 - **Authority** — STRATEGY.md is authoritative on product intent; [ADR 0003](../adr/0003-glassfrog-v5-has-no-role-less-write-path.md) on the role constraint; [ADR 0002](../adr/0002-glassfrog-authentication-and-write-path-for-the-browser-extension.md) on auth and the write path. Where this plan and an ADR disagree, the ADR wins and the plan is wrong.
 - **Execution profile** — build in unit order; U1 first, since the build is broken in a way that reports success.
 - **Stop conditions** — stop and ask if a change would put a decision between sensing and filing, add a permission beyond `activeTab`/`scripting`/`storage`/`notifications`, or make the extension a place to browse a backlog.
@@ -417,7 +417,7 @@ U1 first — the build is currently broken in a way that reports success, so eve
 | Gate | Command | Applies to | Done signal |
 |---|---|---|---|
 | Types | `npm run typecheck` | all units | no errors under `strict` + `noUncheckedIndexedAccess` |
-| Tests | `npm test` (`node --test`) | U2, U4, U5, U6, U7 | all scenarios above pass |
+| Tests | `npm test` (`node --test`) | U2, U3, U4, U5, U6, U7 | all scenarios above pass |
 | Build | `npm run build` | U1, U3, U7 | `dist/` loads unpacked with no service-worker registration error |
 | Bundle | inspect `dist/background.js` | U1 | contains no bare `@integral-productivity/glassfrog` specifier |
 | Manual | load unpacked, capture on a real page | U4, U5, U6, U7 | a tension appears in GlassFrog carrying the marker, URL, and title |
