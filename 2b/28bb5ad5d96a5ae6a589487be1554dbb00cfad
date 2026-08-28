@@ -1,0 +1,25 @@
+public/manifest.json
+  s_bf01341bbdf16a::t_ada3f133a3c1d8 6-13,24-27
+.npmrc
+  s_bf01341bbdf16a::t_ada3f133a3c1d8 4
+package.json
+  s_bf01341bbdf16a::t_ada3f133a3c1d8 14,23
+tsup.config.ts
+  s_bf01341bbdf16a::t_ada3f133a3c1d8 7,11-14
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "2b28bb5ad5d96a5ae6a589487be1554dbb00cfad",
+  "prompts": {},
+  "sessions": {
+    "s_bf01341bbdf16a": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "27a645a7-c9f3-4a1d-ac97-28006bc732b6",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Kraig Parkinson <kraig.parkinson@gmail.com>"
+    }
+  }
+}
