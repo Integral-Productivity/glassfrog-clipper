@@ -1,0 +1,27 @@
+docs/adr/0003-glassfrog-v5-has-no-role-less-write-path.md
+  s_1652cac6a3185b::t_c168bcdcf418ba 1-46
+docs/adr/0002-glassfrog-authentication-and-write-path-for-the-browser-extension.md
+  s_1652cac6a3185b::t_5d90923aeb0b11 9
+  s_1652cac6a3185b::t_fe510af4840d01 10
+docs/plans/2026-08-28-1123-feat-zero-decision-capture-path-plan.md
+  s_1652cac6a3185b::t_6fa7e3d3e641ed 153-155
+  s_1652cac6a3185b::t_a0a0de41f3aca9 1-152,156
+STRATEGY.md
+  s_1652cac6a3185b::t_c168bcdcf418ba 14
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "d9bd4495c83ba9be0c9cb7e5cbe41e49ca9f9c01",
+  "prompts": {},
+  "sessions": {
+    "s_1652cac6a3185b": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "ee66bf24-e7db-4e55-8b15-e156a1fa117a",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Kraig Parkinson <kraig.parkinson@gmail.com>"
+    }
+  }
+}
