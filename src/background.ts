@@ -1,4 +1,4 @@
-import { pageContextFromTab } from './capture.js';
+import { pageContextFromTab } from './capture.ts';
 
 /**
  * The zero-decision path: keyboard shortcut → filed. No popup, no confirm step.

@@ -1,4 +1,4 @@
-import type { Capture, PageContext, WorkType } from './types.js';
+import type { Capture, PageContext, WorkType } from './types.ts';
 
 export function pageContextFromTab(tab: chrome.tabs.Tab, selection?: string): PageContext {
   return {
