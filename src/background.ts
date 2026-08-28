@@ -7,8 +7,7 @@
  * is. This file therefore does no asynchronous work before its last
  * addListener() call.
  */
-import { pageContextFromTab } from './capture.ts';
-import { fileCapture } from './capture.ts';
+import { captureActiveTab, fileCapture } from './capture.ts';
 import { classifyFailure } from './errors.ts';
 import { getWriter } from './glassfrog.ts';
 import {
@@ -72,12 +71,11 @@ onConfigurationChanged(() => void fileHeldCaptureIfPossible());
  * F1, the zero-decision path. Nothing here prompts, and nothing here decides.
  */
 async function quickCapture(): Promise<void> {
-  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+  const page = await captureActiveTab();
 
   // OQ7: a tab the extension cannot read fails visibly rather than filing an
-  // empty tension. chrome:// and the Web Store deny activeTab outright, so the
-  // URL never arrives — and a tension carrying nothing is worse than none.
-  if (!tab?.id || !tab.url) {
+  // empty tension — one carrying nothing is worse than none.
+  if (!page) {
     await surfaceNotice(
       'Cannot capture this page',
       'Chrome does not allow extensions to read this tab. Try again on an ordinary web page.',
@@ -86,11 +84,7 @@ async function quickCapture(): Promise<void> {
     return;
   }
 
-  // KTD6: the selection is read on the invoking gesture, in the same turn and
-  // before any network await — activeTab is revoked on cross-origin navigation.
-  const selection = await readSelection(tab.id);
-
-  await submit({ page: pageContextFromTab(tab, selection) }, newCaptureId());
+  await submit({ page }, newCaptureId());
 }
 
 /**
@@ -122,24 +116,6 @@ async function fileHeldCaptureIfPossible(): Promise<void> {
     await fileHeldCapture(await getWriter());
   } catch (error) {
     await surfaceFailure(classifyFailure(error, { apiKey: await getApiKey() }));
-  }
-}
-
-/**
- * Reads the practitioner's selection, if any. A failure here is not a capture
- * failure: the page may simply forbid injection, and the URL and title are
- * still worth filing.
- */
-async function readSelection(tabId: number): Promise<string | undefined> {
-  try {
-    const [result] = await chrome.scripting.executeScript({
-      target: { tabId },
-      func: () => window.getSelection()?.toString() ?? '',
-    });
-    const selection = result?.result;
-    return typeof selection === 'string' && selection.trim() ? selection : undefined;
-  } catch {
-    return undefined;
   }
 }
 

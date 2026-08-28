@@ -53,6 +53,42 @@ export function pageContextFromTab(tab: chrome.tabs.Tab, selection?: string): Pa
 }
 
 /**
+ * Reads the active tab into a capture context, or reports that it cannot.
+ *
+ * Shared by the shortcut and the popup so both flows see exactly the same
+ * evidence — F2 is "the same capture with more revealed", not a second path.
+ *
+ * OQ7: a tab Chrome will not let the extension read yields undefined, so the
+ * caller can fail visibly rather than file an empty tension. chrome:// pages and
+ * the Web Store deny activeTab outright, so the URL never arrives at all.
+ */
+export async function captureActiveTab(): Promise<PageContext | undefined> {
+  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+  if (!tab?.id || !tab.url) return undefined;
+
+  // KTD6: the selection is read on the invoking gesture, in the same turn and
+  // before any network await — activeTab is revoked on cross-origin navigation.
+  return pageContextFromTab(tab, await readSelection(tab.id));
+}
+
+/**
+ * A failure here is not a capture failure: the page may simply forbid
+ * injection, and the URL and title are still worth filing.
+ */
+async function readSelection(tabId: number): Promise<string | undefined> {
+  try {
+    const [result] = await chrome.scripting.executeScript({
+      target: { tabId },
+      func: () => window.getSelection()?.toString() ?? '',
+    });
+    const selection = result?.result;
+    return typeof selection === 'string' && selection.trim() ? selection : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+/**
  * Files one capture, once.
  *
  * KTD7's at-most-once rests on ordering: the in-flight marker is written before
