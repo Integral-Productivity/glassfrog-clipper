@@ -1,0 +1,8 @@
+node_modules/
+dist/
+*.log
+.DS_Store
+.env
+.env.local
+.context/compound-engineering/
+.claude/.reclaim-session.json
