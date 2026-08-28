@@ -1,0 +1,22 @@
+docs/plans/2026-08-28-1123-feat-zero-decision-capture-path-plan.md
+  s_1652cac6a3185b::t_066fd3fde68bc1 37,63,88,103,107,175
+  s_1652cac6a3185b::t_cb991a556bf17b 24
+docs/adr/0003-glassfrog-v5-has-no-role-less-write-path.md
+  s_1652cac6a3185b::t_066fd3fde68bc1 31-32,39
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "9e92c94dcac0249251bb6e73549b9548d948c00e",
+  "prompts": {},
+  "sessions": {
+    "s_1652cac6a3185b": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "ee66bf24-e7db-4e55-8b15-e156a1fa117a",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Kraig Parkinson <kraig.parkinson@gmail.com>"
+    }
+  }
+}
