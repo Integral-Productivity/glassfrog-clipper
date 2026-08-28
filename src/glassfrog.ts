@@ -1,7 +1,7 @@
 import { GlassFrogClient } from '@integral-productivity/glassfrog';
 
 import type { CaptureWriter, CreatedItem } from './capture.ts';
-import { getApiKey } from './storage.ts';
+import { type RoleSummary, getApiKey } from './storage.ts';
 
 /**
  * The SDK-backed implementation of the CaptureWriter port.
@@ -71,4 +71,22 @@ export function createWriter(client: GlassFrogClient): CaptureWriter {
 
 export async function getWriter(): Promise<CaptureWriter> {
   return createWriter(await getClient());
+}
+
+/**
+ * KTD8: one call proves the key and supplies the role picker's options.
+ *
+ * `GET /me?include=roles` is the same probe glassfrog-mcp-server uses at
+ * api/oauth/authorize.ts. Role ids are opaque 32-hex values a practitioner
+ * cannot obtain from the GlassFrog UI, so without this the picker cannot exist
+ * and R8 is unsatisfiable.
+ *
+ * A4: against the pinned ^0.6.0 the roles sit on the bare response. origin/main
+ * carries an unreleased BREAKING change wrapping this in a `data` envelope for
+ * 0.7.0 — reading `result.data.roles` here would break against the pin.
+ */
+export async function fetchRolesForKey(apiKey: string): Promise<RoleSummary[]> {
+  const me = await createClient(apiKey).me.get({ include: ['roles'] });
+  const roles = me.roles ?? [];
+  return roles.map((role) => ({ id: role.id, name: role.name }));
 }

@@ -24,6 +24,10 @@
     "default_title": "Clip to GlassFrog",
     "default_icon": "icon128.png"
   },
+  "options_ui": {
+    "page": "options.html",
+    "open_in_tab": true
+  },
   "commands": {
     "quick-capture": {
       "suggested_key": {

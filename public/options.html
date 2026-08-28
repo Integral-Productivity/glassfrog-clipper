@@ -1,0 +1,56 @@
+<!doctype html>
+<meta charset="utf-8" />
+<title>GlassFrog Clipper — Options</title>
+<style>
+  :root { color-scheme: light dark; }
+  body {
+    font: 15px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif;
+    margin: 0 auto; padding: 2rem 1.5rem; max-width: 34rem;
+  }
+  h1 { font-size: 1.25rem; margin: 0 0 .25rem; }
+  .lede { margin: 0 0 1.5rem; opacity: .75; }
+  label { display: block; font-weight: 600; margin: 1.25rem 0 .35rem; }
+  .hint { font-weight: 400; opacity: .75; display: block; margin-top: .15rem; }
+  input, select { width: 100%; padding: .5rem; font: inherit; box-sizing: border-box; }
+  button { margin-top: 1.5rem; padding: .55rem 1.1rem; font: inherit; font-weight: 600; }
+  #message:empty, #pending:empty { display: none; }
+  #message, #pending { margin-top: 1rem; padding: .6rem .8rem; border-radius: .3rem; }
+  #message[data-tone="error"] { background: color-mix(in srgb, crimson 15%, transparent); }
+  #message[data-tone="ok"] { background: color-mix(in srgb, seagreen 18%, transparent); }
+  #pending { background: color-mix(in srgb, goldenrod 18%, transparent); }
+</style>
+<body>
+  <h1>GlassFrog Clipper</h1>
+  <p class="lede">Set this up once. After that, the shortcut files without asking anything.</p>
+
+  <p id="pending"></p>
+
+  <form id="config">
+    <label for="api-key">
+      GlassFrog API key
+      <span class="hint">From your GlassFrog profile. It is stored on this device and sent only to api.glassfrog.com.</span>
+    </label>
+    <input id="api-key" type="password" autocomplete="off" spellcheck="false" />
+
+    <label for="role">
+      Capture role
+      <span class="hint">Every capture files against this role unless you choose another in the popup.</span>
+    </label>
+    <select id="role" disabled></select>
+
+    <label for="status">
+      Default status for actions and projects
+      <span class="hint">Tensions do not take a status — GlassFrog derives that itself.</span>
+    </label>
+    <select id="status">
+      <option value="current">Current</option>
+      <option value="someday">Someday</option>
+    </select>
+
+    <button id="save" type="submit">Save</button>
+  </form>
+
+  <p id="message"></p>
+
+  <script type="module" src="options.js"></script>
+</body>
