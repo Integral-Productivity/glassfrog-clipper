@@ -1,0 +1,57 @@
+tsup.config.ts
+  s_354239f4b690c2::t_e9b651e3f6f736 1-10
+src/types.ts
+  s_354239f4b690c2::t_9f1c56678ffe4b 1-26
+tsconfig.json
+  s_354239f4b690c2::t_e9b651e3f6f736 1-15
+public/popup.html
+  s_354239f4b690c2::t_e9b651e3f6f736 1-7
+package.json
+  s_354239f4b690c2::t_e9b651e3f6f736 1-25
+.npmrc
+  s_354239f4b690c2::t_e9b651e3f6f736 1-3
+README.md
+  s_354239f4b690c2::t_9f1c56678ffe4b 1-24
+STRATEGY.md
+  s_354239f4b690c2::t_34ebcfed374572 1-59
+src/capture.ts
+  s_354239f4b690c2::t_9f1c56678ffe4b 1-42
+docs/adr/0001-record-architecture-decisions.md
+  s_354239f4b690c2::t_c9d57cf177bcea 1-19
+public/manifest.json
+  s_354239f4b690c2::t_e9b651e3f6f736 1-22
+.adr-dir
+  s_354239f4b690c2::t_c9d57cf177bcea 1
+src/glassfrog.ts
+  s_354239f4b690c2::t_9f1c56678ffe4b 1-17
+src/popup.ts
+  s_354239f4b690c2::t_9f1c56678ffe4b 1-8
+.gitignore
+  s_354239f4b690c2::t_c9d57cf177bcea 7
+  s_354239f4b690c2::t_e9b651e3f6f736 1-6
+  s_354239f4b690c2::t_fce5b7590b3259 8
+src/background.ts
+  s_354239f4b690c2::t_9f1c56678ffe4b 1-16
+.compound-engineering/config.example.yaml
+  s_354239f4b690c2::t_183ac1bb0ce60f 1-174
+.compound-engineering/config.yaml
+  s_354239f4b690c2::t_c9d57cf177bcea 1-174
+docs/adr/0002-glassfrog-authentication-and-write-path-for-the-browser-extension.md
+  s_354239f4b690c2::t_bf482abc3084f4 1-76
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "5fd4ce11ec91cf10b86044887a71ece4b94216e2",
+  "prompts": {},
+  "sessions": {
+    "s_354239f4b690c2": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "0b5642c8-2bf9-4147-bbcb-f48ebfaec431",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Kraig Parkinson <kraig.parkinson@gmail.com>"
+    }
+  }
+}
