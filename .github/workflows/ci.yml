@@ -1,0 +1,73 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          # Pinned rather than floating: 22.18 is the floor at which
+          # `node --test` discovers .ts files, and a silent drop below it
+          # would report zero tests as a pass.
+          node-version: '22.18'
+          registry-url: 'https://npm.pkg.github.com'
+          cache: npm
+
+      # A Dependabot-triggered run cannot read Actions secrets, so the token
+      # must also live in the Dependabot secret store. Without the fallback,
+      # every Dependabot PR fails identically at `npm ci` with a 401 that does
+      # not name its own cause.
+      - name: Check the registry token resolved
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN || secrets.DEPENDABOT_PACKAGES_TOKEN }}
+        run: |
+          if [ -z "${NODE_AUTH_TOKEN}" ]; then
+            echo "::error::NODE_AUTH_TOKEN resolved empty."
+            echo "::error::@integral-productivity/glassfrog installs from GitHub Packages and needs a"
+            echo "::error::read:packages token, SAML-SSO-authorized for the Integral-Productivity org."
+            echo "::error::Set it in BOTH secret stores — Actions and Dependabot:"
+            echo "::error::  gh secret set NODE_AUTH_TOKEN --repo \${{ github.repository }}"
+            echo "::error::  gh secret set NODE_AUTH_TOKEN --repo \${{ github.repository }} --app dependabot"
+            exit 1
+          fi
+          echo "Registry token present."
+
+      - name: Install
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN || secrets.DEPENDABOT_PACKAGES_TOKEN }}
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Test
+        run: npm test
+
+      - name: Build
+        run: npm run build
+
+      # U1's failure mode was a build that reported success while emitting a
+      # bundle no MV3 service worker can load. Only an artifact check catches
+      # a regression here; `npm run build` exiting 0 does not.
+      - name: Assert the SDK is bundled, not left as a bare specifier
+        run: |
+          if grep -q '@integral-productivity/glassfrog' dist/background.js; then
+            echo "::error::dist/background.js still references @integral-productivity/glassfrog."
+            echo "::error::tsup externalizes dependencies by default; check noExternal in tsup.config.ts."
+            exit 1
+          fi
+          echo "No bare SDK specifier in the bundle."

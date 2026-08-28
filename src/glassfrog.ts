@@ -1,20 +1,74 @@
 import { GlassFrogClient } from '@integral-productivity/glassfrog';
 
+import type { CaptureWriter, CreatedItem } from './capture.ts';
 import { getApiKey } from './storage.ts';
 
 /**
- * Builds a client from the v5 API key the practitioner stored in extension
- * options. GlassFrog v5 has no OAuth — the key is sent as `X-Auth-Token`.
- * See docs/adr/0002 for why we hold the key locally rather than brokering it.
+ * The SDK-backed implementation of the CaptureWriter port.
  *
- * The key is read through `src/storage.ts` rather than a local key constant:
- * U2 owns every storage key so there is one place to change when the shape of
- * configuration changes.
+ * Everything above this file talks to the port, which is what lets the capture
+ * path be tested without a network and without resolving the SDK at all. This
+ * module is the only place that knows GlassFrog's method names.
+ *
+ * v5 has no OAuth — the key travels as `X-Auth-Token`. See docs/adr/0002 for
+ * why the key is held locally rather than brokered.
  */
+
+/**
+ * KTD7: the SDK's 429 backoff is a plain timer with no in-flight request to
+ * keep the worker alive, so Chrome can kill the worker mid-backoff and lose the
+ * capture. Zero retries makes every failure immediate, visible, and the
+ * practitioner's to resolve.
+ */
+const MAX_RETRIES = 0;
+
+export function createClient(apiKey: string): GlassFrogClient {
+  return new GlassFrogClient({ apiKey, maxRetries: MAX_RETRIES });
+}
+
 export async function getClient(): Promise<GlassFrogClient> {
   const apiKey = await getApiKey();
   if (!apiKey) {
     throw new Error('No GlassFrog API key configured. Open the extension options to add one.');
   }
-  return new GlassFrogClient({ apiKey });
+  return createClient(apiKey);
+}
+
+/**
+ * Adapts the SDK's three role-scoped creates to the port. Each is
+ * `POST /roles/{role_id}/...` — the role is a path parameter, which is the
+ * whole reason a capture cannot reach the API without one (ADR 0003).
+ */
+export function createWriter(client: GlassFrogClient): CaptureWriter {
+  return {
+    async createTension(roleId, input): Promise<CreatedItem> {
+      // No `status` is sent: v5 auto-computes unprocessed/processed from
+      // associations and accepts only `archived` from a client.
+      const tension = await client.tensions.createForRole(roleId, {
+        label: input.label,
+        body: input.body,
+      });
+      return { id: tension.id };
+    },
+    async createAction(roleId, input): Promise<CreatedItem> {
+      const action = await client.actions.createForRole(roleId, {
+        description: input.description,
+        note: input.note,
+        status: input.status,
+      });
+      return { id: action.id };
+    },
+    async createProject(roleId, input): Promise<CreatedItem> {
+      const project = await client.projects.createForRole(roleId, {
+        description: input.description,
+        note: input.note,
+        status: input.status,
+      });
+      return { id: project.id };
+    },
+  };
+}
+
+export async function getWriter(): Promise<CaptureWriter> {
+  return createWriter(await getClient());
 }
