@@ -1,0 +1,19 @@
+docs/adr/0002-glassfrog-authentication-and-write-path-for-the-browser-extension.md
+  s_354239f4b690c2::t_93252e113cad43 7
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "5df28009d9433cc1408a09af73504a143d37c0a8",
+  "prompts": {},
+  "sessions": {
+    "s_354239f4b690c2": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "0b5642c8-2bf9-4147-bbcb-f48ebfaec431",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Kraig Parkinson <kraig.parkinson@gmail.com>"
+    }
+  }
+}
