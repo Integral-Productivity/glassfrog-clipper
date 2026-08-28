@@ -1,0 +1,19 @@
+docs/solutions/workflow-issues/verify-sibling-repo-facts-against-origin-main.md
+  s_1652cac6a3185b::t_88d7acbdd5d823 1-90
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "1bf86c7c491971e3b2a89d8b3b41301cf030cdf1",
+  "prompts": {},
+  "sessions": {
+    "s_1652cac6a3185b": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "ee66bf24-e7db-4e55-8b15-e156a1fa117a",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Kraig Parkinson <kraig.parkinson@gmail.com>"
+    }
+  }
+}
