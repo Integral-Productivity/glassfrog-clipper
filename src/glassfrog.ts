@@ -88,5 +88,16 @@ export async function getWriter(): Promise<CaptureWriter> {
 export async function fetchRolesForKey(apiKey: string): Promise<RoleSummary[]> {
   const me = await createClient(apiKey).me.get({ include: ['roles'] });
   const roles = me.roles ?? [];
-  return roles.map((role) => ({ id: role.id, name: role.name }));
+  return roles.map((role) => ({ id: role.id, name: displayName(role.name, role.id) }));
+}
+
+/**
+ * A role's name is nullable in the v5 schema. An unnamed role would otherwise
+ * render as a blank option the practitioner cannot tell apart from another one
+ * — and since role ids are opaque hex, there would be nothing else to go on.
+ * The id fragment keeps two unnamed roles distinguishable.
+ */
+function displayName(name: string | null | undefined, id: string): string {
+  const trimmed = name?.trim();
+  return trimmed || `Untitled role (${id.replace(/^role_/, '').slice(0, 8)})`;
 }

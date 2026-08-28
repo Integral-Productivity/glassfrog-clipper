@@ -60,14 +60,7 @@ jobs:
       - name: Build
         run: npm run build
 
-      # U1's failure mode was a build that reported success while emitting a
-      # bundle no MV3 service worker can load. Only an artifact check catches
-      # a regression here; `npm run build` exiting 0 does not.
-      - name: Assert the SDK is bundled, not left as a bare specifier
-        run: |
-          if grep -q '@integral-productivity/glassfrog' dist/background.js; then
-            echo "::error::dist/background.js still references @integral-productivity/glassfrog."
-            echo "::error::tsup externalizes dependencies by default; check noExternal in tsup.config.ts."
-            exit 1
-          fi
-          echo "No bare SDK specifier in the bundle."
+      # `npm run build` exiting 0 does not prove the bundle can load in an MV3
+      # service worker. Only an artifact check does — see scripts/check-bundle.mjs.
+      - name: Check the service worker bundle
+        run: node scripts/check-bundle.mjs
