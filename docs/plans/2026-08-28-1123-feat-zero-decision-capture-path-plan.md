@@ -4,8 +4,9 @@ type: feat
 date: 2026-08-28
 topic: zero-decision-capture-path
 artifact_contract: ce-unified-plan/v1
-artifact_readiness: requirements-only
+artifact_readiness: implementation-ready
 product_contract_source: ce-brainstorm
+execution: code
 ---
 
 # Zero-Decision Capture Path - Plan
@@ -15,9 +16,16 @@ product_contract_source: ce-brainstorm
 - **Objective** — Ship the Capture surface track: a keystroke that files the current page to GlassFrog as an unprocessed tension with no prompts, and a popup that exposes the same capture with role and work type editable.
 - **Product authority** — [STRATEGY.md](STRATEGY.md) (Positioning, Boundaries, Key metrics) and [docs/adr/0002-glassfrog-authentication-and-write-path-for-the-browser-extension.md](docs/adr/0002-glassfrog-authentication-and-write-path-for-the-browser-extension.md).
 - **Active scope** — Capture surface only. Role & identity resolution, Round-trip & triage, and Distribution & trust are context, not scope.
+- **Means** — a Chrome MV3 extension with one keyboard command filing through the service worker, a second opening a popup for the structured path, and an options page owning configuration (KTD1).
+- **Authority** — STRATEGY.md is authoritative on product intent; [ADR 0003](../adr/0003-glassfrog-v5-has-no-role-less-write-path.md) on the role constraint; [ADR 0002](../adr/0002-glassfrog-authentication-and-write-path-for-the-browser-extension.md) on auth and the write path. Where this plan and an ADR disagree, the ADR wins and the plan is wrong.
+- **Execution profile** — build in unit order; U1 first, since the build is broken in a way that reports success.
+- **Stop conditions** — stop and ask if a change would put a decision between sensing and filing, add a permission beyond `activeTab`/`scripting`/`storage`/`notifications`, or make the extension a place to browse a backlog.
+- **Tail ownership** — the implementer owns green typecheck, tests, and CI before declaring done.
 - **Open blockers** — None. The unconfigured-capture behavior is settled in KD4.
 
 ## Product Contract
+
+_Product Contract preservation: unchanged. Planning added R19–R22 as new requirements; no existing R/F/AE ID changed meaning._
 
 ### Summary
 
@@ -80,6 +88,10 @@ This plan owns **Capture surface**, one of four tracks in [STRATEGY.md](STRATEGY
 - R15. At most one pending capture is held; a later unconfigured capture replaces it, and the replacement is surfaced to the practitioner rather than dropped silently.
 - R16. A pending capture is cleared when its item files, and is surfaced rather than retained indefinitely when the practitioner leaves the options page without saving.
 - R18. A failure caused by an unusable capture role is distinguished from a transient failure, directing the practitioner to reconfigure rather than retry.
+- R19. A capture is filed at most once, even when the extension loses the result of a request the server already accepted.
+- R20. Role, work type, and note entered in the popup survive the popup closing, and are restored when it reopens.
+- R21. A configuration attempt that cannot complete — a rejected API key, or an account with no roles to choose from — says so plainly instead of leaving the practitioner on an empty form.
+- R22. The extension detects that its capture shortcut failed to register and tells the practitioner, rather than appearing to do nothing.
 
 ### Key Flows
 
@@ -154,17 +166,16 @@ flowchart TD
 
 ### Outstanding Questions
 
-None block planning.
+None block implementation. Planning resolved OQ2 (evidence placement — KTD5), OQ3 (selection permission — KTD6), OQ6 (pending-capture storage — KTD3), and OQ7 (unreadable tabs — a capture that cannot read its tab fails visibly rather than filing an empty tension, verified manually in U5).
 
-**Deferred to Planning**
+**Deferred to implementation**
 
-- OQ2. Where page evidence lands in a tension: `TensionInput.tension.body`, `TensionInput.tension.label`, or both. `label` exists in v5 and is unused by the current design.
-- OQ3. Whether reading the practitioner's selection needs a content script, or whether `activeTab` alone suffices for F1. Affects the manifest's permission list, which the Distribution & trust track treats as an adoption gate.
-- OQ4. Whether `meeting_type` (`tactical`, `governance`, `null`) should be set at capture or left null for triage.
-- OQ5. Retry semantics for R10 — whether a post-configuration failure retries automatically, holds for manual retry, or only reports. R10 fixes the intent; the mechanism is a planning choice.
-- OQ6. Whether the Summary's "no inbox of its own" claim survives R10 and R16 — repeated preserved failures could accumulate into the steady-state queue KD1 rejects, or preservation is bounded to the most recent failure.
-- OQ7. What a capture does on a tab the extension cannot read (`chrome://`, the options page, some PDF viewers) — a distinct failure mode from the rejection and network cases R10 names.
-- OQ8. Threshold values for the success criteria — what p95 time-to-capture counts as non-interrupting, what structure-at-capture rate is "non-trivial", and over what window each is judged.
+- OQ4. Whether `meeting_type` (`tactical`, `governance`, `null`) is set at capture or left null for triage. Null is the current behavior; changing it is a one-field addition in U4.
+- OQ5. Whether a capture preserved by R10 retries automatically, holds for manual retry, or only reports. The SDK already retries 429 internally, so this governs only the classes it does not.
+
+**Deferred to product**
+
+- OQ8. Threshold values for the success criteria — what p95 time-to-capture counts as non-interrupting, what structure-at-capture rate is non-trivial, and over what window each is judged. Needed to interpret the metrics, not to build them.
 
 ### Sources / Research
 
@@ -173,3 +184,270 @@ None block planning.
 - `glassfrog-mcp-server` repo, `docs/adr/0002-oauth2-embedded-auth-server.md` — prior art confirming the absence of upstream OAuth; that repo built its own authorization server wrapping the user's v5 key.
 - Status vocabularies, verbatim from the schema: tensions take `unprocessed | processed | archived`; actions and projects take `archived | cancelled | completed | current | scheduled | someday | waiting`. No shared value exists between them, which is what forces KD3.
 - Tension status is server-derived. The schema states that `unprocessed` and `processed` are "auto-computed from the presence of associated actions/projects/proposals/agenda-items" and that clients may set only `archived`, via PATCH. The extension therefore never sends a tension status; a new tension reports as `unprocessed` because it has no associations.
+
+---
+
+## Planning Contract
+
+### Key Technical Decisions
+
+- KTD1. **The service worker performs every write; the popup and options page send it a message and receive an outcome.** One writer means one place that clears the pending slot, one place that classifies failure, and no request that dies with a closing document. Chrome destroys a popup on blur with no way to prevent it, so a popup-owned `fetch` loses captures the practitioner already committed to. Governs R1, R2, R10, R19.
+- KTD2. **Success confirms on the action badge; failure raises a notification.** (session-settled: user-directed — chosen over badge-only and over popup-only failure detail: a badge cannot carry which of four failures occurred, and R18 requires the practitioner learn that an unusable role needs reconfiguring rather than a retry.) The badge costs no permission and cannot steal focus; `notifications` adds a "Display notifications" install warning, accepted as the price of legible failure. Governs R14, R10, R18.
+- KTD3. **The pending capture lives in one fixed `chrome.storage.local` key, overwritten rather than appended, with a `capturedAt` expiry.** (session-settled: user-directed — chosen over `chrome.storage.session` and over `local` with no expiry: `session` is cleared by extension reload, disable, update, and browser restart, which are exactly the events first-run troubleshooting produces.) The single slot and the expiry are what keep KD4's hold from becoming the accumulating inbox KD1 rejects. Governs R9, R15, R16.
+- KTD4. **The popup gets its own `chrome.commands` entry.** (session-settled: user-directed — chosen over leaving F2 mouse-only: `_execute_action` does not fire `onCommand` and cannot be the quick-capture command, so without a second entry the structured path is mouse-only — and structure-at-capture rate is the plan's own falsification test for the positioning.) Governs R2, R20.
+- KTD5. **The provenance marker and the page title ride in the tension's `label`; the note and page evidence ride in `body`.** (session-settled: user-directed — chosen over composing everything into `body`: GlassFrog exposes no provenance field and tags are read-only at create, so the marker must be text. Keeping it in a separate field means truncating a long selection can never silently destroy it.) Governs R7, R11, R17.
+- KTD6. **Selection is read with `chrome.scripting.executeScript` on the invoking gesture, not a declared content script.** `activeTab` alone yields `url` and `title` but not the selection; a keyboard command is a qualifying gesture. A declared content script would need `matches` broad enough to be `<all_urls>`, buying the broad-access install warning `activeTab` exists to avoid. Final permission list: `activeTab`, `scripting`, `storage`, `notifications`. Governs R7. Resolves OQ3.
+- KTD7. **At-most-once is enforced by an in-flight marker written before the POST; a capture found in-flight at startup is surfaced, never auto-refiled.** GlassFrog v5 has no idempotency key, and the worker can die between a successful POST and the storage clear. Auto-refiling would silently duplicate tensions on the capture role and corrupt the triage-survival metric; surfacing hands the ambiguity to the one party who can resolve it. Governs R19.
+- KTD8. **The API key is validated at save time with `me.get({ include: ['roles'] })`, which also populates the role picker.** One call proves the key and supplies the roles, and it is the same probe `glassfrog-mcp-server` uses at `api/oauth/authorize.ts`. Governs R8, R21.
+- KTD9. **Failures classify four ways, not two.** `TypeError` from the SDK's id validation means a malformed stored role id and never reaches the network; `403`/`404` on the role path means an unusable role; `429` is rate limiting the SDK already retried; `status: 0` is network or timeout. R18's reconfigure path belongs to the first two only. Governs R10, R18.
+
+### High-Level Technical Design
+
+Three extension contexts, one writer.
+
+```mermaid
+flowchart LR
+    subgraph Chrome
+      K["quick-capture<br/>command"] --> SW
+      A["open-popup<br/>command / action"] --> POP["Popup<br/>role · type · note"]
+      POP -->|"sendMessage"| SW["Service worker<br/>ONLY writer"]
+      OPT["Options page<br/>key · role · status"] -->|"sendMessage"| SW
+      SW -->|"openOptionsPage"| OPT
+      SW <-->|"pending slot<br/>+ config"| ST[("chrome.storage.local")]
+      OPT <-->|"onChanged"| ST
+      POP <-->|"draft"| ST
+    end
+    SW -->|"X-Auth-Token"| GF["api.glassfrog.com/api/v5"]
+```
+
+The pending capture's lifecycle is what keeps KD4's promise without becoming a queue.
+
+```mermaid
+stateDiagram-v2
+    [*] --> None
+    None --> Pending: capture while unconfigured (R9)
+    Pending --> Pending: later capture replaces + surfaces (R15)
+    Pending --> InFlight: configuration saved, POST starts (R19)
+    InFlight --> None: 201 received, slot cleared
+    InFlight --> Surfaced: worker died mid-request
+    Surfaced --> None: practitioner resolves (never auto-refiled)
+    Pending --> Surfaced: older than expiry (R16)
+    Pending --> None: practitioner discards
+```
+
+Failure classification drives whether the practitioner is told to retry or to reconfigure.
+
+```mermaid
+flowchart TD
+    E["write fails"] --> T{"TypeError from<br/>id validation?"}
+    T -- Yes --> RC["Unusable stored role<br/>→ reconfigure (R18)"]
+    T -- No --> S{"HTTP status"}
+    S -- "403 / 404" --> RC
+    S -- "429" --> RL["Rate limited after<br/>SDK retries → preserve (R10)"]
+    S -- "0" --> NW["Network / timeout<br/>→ preserve (R10)"]
+    S -- "422" --> PL["Bad payload<br/>→ preserve, log shape (R10)"]
+```
+
+### Assumptions
+
+- A4. The `@integral-productivity/glassfrog` SDK at `^0.6.0` is the version the extension builds against. The local `glassfrog-sdk-ts` working copy is on a stale May branch at 0.1.0 with different signatures — read `origin/main`, not the working tree.
+- A5. A practitioner has at least one primary, non-discarded role assignment. `GET /me/roles` returns only those; an account without one cannot complete R8, which is why R21 requires saying so rather than rendering an empty picker.
+
+### Sequencing
+
+U1 first — the build is currently broken in a way that reports success, so every later unit would be validated against a bundle that cannot load. U2 establishes the storage contract every other unit reads. U3 and U4 can proceed in parallel once U2 lands. U5 and U6 depend on U4. U7 depends on U2 and U4. U8 is independent and can land any time after U1.
+
+---
+
+## Implementation Units
+
+### U1. Repair the build and dependency contract
+
+- **Goal:** `npm run build` produces a bundle an MV3 service worker can actually load, against the current SDK.
+- **Requirements:** prerequisite for every unit; unblocks A1 and A4.
+- **Dependencies:** none.
+- **Files:** `tsup.config.ts`, `package.json`, `package-lock.json`
+- **Approach:**
+  1. Add `noExternal` to `tsup.config.ts` so the SDK is bundled rather than left as a bare specifier. tsup externalizes everything in `dependencies` by default.
+  2. Bump `@integral-productivity/glassfrog` to `^0.6.0`; `^0.1.0` resolves to `<0.2.0` under npm's 0.x caret rule.
+  3. Generate `package-lock.json` on Linux via the org's documented Docker recipe, so CI in U8 can run `npm ci`.
+- **Patterns to follow:** `glassfrog-productboard-plugin` pins `^0.5.0` and is the closest current consumer.
+- **Test expectation:** none — build and dependency configuration. Proof is the runtime check in Verification.
+- **Verification:** the built `dist/background.js` contains no bare `@integral-productivity/glassfrog` import, and the unpacked extension loads in Chrome without a service-worker registration error.
+
+### U2. Storage contract and configuration module
+
+- **Goal:** one module owns every storage key, so no other unit invents its own.
+- **Requirements:** R8, R9, R15, R16, R20. Implements KTD3.
+- **Dependencies:** U1.
+- **Files:** `src/storage.ts`, `test/storage.test.ts`
+- **Approach:**
+  1. Define keys for the API key, capture role, default action/project status, the single pending-capture slot, the in-flight marker, and the popup draft.
+  2. Pending-capture writes always target the one fixed key — replace, never append — and carry `capturedAt`.
+  3. Expose an `isConfigured` check that reports *which* of key and role is missing, since R21 and the two-phase save in U3 both need the distinction.
+  4. Call `setAccessLevel({ accessLevel: 'TRUSTED_CONTEXTS' })` on the local area so the credential is not reachable from page-adjacent contexts.
+- **Test scenarios:**
+  - Writing a second pending capture replaces the first and leaves exactly one slot occupied.
+  - A pending capture older than the expiry is reported as expired rather than returned as current.
+  - `isConfigured` reports key-present-role-missing distinctly from both-missing.
+  - Reading a pending capture when none exists returns absent, not a throw.
+- **Verification:** every other unit reads storage only through this module; no other file references a raw storage key.
+
+### U3. Options page
+
+- **Goal:** the surface that makes configuration possible at all — currently absent from the manifest and the source tree.
+- **Requirements:** R8, R9, R15, R16, R21. Covers AE1, AE9. Implements KD4, KTD8.
+- **Dependencies:** U2.
+- **Files:** `public/manifest.json`, `public/options.html`, `src/options.ts`, `tsup.config.ts`, `test/options-config.test.ts`
+- **Approach:**
+  1. Add `options_ui` with `open_in_tab: true`, an options entry to the tsup config, and the HTML document.
+  2. On save, validate the key with `me.get({ include: ['roles'] })` and populate the role picker from the returned roles. A rejected key and an empty role list get distinct, plain-language messages (R21).
+  3. Read the pending capture on load **and** register a `chrome.storage.onChanged` listener — `openOptionsPage()` may only focus an already-open page, in which case the load-time read never runs and AE9 silently fails.
+  4. When configuration becomes valid and a capture is pending, message the service worker to file it (KTD1); the options page never writes to GlassFrog itself.
+- **Patterns to follow:** `glassfrog-mcp-server` `api/oauth/authorize.ts` for the key-validation probe and its status branching.
+- **Test scenarios:**
+  - Covers AE1. Saving a valid key and role with a capture pending files that capture.
+  - Covers AE9. A pending capture arriving while the options page is already open updates the displayed capture.
+  - A rejected key surfaces "that key wasn't accepted" and does not populate the picker.
+  - An account whose role list comes back empty says so, rather than rendering an empty dropdown.
+  - Saving a key without choosing a role leaves configuration incomplete and does not file the pending capture.
+- **Verification:** a practitioner can go from a fresh install to a filed capture without leaving the options page except to fetch their key.
+
+### U4. Service-worker capture core
+
+- **Goal:** the single write path both flows go through.
+- **Requirements:** R1, R3, R4, R7, R11, R17, R19. Covers AE2. Implements KTD1, KTD5, KTD6, KTD7.
+- **Dependencies:** U2.
+- **Files:** `src/background.ts`, `src/capture.ts`, `src/glassfrog.ts`, `src/compose.ts`, `test/compose.test.ts`, `test/capture.test.ts`
+- **Approach:**
+  1. Register `onCommand` and `onMessage` listeners at top level — a listener registered after an `await` is missed on a cold start, which is exactly the first keystroke after idle.
+  2. Read `url` and `title` from the tab; read the selection via `chrome.scripting.executeScript` in the same turn, before any network await, since `activeTab` is revoked on cross-origin navigation.
+  3. Compose fields per KTD5: marker and title into `label`, note then truncated evidence into `body`. The marker is never truncated.
+  4. Write the in-flight marker before the POST and clear it with the pending slot only after a 201 (KTD7).
+  5. Delete the stale `resolveWorkType` stub — KD2 settled against the `provisional` flag its TODO argues for.
+- **Execution note:** implement the field composition test-first; it is pure and it is where R11 fails silently if truncation is wrong.
+- **Test scenarios:**
+  - Covers AE2. A capture with a selection carries URL, title, and selection into the filed item.
+  - The provenance marker survives composition when the selection exceeds the length limit.
+  - A capture with no work type files as a tension and sends no `status`.
+  - A capture on a tab with no selection files successfully with evidence but no selection block.
+  - The in-flight marker is present before the request and absent after a success.
+  - A capture whose POST succeeds but whose clear never runs leaves an in-flight marker, not a cleared slot.
+- **Verification:** a filed tension in GlassFrog carries the marker, the page URL, and the title; the pending slot is empty afterward.
+
+### U5. Confirmation and failure surfacing
+
+- **Goal:** the practitioner learns what happened without losing their place.
+- **Requirements:** R10, R12, R14, R18, R22. Covers AE6, AE7. Implements KTD2, KTD9.
+- **Dependencies:** U4.
+- **Files:** `public/manifest.json`, `src/notify.ts`, `src/errors.ts`, `test/errors.test.ts`
+- **Approach:**
+  1. Add `notifications` to the manifest permission list.
+  2. Success sets badge text and colour; clear it on a `chrome.alarms` tick, not `setTimeout` — the worker may be dead before a timer fires.
+  3. Classify failures four ways per KTD9 and route unusable-role to a reconfigure message and the rest to preserve-and-retry.
+  4. Surface only the error's message and status; never the request headers. The SDK's error type carries no headers, so R12 holds as long as nothing logs the client options.
+  5. At startup, compare `chrome.commands.getAll()` against the manifest and notify when the capture shortcut failed to bind (R22).
+- **Test scenarios:**
+  - Covers AE6. A rejected request surfaces the failure and leaves the captured content preserved.
+  - Covers AE7. A successful capture updates the badge and does not open a window or take focus.
+  - A `TypeError` from id validation classifies as unusable-role, not as transient.
+  - A `403` on the role path classifies as unusable-role; a `status: 0` classifies as transient.
+  - No surfaced or logged failure string contains the API key.
+  - An unbound capture shortcut produces a notification at startup.
+- **Verification:** each of the four failure classes produces a distinguishable message, and the API key appears in no log or notification.
+
+### U6. Pending-capture lifecycle
+
+- **Goal:** KD4's promise holds across service-worker death, repeat captures, and abandonment.
+- **Requirements:** R9, R15, R16, R19. Covers AE9. Implements KTD3, KTD7.
+- **Dependencies:** U4.
+- **Files:** `src/pending.ts`, `src/background.ts`, `test/pending.test.ts`
+- **Approach:**
+  1. An unconfigured capture writes the pending slot, then calls `openOptionsPage()`.
+  2. A later unconfigured capture replaces the slot and surfaces the replacement (R15) rather than dropping it silently.
+  3. On worker startup, an in-flight marker is surfaced for the practitioner to resolve — never auto-refiled (KTD7).
+  4. A pending capture past its expiry is surfaced, not silently deleted (R16).
+  5. Generalize the auto-file trigger from "was unconfigured" to "a capture is held and configuration just became valid", so the R18 reconfigure path re-files too.
+- **Test scenarios:**
+  - A second unconfigured capture replaces the first and the replacement is surfaced.
+  - An in-flight marker found at startup is surfaced and no request is issued.
+  - A pending capture older than the expiry is surfaced rather than filed or dropped.
+  - Reconfiguring after an unusable-role failure files the preserved capture.
+  - Configuration saved with no pending capture files nothing.
+- **Verification:** no ordering of capture, restart, and reconfigure produces either a duplicate tension or a silently lost capture.
+
+### U7. Popup and the structured path
+
+- **Goal:** the same capture, more of it revealed — and nothing typed is lost.
+- **Requirements:** R2, R5, R6, R17, R20. Covers AE3, AE4, AE5, AE8. Implements KTD4.
+- **Dependencies:** U2, U4.
+- **Files:** `public/manifest.json`, `public/popup.html`, `src/popup.ts`, `test/popup-draft.test.ts`
+- **Approach:**
+  1. Add a second `chrome.commands` entry that opens the popup, distinct from `quick-capture`.
+  2. Render role, work type, and note; default role and status from configuration but never overwrite a value the practitioner set (R5).
+  3. Persist the draft to storage on every change and restore it on open; clear it on a successful file (R20).
+  4. Hand the capture to the service worker and treat the response as best-effort — the popup may be gone before it arrives (KTD1).
+- **Test scenarios:**
+  - Covers AE3. Filing an action with the default status set to `someday` creates it with `someday`.
+  - Covers AE4. Naming a different role files against that role and not the configured one.
+  - Covers AE5. Opening the popup and changing nothing produces the same fields the shortcut would have.
+  - Covers AE8. A typed note is carried into the filed item.
+  - A draft typed and then abandoned is restored when the popup reopens.
+  - A successful file clears the draft.
+- **Verification:** a practitioner can type a note, click away, reopen the popup, and find their note intact.
+
+### U8. CI and lockfile
+
+- **Goal:** the capture path has regression safety, since most of its failure modes are silent.
+- **Requirements:** supports the Verification Contract.
+- **Dependencies:** U1.
+- **Files:** `.github/workflows/ci.yml`
+- **Approach:**
+  1. A workflow running `npm ci`, `npm run typecheck`, `npm test`, and `npm run build` on push and pull request.
+  2. Provide the registry token as both an Actions secret and a Dependabot secret — a Dependabot-triggered run cannot read Actions secrets and will 401 on `npm.pkg.github.com`.
+  3. Add a fail-loud guard step that errors with a clear message when the token resolves empty.
+- **Patterns to follow:** the org's recorded GitHub Packages CI gotchas — SAML SSO authorization on the PAT, and the separate Dependabot secret store.
+- **Test expectation:** none — CI configuration. Proof is a green run.
+- **Verification:** CI passes on a pull request, and a Dependabot pull request does not fail at the install step.
+
+---
+
+## Verification Contract
+
+| Gate | Command | Applies to | Done signal |
+|---|---|---|---|
+| Types | `npm run typecheck` | all units | no errors under `strict` + `noUncheckedIndexedAccess` |
+| Tests | `npm test` (`node --test`) | U2, U4, U5, U6, U7 | all scenarios above pass |
+| Build | `npm run build` | U1, U3, U7 | `dist/` loads unpacked with no service-worker registration error |
+| Bundle | inspect `dist/background.js` | U1 | contains no bare `@integral-productivity/glassfrog` specifier |
+| Manual | load unpacked, capture on a real page | U4, U5, U6, U7 | a tension appears in GlassFrog carrying the marker, URL, and title |
+| Manual | capture on a `chrome://` tab | U5 | fails visibly rather than filing an empty tension |
+| CI | `.github/workflows/ci.yml` | U8 | green on a pull request and on a Dependabot pull request |
+
+GlassFrog writes are not mocked at the boundary. Tests use a fake client behind a narrow local interface, mirroring the `SdkGlassFrogReader` adapter in `glassfrog-productboard-plugin` — it is what makes the capture path testable without network.
+
+---
+
+## Definition of Done
+
+**Global**
+
+- All 22 requirements are implemented or explicitly deferred in writing.
+- Every gate in the Verification Contract passes.
+- A practitioner can install the extension, configure it, and file a capture without reading the source.
+- No abandoned or experimental code from approaches that did not pan out remains in the diff.
+- The API key appears in no log, notification, error string, or telemetry field.
+- Only `activeTab`, `scripting`, `storage`, and `notifications` are requested. Any addition is a stop condition, not an implementation detail.
+
+**Per unit**
+
+| Unit | Done when |
+|---|---|
+| U1 | the built bundle loads in Chrome and the lockfile was generated on Linux |
+| U2 | no file outside `src/storage.ts` references a raw storage key |
+| U3 | fresh install → configured → filed, with rejected-key and empty-role-list paths both exercised |
+| U4 | a filed tension carries marker, URL, and title, and the marker survives a truncated selection |
+| U5 | all four failure classes are distinguishable, and an unbound shortcut is reported |
+| U6 | no ordering of capture, restart, and reconfigure yields a duplicate or a lost capture |
+| U7 | a note survives the popup closing and reopening |
+| U8 | CI green on a pull request and on a Dependabot pull request |
