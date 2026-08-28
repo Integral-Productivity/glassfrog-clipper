@@ -1,0 +1,39 @@
+src/background.ts
+  s_bf01341bbdf16a::t_58bd906adeacd5 1
+src/capture.ts
+  s_bf01341bbdf16a::t_58bd906adeacd5 1
+src/glassfrog.ts
+  s_bf01341bbdf16a::t_10f1133bf162a3 3,9-12,15
+test/storage.test.ts
+  s_bf01341bbdf16a::t_84967dacfd9bb0 1-177,179,182-220
+  s_bf01341bbdf16a::t_ed7845929c0906 178,180-181
+package.json
+  s_bf01341bbdf16a::t_ed7845929c0906 11
+.nvmrc
+  s_bf01341bbdf16a::t_cb058d965583f2 1
+tsconfig.json
+  s_bf01341bbdf16a::t_58bd906adeacd5 6-14,21-24
+test/support/chrome.ts
+  s_bf01341bbdf16a::t_00407ccad71948 1-120
+src/storage.ts
+  s_bf01341bbdf16a::t_fc0d1f2c5ac43e 1-11,13-235
+  s_bf01341bbdf16a::t_58bd906adeacd5 12
+test/storage-ownership.test.ts
+  s_bf01341bbdf16a::t_10f1133bf162a3 1-57
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "799fa7d71d9d2f4e36debaa58f2616e6a54ae987",
+  "prompts": {},
+  "sessions": {
+    "s_bf01341bbdf16a": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "27a645a7-c9f3-4a1d-ac97-28006bc732b6",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Kraig Parkinson <kraig.parkinson@gmail.com>"
+    }
+  }
+}
