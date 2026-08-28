@@ -1,0 +1,32 @@
+src/background.ts
+  s_bf01341bbdf16a::t_ebd2634ed1515b 10,74,77-78,87
+test/popup-draft.test.ts
+  s_bf01341bbdf16a::t_cc6ce487dfe733 1-172
+test/manifest.test.ts
+  s_bf01341bbdf16a::t_7bb56b03c25dc7 1-76
+public/manifest.json
+  s_bf01341bbdf16a::t_ebd2634ed1515b 40-45
+  s_bf01341bbdf16a::t_7bb56b03c25dc7 13-15
+public/popup.html
+  s_bf01341bbdf16a::t_fe0680a2986c34 4-14,16-33
+src/capture.ts
+  s_bf01341bbdf16a::t_ebd2634ed1515b 55-90
+src/popup.ts
+  s_bf01341bbdf16a::t_fe0680a2986c34 2-12,14-32,34-194
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "9466a074f6b22f59a1eede8cb1bd2c363fb8cb26",
+  "prompts": {},
+  "sessions": {
+    "s_bf01341bbdf16a": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "27a645a7-c9f3-4a1d-ac97-28006bc732b6",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Kraig Parkinson <kraig.parkinson@gmail.com>"
+    }
+  }
+}
