@@ -1,0 +1,29 @@
+src/pending.ts
+  s_bf01341bbdf16a::t_d97728af46228f 1-138
+src/background.ts
+  s_bf01341bbdf16a::t_d2ea9bf8140dfc 1-9,11-30,32-59,62-65,68-69,71-74,77-154
+  s_bf01341bbdf16a::t_dad83fbeab0582 31,67
+src/storage.ts
+  s_bf01341bbdf16a::t_dad83fbeab0582 217-247
+test/support/chrome.ts
+  s_bf01341bbdf16a::t_d97728af46228f 50,68,174-176,191
+test/pending.test.ts
+  s_bf01341bbdf16a::t_930cd758df6a09 1-25,35-38,44-89,91-93,95-103,105-106,108-116,118-119,121-198,200-202,204-240,242
+  s_bf01341bbdf16a::t_db08207b34743d 26-34,39-43,90,94,104,107,117,120,199,203,241
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "4384be7b939b0bd2d8ff106b657fb452b46a8545",
+  "prompts": {},
+  "sessions": {
+    "s_bf01341bbdf16a": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "27a645a7-c9f3-4a1d-ac97-28006bc732b6",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Kraig Parkinson <kraig.parkinson@gmail.com>"
+    }
+  }
+}
