@@ -44,17 +44,18 @@ So the API inverts the expected constraint. Filing with no text is fine. Filing 
 
 This plan owns **Capture surface**, one of four tracks in [STRATEGY.md](STRATEGY.md). The breakdown below is the current understanding, not a committed roadmap; a later plan may revise, split, or discard it.
 
-- **Role & identity resolution** — Enables a richer version of R3 (proposing a role rather than reading a configured one). This plan depends on none of it: a configured role is sufficient.
+- **Role & identity resolution** — This plan consumes the track's role *listing* half: v5 role ids are opaque `role_<32 hex>` values a practitioner cannot obtain from the GlassFrog UI, so R8 and R2 both need the caller's role list. It depends on none of the track's role *proposal* half.
   - Still to decide: whether role proposal ever enters the capture path, given STRATEGY.md's Boundaries currently exclude inference there.
 - **Round-trip & triage** — Shares the assumption that GlassFrog's unprocessed queue is the triage surface (A2). Can proceed independently of this plan; if A2 proves false, both are affected.
-- **Distribution & trust** — Can proceed independently of this plan. Its open question is packaging, tracked separately.
+- **Distribution & trust** — Inherits an open question this plan makes harder to reverse: A1 hardens the `@integral-productivity/glassfrog` dependency, and ADR 0002 records that a private-registry build blocks the open-sourcing this track contemplates. OQ3's permission-list answer also feeds its adoption gate.
 
 ### Requirements
 
 **Capture invocation**
 
 - R1. Invoking the `quick-capture` command files the active tab without opening the popup or presenting any prompt.
-- R2. Opening the extension action presents the same capture with role and work type editable before filing.
+- R2. Opening the extension action presents the same capture with role, work type, and a note editable before filing.
+- R14. A capture that files successfully confirms to the practitioner without taking focus from the active tab.
 
 **Attribution and defaults**
 
@@ -62,16 +63,23 @@ This plan owns **Capture surface**, one of four tracks in [STRATEGY.md](STRATEGY
 - R4. A capture with no work type set files as a tension with `status: unprocessed`.
 - R5. A role or work type the practitioner sets in the popup is used as given and is never replaced by a configured or defaulted value.
 - R6. A capture filed as an action or project uses the practitioner's configured default status, restricted to `current` or `someday`.
+- R17. A note the practitioner enters in the popup is carried into the filed item alongside the page evidence.
 
 **Evidence**
 
-- R7. The active tab's URL and title are carried into the filed item, along with the practitioner's text selection when one exists.
+- R7. The active tab's URL and title are carried into the filed item, along with the practitioner's text selection when one exists, as untrusted plain text truncated to a stated maximum length and rendered without interpreting markup.
+- R11. A filed item carries a marker identifying it as created by the extension, sufficient to distinguish it from items created directly in GlassFrog.
+- R13. Extension telemetry carries only timing and outcome fields, never the captured URL, page title, selection text, or the API key.
 
 **Configuration and failure**
 
-- R8. Extension options accept a GlassFrog v5 API key, a capture role, and the default action/project status.
-- R9. A capture invoked while the extension is unconfigured opens the options page holding the pending capture, and files it once a capture role and API key are saved.
+- R8. Extension options accept a GlassFrog v5 API key, a capture role selected from the practitioner's own roles, and the default action/project status.
+- R9. A capture invoked while the extension is unconfigured opens the options page holding the pending capture in extension storage, and files it once a capture role and API key are saved.
 - R10. A capture that fails after configuration — a rejected request or a network failure — surfaces the failure and preserves the captured content rather than discarding it.
+- R12. A surfaced or logged failure never includes the GlassFrog API key or the request headers carrying it.
+- R15. At most one pending capture is held; a later unconfigured capture replaces it, and the replacement is surfaced to the practitioner rather than dropped silently.
+- R16. A pending capture is cleared when its item files, and is surfaced rather than retained indefinitely when the practitioner leaves the options page without saving.
+- R18. A failure caused by an unusable capture role is distinguished from a transient failure, directing the practitioner to reconfigure rather than retry.
 
 ### Key Flows
 
@@ -79,13 +87,13 @@ This plan owns **Capture surface**, one of four tracks in [STRATEGY.md](STRATEGY
   - **Trigger:** the `quick-capture` keyboard command.
   - **Steps:** read active tab URL, title, and selection → read configured capture role and API key → `POST /roles/{role_id}/tensions` with `status: unprocessed` → confirm without stealing focus.
   - **Outcome:** an unprocessed tension on the capture role, with the page as evidence. No prompt was shown.
-  - **Covers R1, R3, R4, R7, R9.**
+  - **Covers R1, R3, R4, R7, R9, R11, R14.**
 
 - F2. **Structured capture.**
   - **Trigger:** the extension action.
   - **Steps:** present the same captured context → practitioner optionally sets role, work type, and note → file to the matching endpoint for the chosen work type, applying the configured default status when the type is action or project.
   - **Outcome:** an item filed with the attribution the practitioner supplied, on the role they named.
-  - **Covers R2, R5, R6, R7.**
+  - **Covers R2, R5, R6, R7, R11, R14, R17.**
 
 ```mermaid
 flowchart TD
@@ -112,7 +120,10 @@ flowchart TD
 - AE3. **Given** the default action/project status is `someday`, **when** the practitioner files an action from the popup, **then** the action is created with `status: someday`. **Covers R6.**
 - AE4. **Given** a capture role is configured, **when** the practitioner names a different role in the popup, **then** the item is filed against the named role and the configured role is not used. **Covers R5.**
 - AE5. **Given** the practitioner opens the popup and changes nothing, **when** they file, **then** the result matches what the shortcut would have produced. **Covers R2, R4.**
-- AE6. **Given** the extension is configured, **when** the API rejects the request, **then** the failure is surfaced and the captured content is not discarded. **Covers R10.**
+- AE6. **Given** the extension is configured, **when** the API rejects the request, **then** the failure is surfaced and the captured content is not discarded, and the surfaced failure contains no API key. **Covers R10, R12.**
+- AE7. **Given** the extension is configured, **when** a capture files successfully, **then** the practitioner is confirmed without focus leaving the active tab. **Covers R14.**
+- AE8. **Given** the practitioner types a note in the popup, **when** they file, **then** the note is carried into the filed item alongside the page evidence. **Covers R17.**
+- AE9. **Given** one capture is already pending configuration, **when** the practitioner invokes the shortcut again, **then** the new capture replaces the held one and the replacement is surfaced. **Covers R15.**
 
 ### Scope Boundaries
 
@@ -130,13 +141,14 @@ flowchart TD
 ### Success Criteria
 
 - Time-to-capture p95 stays low enough that F1 does not interrupt the practitioner's task. Measured in extension telemetry (issue #3).
-- Capture abandonment rate is measurable and near zero for F1, which presents nothing to abandon.
+- Capture failure rate — the share of F1 invocations that do not produce a filed item — is measurable. Abandonment is measured on F2, where the practitioner can open the surface and leave without filing.
 - Structure-at-capture rate is measurable and non-trivial. This is the falsification test for STRATEGY.md's positioning: if it sits near zero, the popup path is not reachable enough and "never discard" is aspirational.
-- Triage survival rate is computable, which requires filed items to be distinguishable from items created by other means (issue #3).
+- Triage survival rate is computable, which requires filed items to be distinguishable from items created by other means (R11, issue #3).
+- Before the capture path ships, the practitioner's existing GlassFrog unprocessed-tension queue is observed, so A2 is tested against current behavior rather than only after clipped items exist.
 
 ### Dependencies and Assumptions
 
-- A1. `@integral-productivity/glassfrog` exposes the three role-scoped creates and is bundleable into an MV3 service worker (ADR 0002).
+- A1. `@integral-productivity/glassfrog` exposes the three role-scoped creates and the authenticated caller's role list (`GET /me/roles`), and is bundleable into an MV3 service worker (ADR 0002).
 - A2. GlassFrog's unprocessed-tension queue is the practitioner's working triage surface. Load-bearing: KD2, the Round-trip & triage track, and the triage survival criterion all rest on it. Stated by the practitioner, not yet observed in data.
 - A3. `host_permissions` scoped to `https://api.glassfrog.com/*` is sufficient for the service worker to call the API.
 
@@ -150,6 +162,9 @@ None block planning.
 - OQ3. Whether reading the practitioner's selection needs a content script, or whether `activeTab` alone suffices for F1. Affects the manifest's permission list, which the Distribution & trust track treats as an adoption gate.
 - OQ4. Whether `meeting_type` (`tactical`, `governance`, `null`) should be set at capture or left null for triage.
 - OQ5. Retry semantics for R10 — whether a post-configuration failure retries automatically, holds for manual retry, or only reports. R10 fixes the intent; the mechanism is a planning choice.
+- OQ6. Whether the Summary's "no inbox of its own" claim survives R10 and R16 — repeated preserved failures could accumulate into the steady-state queue KD1 rejects, or preservation is bounded to the most recent failure.
+- OQ7. What a capture does on a tab the extension cannot read (`chrome://`, the options page, some PDF viewers) — a distinct failure mode from the rejection and network cases R10 names.
+- OQ8. Threshold values for the success criteria — what p95 time-to-capture counts as non-interrupting, what structure-at-capture rate is "non-trivial", and over what window each is judged.
 
 ### Sources / Research
 
