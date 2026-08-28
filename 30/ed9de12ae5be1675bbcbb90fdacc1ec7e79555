@@ -1,0 +1,22 @@
+.github/workflows/ci.yml
+  s_bf01341bbdf16a::t_1c8189eb6e21c8 31,34
+  s_bf01341bbdf16a::t_c3c37cea40df11 10-13,25-30,32-33,35-38,46,55,70
+.github/workflows/generate-lockfile.yml
+  s_bf01341bbdf16a::t_1c8189eb6e21c8 1-45
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "30ed9de12ae5be1675bbcbb90fdacc1ec7e79555",
+  "prompts": {},
+  "sessions": {
+    "s_bf01341bbdf16a": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "27a645a7-c9f3-4a1d-ac97-28006bc732b6",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Kraig Parkinson <kraig.parkinson@gmail.com>"
+    }
+  }
+}
