@@ -11,7 +11,7 @@ Holacracy practitioners sense tensions while deep in other work — reading, bro
 
 ## Positioning
 
-Capture never blocks on a decision, and never discards one already made — a single keystroke files the item with zero required input, while role and work-type are always offered and always kept when the practitioner already knows them. A general-purpose clipper has no role or work-type structure to make optional, so it cannot make this commitment.
+Capture never blocks on a decision at capture time, and never discards one already made — a single keystroke files the item with zero required input, given a capture role configured once in advance, while role and work-type are always offered and always kept when the practitioner already knows them. A general-purpose clipper has no role or work-type structure to make optional, so it cannot make this commitment.
 
 ## Users
 

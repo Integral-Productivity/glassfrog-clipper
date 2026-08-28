@@ -6,6 +6,8 @@ Date: 2026-08-28
 
 Accepted
 
+Amended by [3. GlassFrog v5 has no role-less write path](0003-glassfrog-v5-has-no-role-less-write-path.md) — the SDK-direct decision below stands; ADR 0003 adds the role-resolution constraint discovered afterward.
+
 ## Context
 
 GlassFrog Clipper must authenticate to GlassFrog and write tensions, actions,
