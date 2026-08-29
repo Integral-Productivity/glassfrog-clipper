@@ -1,0 +1,19 @@
+docs/adr/0004-provenance-marker-rides-in-the-tension-body.md
+  s_bf01341bbdf16a::t_95ab947165a498 1-69
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "9a415da260311dc781fea9ec00ef83aff2754d3d",
+  "prompts": {},
+  "sessions": {
+    "s_bf01341bbdf16a": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "27a645a7-c9f3-4a1d-ac97-28006bc732b6",
+        "model": "unknown"
+      },
+      "human_author": "Kraig Parkinson <kraig.parkinson@gmail.com>"
+    }
+  }
+}
