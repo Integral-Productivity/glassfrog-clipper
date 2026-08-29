@@ -44,7 +44,14 @@ export async function attemptConfiguration(
           reason: 'rejected-key',
           message: "That key wasn't accepted by GlassFrog. Check it and try again.",
         }
-      : { ok: false, reason: 'unreachable', message: `Could not reach GlassFrog: ${failure.message}` };
+      : {
+          ok: false,
+          reason: 'unreachable',
+          // Deliberately not `failure.message`: the classifier writes for the
+          // capture path ("your capture is saved"), and there is no capture
+          // here. Interpolating it produced a doubled, false sentence.
+          message: 'Could not reach GlassFrog just now. Check your connection and try again.',
+        };
   }
 
   if (roles.length === 0) {

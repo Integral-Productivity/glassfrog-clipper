@@ -216,3 +216,39 @@ test('A4: roles are read from the bare response, not a data envelope', async (t)
   const roles = await fetchRolesForKey(KEY, { baseUrl: server.baseUrl });
   assert.equal(roles.length, 1);
 });
+
+/**
+ * Regression guard for a bug that only manifests in a browser.
+ *
+ * The SDK keeps `options.fetch ?? globalThis.fetch` and later invokes it as
+ * `this.fetchImpl(...)`, so an unbound global arrives with `this` set to the
+ * client instance. Browsers require fetch's receiver to be the global scope and
+ * throw "Illegal invocation"; Node's undici does not care. The result was a bug
+ * invisible to every Node test while breaking every single capture in Chrome.
+ *
+ * This test makes Node behave the way a browser does.
+ */
+test('the client is given a bound fetch, or nothing reaches the network in a browser', async (t) => {
+  const server = await withServer(() => ({ status: 201, json: { data: { id: 'ten_1', type: 'tension' } } }));
+  t.after(() => server.close());
+
+  const realFetch = globalThis.fetch;
+  t.after(() => {
+    globalThis.fetch = realFetch;
+  });
+
+  // Stand in for the browser's receiver check.
+  const strict = function (this: unknown, ...args: Parameters<typeof fetch>) {
+    if (this !== globalThis && this !== undefined) {
+      throw new TypeError("Failed to execute 'fetch' on 'Window': Illegal invocation");
+    }
+    return realFetch(...args);
+  } as unknown as typeof fetch;
+  globalThis.fetch = strict;
+
+  const writer = createWriter(createClient(KEY, { baseUrl: server.baseUrl }));
+
+  await writer.createTension(ROLE, { body: 'x' });
+
+  assert.equal(server.calls.length, 1, 'the request went out rather than dying as a network error');
+});

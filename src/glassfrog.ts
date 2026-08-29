@@ -32,6 +32,14 @@ export function createClient(apiKey: string, options: { baseUrl?: string } = {})
   return new GlassFrogClient({
     apiKey,
     maxRetries: MAX_RETRIES,
+    // The SDK stores `options.fetch ?? globalThis.fetch` and later calls it as
+    // `this.fetchImpl(...)`, so an unbound global arrives with `this` set to the
+    // client. Browsers require fetch's receiver to be the global scope and throw
+    // "Illegal invocation"; Node's undici does not care, so this fails ONLY in
+    // the one environment the extension actually runs in. Verified in Chrome:
+    // without the bind, every request dies as a network error and the
+    // practitioner is told they are offline forever.
+    fetch: globalThis.fetch.bind(globalThis),
     ...(options.baseUrl ? { baseUrl: options.baseUrl } : {}),
   });
 }
