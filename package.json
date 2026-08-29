@@ -8,10 +8,10 @@
     "build": "tsup && cp -R public/. dist/",
     "dev": "tsup --watch",
     "typecheck": "tsc --noEmit",
-    "test": "node --test"
+    "test": "node --test 'test/**/*.test.ts'"
   },
   "dependencies": {
-    "@integral-productivity/glassfrog": "^0.1.0"
+    "@integral-productivity/glassfrog": "^0.6.0"
   },
   "devDependencies": {
     "@types/chrome": "^0.0.270",
@@ -20,6 +20,6 @@
     "typescript": "^5.5.0"
   },
   "engines": {
-    "node": ">=22"
+    "node": ">=22.18"
   }
 }

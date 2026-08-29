@@ -3,20 +3,46 @@
   "name": "GlassFrog Clipper",
   "version": "0.0.1",
   "description": "Clip the page you're on into GlassFrog as a tension, action, or project.",
-  "permissions": ["storage", "activeTab"],
-  "host_permissions": ["https://api.glassfrog.com/*"],
+  "minimum_chrome_version": "120",
+  "icons": {
+    "128": "icon128.png"
+  },
+  "permissions": [
+    "storage",
+    "activeTab",
+    "scripting",
+    "notifications",
+    "alarms"
+  ],
+  "host_permissions": [
+    "https://api.glassfrog.com/*"
+  ],
   "background": {
     "service_worker": "background.js",
     "type": "module"
   },
   "action": {
     "default_popup": "popup.html",
-    "default_title": "Clip to GlassFrog"
+    "default_title": "Clip to GlassFrog",
+    "default_icon": "icon128.png"
+  },
+  "options_ui": {
+    "page": "options.html",
+    "open_in_tab": true
   },
   "commands": {
     "quick-capture": {
-      "suggested_key": { "default": "Ctrl+Shift+K", "mac": "Command+Shift+K" },
+      "suggested_key": {
+        "default": "Ctrl+Shift+K",
+        "mac": "Command+Shift+K"
+      },
       "description": "Clip this page to GlassFrog with no further input"
+    },
+    "_execute_action": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+Y",
+        "mac": "Command+Shift+Y"
+      }
     }
   }
 }

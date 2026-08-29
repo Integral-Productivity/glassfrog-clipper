@@ -1,7 +1,35 @@
 <!doctype html>
 <meta charset="utf-8" />
 <title>Clip to GlassFrog</title>
+<style>
+  :root { color-scheme: light dark; }
+  body { font: 14px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; margin: 0; padding: .9rem; width: 20rem; }
+  #page { font-weight: 600; margin: 0 0 .75rem; overflow-wrap: anywhere; }
+  label { display: block; font-size: .8rem; font-weight: 600; margin: .6rem 0 .2rem; opacity: .8; }
+  select, textarea { width: 100%; padding: .35rem; font: inherit; box-sizing: border-box; }
+  textarea { min-height: 4.5rem; resize: vertical; }
+  button { margin-top: .8rem; width: 100%; padding: .45rem; font: inherit; font-weight: 600; }
+  #message:empty { display: none; }
+  #message { margin: .6rem 0 0; font-size: .82rem; opacity: .85; }
+</style>
 <body>
-  <main id="app"></main>
+  <p id="page"></p>
+  <form id="capture">
+    <label for="role">Role</label>
+    <select id="role"></select>
+
+    <label for="work-type">File as</label>
+    <select id="work-type">
+      <option value="tension">Tension</option>
+      <option value="action">Action</option>
+      <option value="project">Project</option>
+    </select>
+
+    <label for="note">Note</label>
+    <textarea id="note" placeholder="What made this worth clipping?"></textarea>
+
+    <button id="file" type="submit">File to GlassFrog</button>
+  </form>
+  <p id="message"></p>
   <script type="module" src="popup.js"></script>
 </body>

@@ -1,0 +1,85 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+  # GITHUB_TOKEN is pre-authorized for GitHub Packages within the owning org, so
+  # a same-org package needs no PAT in CI. This is what makes the token fallback
+  # below resolve on ordinary runs.
+  packages: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Must precede setup-node: `cache: npm` fails on a missing lockfile with
+      # "Dependencies lock file is not found", which names the symptom and not
+      # the cause. A guard placed after the step that fails is not a guard.
+      - name: Check the lockfile exists
+        run: |
+          if [ ! -f package-lock.json ]; then
+            echo "::error::package-lock.json is missing, so npm ci cannot run."
+            echo "::error::Generate it on Linux (the platform CI runs on) so the esbuild"
+            echo "::error::native binaries recorded in it match — a macOS-generated lockfile"
+            echo "::error::can omit @esbuild/linux-x64 and break npm ci here."
+            exit 1
+          fi
+          echo "Lockfile present."
+
+      - uses: actions/setup-node@v4
+        with:
+          # Pinned rather than floating: 22.18 is the floor at which
+          # `node --test` discovers .ts files, and a silent drop below it
+          # would report zero tests as a pass.
+          node-version: '22.18'
+          registry-url: 'https://npm.pkg.github.com'
+          scope: '@integral-productivity'
+          cache: npm
+
+      # A Dependabot-triggered run cannot read Actions secrets, so the token
+      # must also live in the Dependabot secret store. Without the fallback,
+      # every Dependabot PR fails identically at `npm ci` with a 401 that does
+      # not name its own cause.
+      - name: Check the registry token resolved
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN || secrets.DEPENDABOT_PACKAGES_TOKEN || secrets.GITHUB_TOKEN }}
+        run: |
+          if [ -z "${NODE_AUTH_TOKEN}" ]; then
+            echo "::error::NODE_AUTH_TOKEN resolved empty."
+            echo "::error::@integral-productivity/glassfrog installs from GitHub Packages and needs a"
+            echo "::error::read:packages token, SAML-SSO-authorized for the Integral-Productivity org."
+            echo "::error::Set it in BOTH secret stores — Actions and Dependabot:"
+            echo "::error::  gh secret set NODE_AUTH_TOKEN --repo \${{ github.repository }}"
+            echo "::error::  gh secret set NODE_AUTH_TOKEN --repo \${{ github.repository }} --app dependabot"
+            exit 1
+          fi
+          echo "Registry token present."
+
+      - name: Install
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN || secrets.DEPENDABOT_PACKAGES_TOKEN || secrets.GITHUB_TOKEN }}
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Test
+        run: npm test
+
+      - name: Build
+        run: npm run build
+
+      # `npm run build` exiting 0 does not prove the bundle can load in an MV3
+      # service worker. Only an artifact check does — see scripts/check-bundle.mjs.
+      - name: Check the service worker bundle
+        run: node scripts/check-bundle.mjs
