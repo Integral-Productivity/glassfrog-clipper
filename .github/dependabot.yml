@@ -1,0 +1,43 @@
+# U8's Definition of Done includes "CI green on a Dependabot pull request", and
+# nothing in this repository would ever raise one — there was no Dependabot
+# configuration at all, so that clause was untestable by construction.
+#
+# The registries block is the part that matters here: @integral-productivity/*
+# resolves from GitHub Packages, and Dependabot cannot reach a private registry
+# with its ambient GITHUB_TOKEN. It reads only the *Dependabot* secret store,
+# which is the same split that makes Dependabot runs 401 in CI when a token
+# lives only in the Actions store (devops-excellence ADR-0005).
+version: 2
+
+registries:
+  github-packages:
+    type: npm-registry
+    url: https://npm.pkg.github.com
+    token: ${{secrets.DEPENDABOT_PACKAGES_TOKEN}}
+
+updates:
+  - package-ecosystem: npm
+    directory: "/"
+    registries:
+      - github-packages
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: chore(deps)
+      prefix-development: chore(deps-dev)
+    groups:
+      # One PR for the build toolchain rather than three. tsup, typescript and
+      # the type packages move together and are verified by the same gates.
+      build-toolchain:
+        patterns:
+          - tsup
+          - typescript
+          - "@types/*"
+
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly
+    commit-message:
+      prefix: ci
