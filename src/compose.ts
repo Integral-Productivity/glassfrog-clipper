@@ -1,18 +1,14 @@
 /**
  * Turns a capture into the text fields GlassFrog will store.
  *
- * Implements KTD5: the provenance marker and the page title ride in the
- * tension's `label` (an action's or project's `description`); the practitioner's
- * note and the page evidence ride in `body` (`note`).
- *
- * GlassFrog exposes no provenance field and tags are read-only at create, so
- * R11's marker has to be text. Putting it in a *different field* from the
- * evidence is what makes it safe: truncating a long selection can never reach
- * it, and it always leads its field, so a long title cannot push it out either.
+ * Revises KTD5 in one respect, forced by live API behaviour rather than by
+ * preference — see the note on the headline below. The decision's *substance*
+ * is preserved: the provenance marker leads its field and is never truncated,
+ * so nothing the practitioner captured can silently destroy it.
  *
  * This module is pure. It is the one place R11 can fail silently — a filed item
  * missing its marker looks perfectly fine in GlassFrog while quietly making the
- * triage-survival metric uncomputable — which is why it is tested first.
+ * triage-survival metric uncomputable.
  */
 import type { Capture, PageContext } from './types.ts';
 
@@ -23,8 +19,15 @@ import type { Capture, PageContext } from './types.ts';
  */
 export const PROVENANCE_MARKER = '[glassfrog-clipper]';
 
-/** R7's cap, applied to each page-derived field on its own. */
+/** R7's cap, applied to each page-derived evidence field on its own. */
 export const EVIDENCE_FIELD_LIMIT = 4000;
+
+/**
+ * A headline is a headline. 200 is GlassFrog's own cap on a tension `label`,
+ * adopted uniformly so an action's `description` cannot become a wall of text
+ * either. Verified against the live API: the field rejects more.
+ */
+export const HEADLINE_LIMIT = 200;
 
 const ELLIPSIS = '…';
 
@@ -40,17 +43,20 @@ export function truncate(text: string, limit: number = EVIDENCE_FIELD_LIMIT): st
 }
 
 export type Composed =
-  | { kind: 'tension'; label: string; body: string }
+  | { kind: 'tension'; body: string }
   | { kind: 'action'; description: string; note: string }
   | { kind: 'project'; description: string; note: string };
 
 /**
- * Marker first, then as much of the title as fits. Each field is bounded on its
- * own so one oversized field cannot consume another's budget.
+ * Marker first, then as much of the title as fits inside HEADLINE_LIMIT.
+ *
+ * The marker leads and is never truncated, so R11 holds no matter how long the
+ * title is — the property KTD5 was written to guarantee.
  */
-function headline(page: PageContext): string {
-  const title = truncate(page.title).trim();
-  return title.length > 0 ? `${PROVENANCE_MARKER} ${title}` : PROVENANCE_MARKER;
+export function headline(page: PageContext): string {
+  const budget = HEADLINE_LIMIT - PROVENANCE_MARKER.length - 1;
+  const title = truncate(page.title.trim(), budget).trim();
+  return title ? `${PROVENANCE_MARKER} ${title}` : PROVENANCE_MARKER;
 }
 
 /**
@@ -79,15 +85,24 @@ export function compose(capture: Capture): Composed {
   const head = headline(capture.page);
   const body = detail(capture);
 
-  // KD2: an unset work type is a tension. Note that no `status` is composed for
-  // one — v5 auto-computes unprocessed/processed from associations and accepts
-  // only `archived` from a client, so sending a status here would be the bug.
+  // KD2: an unset work type is a tension. No `status` is composed for one —
+  // v5 auto-computes unprocessed/processed from associations and accepts only
+  // `archived` from a client, verified live.
   switch (capture.workType) {
     case 'action':
       return { kind: 'action', description: head, note: body };
     case 'project':
       return { kind: 'project', description: head, note: body };
     default:
-      return { kind: 'tension', label: head, body };
+      // No `label`. The generated OpenAPI types list it on TensionInput, but
+      // the API rejects it on create — the tension is created first and the
+      // label PATCHed separately, which this path deliberately does not do.
+      //
+      // A second call would be a second failure point between the POST and the
+      // marker landing, and KTD7's at-most-once turns on there being exactly
+      // one write per capture. A capture whose marker went missing because the
+      // worker died mid-PATCH is precisely the silent R11 failure this module
+      // exists to prevent. The marker leads the body instead.
+      return { kind: 'tension', body: [head, body].filter(Boolean).join('\n\n') };
   }
 }

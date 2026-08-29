@@ -21,7 +21,7 @@ import type { Capture, PageContext } from './types.ts';
  * run without resolving the SDK at all.
  */
 export interface CaptureWriter {
-  createTension(roleId: string, input: { label: string; body: string }): Promise<CreatedItem>;
+  createTension(roleId: string, input: { body: string }): Promise<CreatedItem>;
   createAction(
     roleId: string,
     input: { description: string; note: string; status: DefaultStatus },
@@ -129,8 +129,8 @@ async function write(
   switch (composed.kind) {
     case 'tension':
       // No status: v5 derives unprocessed/processed from associations and
-      // accepts only `archived` from a client.
-      return writer.createTension(roleId, { label: composed.label, body: composed.body });
+      // accepts only `archived` from a client. No label either — see compose().
+      return writer.createTension(roleId, { body: composed.body });
     case 'action':
       return writer.createAction(roleId, {
         description: composed.description,

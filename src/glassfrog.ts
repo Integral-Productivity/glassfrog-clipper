@@ -42,12 +42,11 @@ export async function getClient(): Promise<GlassFrogClient> {
 export function createWriter(client: GlassFrogClient): CaptureWriter {
   return {
     async createTension(roleId, input): Promise<CreatedItem> {
-      // No `status` is sent: v5 auto-computes unprocessed/processed from
-      // associations and accepts only `archived` from a client.
-      const tension = await client.tensions.createForRole(roleId, {
-        label: input.label,
-        body: input.body,
-      });
+      // Neither `status` nor `label` is sent. v5 auto-computes
+      // unprocessed/processed from associations, and rejects `label` on create
+      // despite the generated types listing it — both verified against the
+      // live API. The provenance marker rides at the head of the body instead.
+      const tension = await client.tensions.createForRole(roleId, { body: input.body });
       return { id: tension.id };
     },
     async createAction(roleId, input): Promise<CreatedItem> {

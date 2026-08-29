@@ -70,6 +70,7 @@ test('a capture with no work type files as a tension and sends no status', async
   assert.equal(calls[0]?.method, 'tension');
   assert.equal(calls[0]?.roleId, ROLE);
   assert.equal('status' in (calls[0]?.input ?? {}), false, 'tension status is server-derived');
+  assert.equal('label' in (calls[0]?.input ?? {}), false, 'and the API rejects label on create');
 });
 
 test('AE3: an action is filed with the configured default status', async (t) => {
@@ -254,5 +255,5 @@ test('a tab missing url and title still produces a capture carrying the marker',
   const { writer, calls } = fakeWriter();
   await fileCapture(writer, { page }, 'cap-1');
 
-  assert.equal(calls[0]?.input.label, PROVENANCE_MARKER, 'R11 holds even with nothing to describe');
+  assert.equal(calls[0]?.input.body, PROVENANCE_MARKER, 'R11 holds even with nothing to describe');
 });

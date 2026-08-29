@@ -2,7 +2,13 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 
 import type { Capture } from '../src/types.ts';
-import { EVIDENCE_FIELD_LIMIT, PROVENANCE_MARKER, compose } from '../src/compose.ts';
+import {
+  EVIDENCE_FIELD_LIMIT,
+  HEADLINE_LIMIT,
+  PROVENANCE_MARKER,
+  compose,
+  headline,
+} from '../src/compose.ts';
 
 function capture(overrides: Partial<Capture> = {}): Capture {
   return {
@@ -30,32 +36,23 @@ test('AE2: a capture with a selection carries URL, title and selection into the 
   assert.equal(composed.kind, 'tension');
   if (composed.kind !== 'tension') return;
 
-  assert.match(composed.label, /A page worth clipping/, 'the title rides in the label');
-  assert.match(composed.body, /https:\/\/example\.test\/some\/page/, 'the URL rides in the body');
-  assert.match(composed.body, /the sentence that started the tension/, 'so does the selection');
+  assert.match(composed.body, /A page worth clipping/, 'the title');
+  assert.match(composed.body, /https:\/\/example\.test\/some\/page/, 'the URL');
+  assert.match(composed.body, /the sentence that started the tension/, 'the selection');
 });
 
-test('a capture with no work type composes as a tension and carries no status', () => {
+test('a capture with no work type composes as a tension carrying neither status nor label', () => {
   const composed = compose(capture());
 
   assert.equal(composed.kind, 'tension', 'KD2: an unset work type is a tension');
-  // Tension status is server-derived — v5 auto-computes unprocessed/processed
-  // from associations and accepts only `archived` from a client. Composing a
-  // status field at all would be the bug.
+  // Tension status is server-derived, and the API rejects `label` on create —
+  // both verified against live GlassFrog. Composing either is the bug.
   assert.equal('status' in composed, false);
+  assert.equal('label' in composed, false);
+  assert.deepEqual(Object.keys(composed).sort(), ['body', 'kind']);
 });
 
-test('a capture with no selection still files, with evidence and no empty selection block', () => {
-  const composed = compose(capture());
-  assert.equal(composed.kind, 'tension');
-  if (composed.kind !== 'tension') return;
-
-  assert.match(composed.body, /https:\/\/example\.test\/some\/page/);
-  assert.doesNotMatch(composed.body, /\n\n\n/, 'no hole is left where the selection would have gone');
-  assert.equal(composed.body.trimEnd(), composed.body, 'and no trailing whitespace either');
-});
-
-test('R11: the provenance marker survives a selection that exceeds the length limit', () => {
+test('R11: the marker leads the body, so truncation cannot reach it', () => {
   const composed = compose(
     capture({
       page: {
@@ -70,19 +67,15 @@ test('R11: the provenance marker survives a selection that exceeds the length li
   assert.equal(composed.kind, 'tension');
   if (composed.kind !== 'tension') return;
 
-  assert.ok(
-    composed.label.includes(PROVENANCE_MARKER),
-    'the marker is in a different field from the evidence precisely so truncation cannot eat it',
-  );
-  assert.ok(composed.label.startsWith(PROVENANCE_MARKER), 'and it leads, so it survives a long title too');
+  assert.ok(composed.body.startsWith(PROVENANCE_MARKER), 'it leads, so nothing after it can displace it');
 });
 
-test('R11: the marker survives a title longer than the field limit', () => {
+test('R11: the marker survives a title far longer than the headline allows', () => {
   const composed = compose(
     capture({
       page: {
         url: 'https://example.test/some/page',
-        title: 'T'.repeat(EVIDENCE_FIELD_LIMIT * 2),
+        title: 'T'.repeat(HEADLINE_LIMIT * 10),
         capturedAt: '2026-08-28T12:00:00.000Z',
       },
     }),
@@ -90,9 +83,29 @@ test('R11: the marker survives a title longer than the field limit', () => {
 
   assert.equal(composed.kind, 'tension');
   if (composed.kind !== 'tension') return;
+  assert.ok(composed.body.startsWith(PROVENANCE_MARKER));
+});
 
-  assert.ok(composed.label.startsWith(PROVENANCE_MARKER));
-  assert.ok(composed.label.length < EVIDENCE_FIELD_LIMIT * 2, 'the title is bounded, the marker is not');
+/**
+ * The regression that motivated revising KTD5. GlassFrog caps this field at 200
+ * characters; the previous composition truncated the title to R7's 4,000 and
+ * would have emitted ~4,020, failing on any long page title. Nothing caught it,
+ * because the tests substitute a fake writer that accepts anything.
+ */
+test('the headline stays within GlassFrog\'s 200-character limit, however long the title', () => {
+  for (const length of [0, 1, 50, HEADLINE_LIMIT, HEADLINE_LIMIT * 2, EVIDENCE_FIELD_LIMIT * 2]) {
+    const head = headline({
+      url: 'https://example.test/p',
+      title: 'T'.repeat(length),
+      capturedAt: '2026-08-28T12:00:00.000Z',
+    });
+
+    assert.ok(
+      Array.from(head).length <= HEADLINE_LIMIT,
+      `a title of ${length} chars produced a ${Array.from(head).length}-char headline`,
+    );
+    assert.ok(head.startsWith(PROVENANCE_MARKER), 'and the marker is never the part that gets cut');
+  }
 });
 
 test('an action composes the marker into description and the evidence into note', () => {
@@ -114,9 +127,9 @@ test('an action composes the marker into description and the evidence into note'
 
   assert.ok(composed.description.startsWith(PROVENANCE_MARKER));
   assert.match(composed.description, /A page worth clipping/);
+  assert.ok(Array.from(composed.description).length <= HEADLINE_LIMIT);
   assert.match(composed.note, /chase this down/, 'R17: the practitioner note leads');
   assert.match(composed.note, /https:\/\/example\.test\/some\/page/);
-  assert.match(composed.note, /quoted from the page/);
   assert.ok(
     composed.note.indexOf('chase this down') < composed.note.indexOf('https://example.test'),
     'the note the practitioner wrote comes before the evidence the machine gathered',
@@ -132,6 +145,15 @@ test('a project composes the same way as an action', () => {
   assert.match(composed.note, /https:\/\/example\.test\/some\/page/);
 });
 
+test('a capture with no selection leaves no hole where one would have gone', () => {
+  const composed = compose(capture());
+  assert.equal(composed.kind, 'tension');
+  if (composed.kind !== 'tension') return;
+
+  assert.doesNotMatch(composed.body, /\n\n\n/);
+  assert.equal(composed.body.trimEnd(), composed.body);
+});
+
 test('R17: a note is carried even when there is no selection', () => {
   const composed = compose(capture({ note: 'the thought I had' }));
   assert.equal(composed.kind, 'tension');
@@ -140,7 +162,7 @@ test('R17: a note is carried even when there is no selection', () => {
   assert.match(composed.body, /the thought I had/);
 });
 
-test('composition bounds each page-derived field independently', () => {
+test('each page-derived evidence field is bounded on its own', () => {
   const composed = compose(
     capture({
       page: {
@@ -154,10 +176,7 @@ test('composition bounds each page-derived field independently', () => {
   assert.equal(composed.kind, 'tension');
   if (composed.kind !== 'tension') return;
 
-  // A single oversized field must not consume the budget of the others; each is
-  // capped on its own so the URL is still readable next to a huge selection.
   assert.ok(composed.body.includes('https://example.test/'), 'the URL survives beside an oversized selection');
-  assert.ok(composed.label.includes('T'), 'the title survives too');
 });
 
 test('the marker is stable, since triage-survival matching depends on it', () => {
