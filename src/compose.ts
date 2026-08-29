@@ -85,7 +85,7 @@ export function compose(capture: Capture): Composed {
   const head = headline(capture.page);
   const body = detail(capture);
 
-  // KD2: an unset work type is a tension. No `status` is composed for one —
+  // R4 / KD2: an unset work type is a tension. No `status` is composed for one —
   // v5 auto-computes unprocessed/processed from associations and accepts only
   // `archived` from a client, verified live.
   switch (capture.workType) {

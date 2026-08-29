@@ -91,7 +91,7 @@ async function readSelection(tabId: number): Promise<string | undefined> {
 /**
  * Files one capture, once.
  *
- * KTD7's at-most-once rests on ordering: the in-flight marker is written before
+ * R19 / KTD7's at-most-once rests on ordering: the in-flight marker is written before
  * the request and cleared only after it is accepted. A worker that dies in
  * between leaves the marker behind, which U6 surfaces rather than auto-refiling
  * — GlassFrog v5 has no idempotency key, so a silent retry would duplicate
@@ -102,8 +102,9 @@ export async function fileCapture(
   capture: Capture,
   captureId: string,
 ): Promise<CreatedItem> {
-  // R5: a role the practitioner named in the popup is used as given and is
-  // never replaced by the configured one.
+  // R3: the configured capture role becomes the role_id path parameter for any
+  // filing that does not name one. R5: a role the practitioner named in the
+  // popup is used as given and is never replaced by the configured one.
   const roleId = capture.roleId ?? (await getCaptureRoleId());
   if (!roleId) {
     throw new Error('No capture role configured. Open the extension options to choose one.');

@@ -68,7 +68,9 @@ onConfigurationChanged(() => void fileHeldCaptureIfPossible());
 /* ----------------------------------------------------------------- flows -- */
 
 /**
- * F1, the zero-decision path. Nothing here prompts, and nothing here decides.
+ * F1, the zero-decision path (R1): the shortcut files the active tab without
+ * opening the popup and without presenting any prompt. Nothing here asks the
+ * practitioner anything — that property is the product.
  */
 async function quickCapture(): Promise<void> {
   const page = await captureActiveTab();
