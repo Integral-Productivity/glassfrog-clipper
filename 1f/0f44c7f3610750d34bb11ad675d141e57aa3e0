@@ -1,0 +1,19 @@
+package-lock.json
+  s_bf01341bbdf16a::t_e1a73f32e263e4 1-1571
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "1f0f44c7f3610750d34bb11ad675d141e57aa3e0",
+  "prompts": {},
+  "sessions": {
+    "s_bf01341bbdf16a": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "27a645a7-c9f3-4a1d-ac97-28006bc732b6",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Kraig Parkinson <kraig.parkinson@gmail.com>"
+    }
+  }
+}
