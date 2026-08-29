@@ -128,12 +128,13 @@ test('an action composes the marker into description and the evidence into note'
   assert.ok(composed.description.startsWith(PROVENANCE_MARKER));
   assert.match(composed.description, /A page worth clipping/);
   assert.ok(Array.from(composed.description).length <= HEADLINE_LIMIT);
-  assert.match(composed.note, /chase this down/, 'R17: the practitioner note leads');
-  assert.match(composed.note, /https:\/\/example\.test\/some\/page/);
-  assert.ok(
-    composed.note.indexOf('chase this down') < composed.note.indexOf('https://example.test'),
-    'the note the practitioner wrote comes before the evidence the machine gathered',
-  );
+  // Asserted by block position rather than by substring presence: the ordering
+  // is the requirement (R17 — the practitioner's words lead), and "appears
+  // somewhere" would still pass if the note were appended after the evidence.
+  const noteBlocks = composed.note.split('\n\n');
+  assert.equal(noteBlocks[0], 'chase this down', 'R17: the practitioner note leads');
+  assert.equal(noteBlocks[1], 'https://example.test/some/page', 'then the URL');
+  assert.equal(noteBlocks[2], 'quoted from the page', 'then the selection');
 });
 
 test('a project composes the same way as an action', () => {
@@ -176,7 +177,15 @@ test('each page-derived evidence field is bounded on its own', () => {
   assert.equal(composed.kind, 'tension');
   if (composed.kind !== 'tension') return;
 
-  assert.ok(composed.body.includes('https://example.test/'), 'the URL survives beside an oversized selection');
+  // The URL occupies its own block, so its position is checkable. A substring
+  // test would pass on a body where the URL had been mangled into the middle of
+  // a truncated selection.
+  const blocks = composed.body.split('\n\n');
+  assert.ok(blocks[1]?.startsWith('https://example.test/'), 'the URL survives beside an oversized selection');
+  assert.ok(
+    Array.from(blocks[1] ?? '').length <= EVIDENCE_FIELD_LIMIT,
+    'and is bounded on its own rather than sharing a budget',
+  );
 });
 
 test('the marker is stable, since triage-survival matching depends on it', () => {
