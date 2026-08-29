@@ -1,0 +1,21 @@
+test/glassfrog-adapter.test.ts
+  s_bf01341bbdf16a::t_f938e4efd06867 1-218
+src/glassfrog.ts
+  s_bf01341bbdf16a::t_f938e4efd06867 25-36,97-101
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "7030b98e152321386d7a3b35c4435b010c03ed3a",
+  "prompts": {},
+  "sessions": {
+    "s_bf01341bbdf16a": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "27a645a7-c9f3-4a1d-ac97-28006bc732b6",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Kraig Parkinson <kraig.parkinson@gmail.com>"
+    }
+  }
+}
