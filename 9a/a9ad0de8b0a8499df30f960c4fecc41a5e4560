@@ -1,0 +1,27 @@
+src/compose.ts
+  s_bf01341bbdf16a::t_91f0185d249d7e 4-7,11,22,25-31,46,51-54,56-59,88-90,97-106
+test/compose.test.ts
+  s_bf01341bbdf16a::t_d4f3603d84115d 5-11,39-41,44,48-49,51-52,55,70,73,78,86-87,89-108,130,148-156,165
+test/capture.test.ts
+  s_bf01341bbdf16a::t_d4f3603d84115d 73,258
+src/capture.ts
+  s_bf01341bbdf16a::t_91f0185d249d7e 24,132-133
+src/glassfrog.ts
+  s_bf01341bbdf16a::t_91f0185d249d7e 45-49
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "9aa9ad0de8b0a8499df30f960c4fecc41a5e4560",
+  "prompts": {},
+  "sessions": {
+    "s_bf01341bbdf16a": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "27a645a7-c9f3-4a1d-ac97-28006bc732b6",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Kraig Parkinson <kraig.parkinson@gmail.com>"
+    }
+  }
+}
