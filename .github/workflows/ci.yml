@@ -20,7 +20,7 @@ jobs:
   verify:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       # Must precede setup-node: `cache: npm` fails on a missing lockfile with
       # "Dependencies lock file is not found", which names the symptom and not
