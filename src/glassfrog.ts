@@ -22,8 +22,18 @@ import { type RoleSummary, getApiKey } from './storage.ts';
  */
 const MAX_RETRIES = 0;
 
-export function createClient(apiKey: string): GlassFrogClient {
-  return new GlassFrogClient({ apiKey, maxRetries: MAX_RETRIES });
+/**
+ * `baseUrl` exists so the adapter can be driven against a local server in
+ * tests. It is the only way to verify what this extension actually puts on the
+ * wire — the request path, the absence of `label`, and that maxRetries: 0 really
+ * does mean one attempt — none of which a fake client can prove.
+ */
+export function createClient(apiKey: string, options: { baseUrl?: string } = {}): GlassFrogClient {
+  return new GlassFrogClient({
+    apiKey,
+    maxRetries: MAX_RETRIES,
+    ...(options.baseUrl ? { baseUrl: options.baseUrl } : {}),
+  });
 }
 
 export async function getClient(): Promise<GlassFrogClient> {
@@ -84,8 +94,11 @@ export async function getWriter(): Promise<CaptureWriter> {
  * carries an unreleased BREAKING change wrapping this in a `data` envelope for
  * 0.7.0 — reading `result.data.roles` here would break against the pin.
  */
-export async function fetchRolesForKey(apiKey: string): Promise<RoleSummary[]> {
-  const me = await createClient(apiKey).me.get({ include: ['roles'] });
+export async function fetchRolesForKey(
+  apiKey: string,
+  options: { baseUrl?: string } = {},
+): Promise<RoleSummary[]> {
+  const me = await createClient(apiKey, options).me.get({ include: ['roles'] });
   const roles = me.roles ?? [];
   return roles.map((role) => ({ id: role.id, name: displayName(role.name, role.id) }));
 }
