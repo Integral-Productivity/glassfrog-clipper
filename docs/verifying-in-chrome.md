@@ -75,10 +75,48 @@ running for real. Then assert:
 - the pending slot is empty (R16)
 - no notification was raised; success is badge-only (KTD2)
 
-## The one gate this cannot replace
+## First-install checklist — the one gate this cannot replace
 
-Filing against live GlassFrog with a valid key. The two halves are verifiable
-separately — that the extension sends exactly this payload to exactly this
-endpoint, and that GlassFrog accepts exactly this payload and reports the result
-`unprocessed` — but their composition needs a real credential and a person to
-enter it.
+Everything above can be run without a credential. This cannot, and it is the
+last open row in
+[the verification record](plans/2026-08-28-capture-path-verification-record.md).
+
+**Whoever installs this extension first should run it before anything else, and
+update that row.** It is deliberately left open rather than inferred: the two
+halves below are each verified, but their composition — a valid key and the real
+server in a single act — is not.
+
+- [ ] `chrome://extensions` → Developer mode → **Load unpacked** → the built
+      `dist/`. The extension id is derived from that path, so pick a location
+      you intend to keep.
+- [ ] Options page → paste a GlassFrog v5 API key → **Save**. The role picker
+      should populate from your own roles. A key GlassFrog refuses must say
+      *"That key wasn't accepted"* and leave the picker empty (R21).
+- [ ] Choose a capture role → **Save**.
+- [ ] On an ordinary web page, press the quick-capture shortcut. The badge
+      should show `✓` without focus leaving the tab (R14), and no notification
+      should appear — success is badge-only (KTD2).
+- [ ] In GlassFrog, confirm the tension carries the `[glassfrog-clipper]`
+      marker, the page URL and title, and reports `unprocessed` (R7, R11, KD2).
+- [ ] Select text on a page and capture again; confirm the selection rides along
+      (AE2).
+- [ ] Update the `Not run` row in the verification record with the tension id.
+
+If the shortcut does nothing, check `chrome://extensions/shortcuts` — Chrome
+drops a suggested binding silently when another extension already holds it, and
+R22 should have raised a notification at startup. If it did not, that is itself
+a defect worth filing.
+
+### Why it is worth running even though both halves are verified
+
+- **What the extension sends** was proven in Chrome against the real
+  `api.glassfrog.com`: one request, marker leading the body, no `label` or
+  `status`, and a 401 from a deliberately fake key classified as
+  `unusable-role` with the capture preserved.
+- **What GlassFrog accepts** was proven by filing the payload `compose()`
+  produces against the live API, reading it back, and deleting it.
+
+Those are two verified halves, not a verified whole. The defects this project
+actually hit — a rejected `label` field, and a `fetch` that threw only in
+browsers — both lived precisely in the seams between layers that each looked
+correct on their own.
