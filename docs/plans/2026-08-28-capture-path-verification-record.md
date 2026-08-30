@@ -64,8 +64,13 @@ because together they cover the substance without composing it:
    server-derived, with no status sent (KD2).
 
 What remains unproven is only the composition of the two: a valid key and the
-real server in a single act. Whoever installs the extension first should run it,
-and this row should be updated rather than quietly dropped.
+real server in a single act.
+
+This row is **deliberately left open** rather than inferred from the two halves.
+It is tracked as a first-install checklist item in
+[verifying-in-chrome.md](../verifying-in-chrome.md#first-install-checklist--the-one-gate-this-cannot-replace);
+whoever installs the extension first should run it and update this row with the
+resulting tension id.
 
 ## Two findings that reached merge-ready state invisible to the suite
 
