@@ -1,0 +1,21 @@
+docs/adr/0002-glassfrog-authentication-and-write-path-for-the-browser-extension.md
+  s_d740f88d26597d::t_6c5a57655b2425 11-12
+docs/adr/0005-the-open-source-path-runs-through-a-public-sdk.md
+  s_d740f88d26597d::t_5c13ff09cfcd2f 1-172
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "9b35701174693ebe9c103f7a78ba7667fc61c952",
+  "prompts": {},
+  "sessions": {
+    "s_d740f88d26597d": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "c529638b-4f99-4b81-b2bf-f4d8caf7f0cc",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Kraig Parkinson <kraig.parkinson@gmail.com>"
+    }
+  }
+}
