@@ -1,0 +1,143 @@
+README.md
+  s_00879e9434f69e::t_888fed90cb191a 19-21,29-33,44-46
+docs/adr/0007-the-apple-build-shares-this-repo-and-this-capture-path.md
+  s_00879e9434f69e::t_aab59f9ec27253 1-118
+test/notice-chain.test.ts
+  s_00879e9434f69e::t_f55ae0a2512bb9 24-26
+apple/GlassFrogClipperCore/Sources/GlassFrogClipperCore/Compose.swift
+  s_00879e9434f69e::t_e7c33b61ab5190 116-125,140-143,152
+test/fixtures/compose-cases.json
+  s_00879e9434f69e::t_f55ae0a2512bb9 82,94-128
+apple/GlassFrogClipperCore/Sources/GlassFrogClipperCore/Failure.swift
+  s_00879e9434f69e::t_e7c33b61ab5190 32-40,42,46,52-57,79-80,86-87,93-94,100-101,104-109,120-123,129-130
+scripts/generate-compose-fixtures.mjs
+  s_00879e9434f69e::t_f55ae0a2512bb9 36-44
+apple/README.md
+  s_00879e9434f69e::t_42be0d52ec3663 1-109
+apple/GlassFrogClipperCore/Tests/GlassFrogClipperCoreTests/ComposeParityTests.swift
+  s_00879e9434f69e::t_7dbf943ef56c1b 35-39,45,71,75
+apple/GlassFrogClipperCore/Sources/GlassFrogClipperCore/GlassFrogClient.swift
+  s_00879e9434f69e::t_e7c33b61ab5190 60-67
+.github/workflows/apple.yml
+  s_f4c07856e75a37::t_ad39b6d7edc005 1-106
+"apple/GlassFrog Clipper/build/GlassFrog Clipper.build/Debug-iphonesimulator/GlassFrog Clipper Share Extension (iOS).build/Objects-normal/arm64/ExtractedAppShortcutsMetadata.stringsdata"
+  s_1461332c6028f1::t_601a1c9c91e367 4-6
+"apple/GlassFrog Clipper/build/GlassFrog Clipper.build/Debug/GlassFrog Clipper (macOS).build/Objects-normal/arm64/ExtractedAppShortcutsMetadata.stringsdata"
+  s_849b0260f1becc::t_281e21b1f83a08 3,6
+"apple/GlassFrog Clipper/build/GlassFrog Clipper.build/Debug/GlassFrog Clipper Extension (macOS).build/Objects-normal/arm64/ExtractedAppShortcutsMetadata.stringsdata"
+  s_f4c07856e75a37::t_c7e020a5327a48 2-3,6
+"apple/GlassFrog Clipper/build/GlassFrog Clipper.build/Debug/GlassFrog Clipper Share Extension (macOS).build/Objects-normal/arm64/ExtractedAppShortcutsMetadata.stringsdata"
+  s_ca8d29aa914bed::t_37b2db3c2d41ec 2
+"apple/GlassFrog Clipper/build/XCBuildData/22356d1538c94e848d71aa61ef3068bc.xcbuilddata/build-request.json"
+  s_ca8d29aa914bed::t_2e8c807ef9ef06 1-44
+"apple/GlassFrog Clipper/build/XCBuildData/22356d1538c94e848d71aa61ef3068bc.xcbuilddata/manifest.json"
+  s_ca8d29aa914bed::t_bd9fa3f8d6164a 1
+"apple/GlassFrog Clipper/build/XCBuildData/22356d1538c94e848d71aa61ef3068bc.xcbuilddata/target-graph.txt"
+  s_ca8d29aa914bed::t_86247b00fa2a05 1-2
+"apple/GlassFrog Clipper/build/XCBuildData/671e05f9139f7648640c635a8d99e7b8.xcbuilddata/manifest.json"
+  s_37959cf8c73a6b::t_caa4190c1ed816 1
+"apple/GlassFrog Clipper/build/XCBuildData/b371e4bb477d4a69a7d65cb8625aafe3.xcbuilddata/manifest.json"
+  s_ca8d29aa914bed::t_28481a42f36a6f 1
+"apple/GlassFrog Clipper/build/XCBuildData/b86d1cb6810dad3a17c76f746116ef35.xcbuilddata/attachments/1c494f8f7da44e86c3fb307c5ce14228"
+  s_ca8d29aa914bed::t_8828471742af0d 1-10
+"apple/GlassFrog Clipper/build/XCBuildData/b86d1cb6810dad3a17c76f746116ef35.xcbuilddata/attachments/38b3dd9d67a3f40809d35afd416bc102"
+  s_ca8d29aa914bed::t_5b54c0cb612d3f 1-109
+"apple/GlassFrog Clipper/build/XCBuildData/b86d1cb6810dad3a17c76f746116ef35.xcbuilddata/attachments/8bba4233626f64a7ea772bb94a08a1a9"
+  s_00879e9434f69e::t_249c9bc795b13f 1
+"apple/GlassFrog Clipper/build/XCBuildData/b86d1cb6810dad3a17c76f746116ef35.xcbuilddata/attachments/91235fa822040043542aa960bfe63f74"
+  s_ca8d29aa914bed::t_a0cb0f4e773608 1-10
+"apple/GlassFrog Clipper/build/XCBuildData/b86d1cb6810dad3a17c76f746116ef35.xcbuilddata/attachments/9a2910799639cff85464f3dcb75559c1"
+  s_ca8d29aa914bed::t_df01defd1519ae 1
+"apple/GlassFrog Clipper/build/XCBuildData/b86d1cb6810dad3a17c76f746116ef35.xcbuilddata/attachments/ef871e82732e347e12f493e2b01e1c56"
+  s_ca8d29aa914bed::t_aedbed65eedbe3 1-10
+"apple/GlassFrog Clipper/build/XCBuildData/b86d1cb6810dad3a17c76f746116ef35.xcbuilddata/manifest.json"
+  s_ca8d29aa914bed::t_22fe76b4ab8dd8 1
+"apple/GlassFrog Clipper/build/XCBuildData/cc96e74bef649c85e5ff4156202efbca.xcbuilddata/attachments/8bba4233626f64a7ea772bb94a08a1a9"
+  s_00879e9434f69e::t_3ba647cde910c3 1
+"apple/GlassFrog Clipper/build/XCBuildData/cc96e74bef649c85e5ff4156202efbca.xcbuilddata/attachments/9a2910799639cff85464f3dcb75559c1"
+  s_f4c07856e75a37::t_a7e9221076670c 1
+"apple/GlassFrog Clipper/build/XCBuildData/cc96e74bef649c85e5ff4156202efbca.xcbuilddata/manifest.json"
+  s_f4c07856e75a37::t_15ecdfb1bcef6a 1
+"apple/GlassFrog Clipper/build/XCBuildData/ceaf61bcd391bd59dedd650b2bdab896.xcbuilddata/attachments/1943f260690d469f197adbddf0d95570"
+  s_ca8d29aa914bed::t_1bde957dcdcec9 1-10
+"apple/GlassFrog Clipper/build/XCBuildData/ceaf61bcd391bd59dedd650b2bdab896.xcbuilddata/attachments/33fca3fe3f496b980f0f8fde64f0ed9e"
+  s_ca8d29aa914bed::t_561a7ed18a0f5f 1-13
+"apple/GlassFrog Clipper/build/XCBuildData/ceaf61bcd391bd59dedd650b2bdab896.xcbuilddata/attachments/5ca5c232c76b9463db7ead6f897639a9"
+  s_ca8d29aa914bed::t_1b100d9aef189c 1-109
+"apple/GlassFrog Clipper/build/XCBuildData/ceaf61bcd391bd59dedd650b2bdab896.xcbuilddata/attachments/74f537889f6898b50b067e8ab06022c5"
+  s_ca8d29aa914bed::t_81225a3268b5b5 1-139
+"apple/GlassFrog Clipper/build/XCBuildData/ceaf61bcd391bd59dedd650b2bdab896.xcbuilddata/attachments/7fefc6d6973dcf8cf34f17320da4aa20"
+  s_ca8d29aa914bed::t_6202df07b16a7e 1-13
+"apple/GlassFrog Clipper/build/XCBuildData/ceaf61bcd391bd59dedd650b2bdab896.xcbuilddata/attachments/8bba4233626f64a7ea772bb94a08a1a9"
+  s_ca8d29aa914bed::t_d859e07087d7d8 1
+"apple/GlassFrog Clipper/build/XCBuildData/ceaf61bcd391bd59dedd650b2bdab896.xcbuilddata/attachments/9a2910799639cff85464f3dcb75559c1"
+  s_ca8d29aa914bed::t_30ddff90c2dca6 1
+"apple/GlassFrog Clipper/build/XCBuildData/ceaf61bcd391bd59dedd650b2bdab896.xcbuilddata/attachments/9c3166721574bc3250568eca37a0426b"
+  s_ca8d29aa914bed::t_c8c3a0f0a63d4a 1-13
+"apple/GlassFrog Clipper/build/XCBuildData/ceaf61bcd391bd59dedd650b2bdab896.xcbuilddata/attachments/d4da7787dad7696b73b144880707996c"
+  s_ca8d29aa914bed::t_045b60370960d3 1-10
+"apple/GlassFrog Clipper/build/XCBuildData/ceaf61bcd391bd59dedd650b2bdab896.xcbuilddata/attachments/ef871e82732e347e12f493e2b01e1c56"
+  s_ca8d29aa914bed::t_6a2eb6dfdc5725 1-10
+"apple/GlassFrog Clipper/build/XCBuildData/ceaf61bcd391bd59dedd650b2bdab896.xcbuilddata/manifest.json"
+  s_ca8d29aa914bed::t_1d4872723f0ad8 1
+apple/GlassFrogClipperCore/Tests/GlassFrogClipperCoreTests/CoreTests.swift
+  s_00879e9434f69e::t_cc6b3e74bd4a8b 228-290
+"apple/GlassFrog Clipper/build/GlassFrog Clipper.build/Debug-iphonesimulator/GlassFrog Clipper Extension (iOS).build/Objects-normal/arm64/ExtractedAppShortcutsMetadata.stringsdata"
+  s_849b0260f1becc::t_62e03989d632a1 5-6
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "c42f3c1e5b02ebb3171d4382a037dd2d322136c9",
+  "prompts": {},
+  "sessions": {
+    "s_00879e9434f69e": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "7547593c-88cf-4e75-bb30-e020d595b1ff",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Kraig Parkinson <kraig.parkinson@gmail.com>"
+    },
+    "s_1461332c6028f1": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "90f3eaf1-2645-4f10-8b78-4e69db7c8632",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Kraig Parkinson <kraig.parkinson@gmail.com>"
+    },
+    "s_37959cf8c73a6b": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "f16527e5-aadf-4f65-9825-946b567c3ca9",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Kraig Parkinson <kraig.parkinson@gmail.com>"
+    },
+    "s_849b0260f1becc": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "354c8496-1bda-4c8d-973b-6eb34d3ab691",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Kraig Parkinson <kraig.parkinson@gmail.com>"
+    },
+    "s_ca8d29aa914bed": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "ae08346d-fcdb-4357-8d9e-2af4f71be5e8",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Kraig Parkinson <kraig.parkinson@gmail.com>"
+    },
+    "s_f4c07856e75a37": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "668a8f4b-2104-4416-8211-e8293c89f4c7",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Kraig Parkinson <kraig.parkinson@gmail.com>"
+    }
+  }
+}
