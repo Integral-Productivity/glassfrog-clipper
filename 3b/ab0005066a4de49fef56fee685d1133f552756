@@ -1,0 +1,31 @@
+src/glassfrog.ts
+  s_5d17ada7f5ec19::t_c2bdc3b7a1d3c7 80-82,87
+src/capture.ts
+  s_5d17ada7f5ec19::t_c2bdc3b7a1d3c7 31,148
+test/compose.test.ts
+  s_5d17ada7f5ec19::t_9a5925ecfb03ed 140,149-186
+  s_5d17ada7f5ec19::t_971d038aabefa7 187
+test/glassfrog-adapter.test.ts
+  s_5d17ada7f5ec19::t_9a5925ecfb03ed 120-125,127,129-145
+test/capture.test.ts
+  s_5d17ada7f5ec19::t_f231d2324a81a0 50-51,55
+  s_5d17ada7f5ec19::t_4ca9220a3dec86 91-108
+src/compose.ts
+  s_5d17ada7f5ec19::t_c2bdc3b7a1d3c7 48-53,100-112
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "3bab0005066a4de49fef56fee685d1133f552756",
+  "prompts": {},
+  "sessions": {
+    "s_5d17ada7f5ec19": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "ee211605-24b0-48f1-93c0-63950ebaa7e2",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Kraig Parkinson <kraig.parkinson@gmail.com>"
+    }
+  }
+}
