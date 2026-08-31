@@ -1,0 +1,21 @@
+docs/adr/0006-queue-health-is-measured-from-capture-not-from-last-touch.md
+  s_f61d450ea99638::t_3c3a18dc3ac10b 1,73-90
+STRATEGY.md
+  s_f61d450ea99638::t_145c3265123499 40-75
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "76df336f07df8297a56fb182ce2e8492276687c2",
+  "prompts": {},
+  "sessions": {
+    "s_f61d450ea99638": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "757a357d-6094-47b6-b53d-7e7a06886c28",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Kraig Parkinson <kraig.parkinson@gmail.com>"
+    }
+  }
+}
