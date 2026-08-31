@@ -1,0 +1,20 @@
+README.md
+  s_26f656c97b8eae::t_0849402cf17119 35-37,43,45,53-59
+  s_26f656c97b8eae::t_80402488aeab66 38-42,44,46-52
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "c22ba9dbfeabfdec80d315e6bdefdfc6694ea18c",
+  "prompts": {},
+  "sessions": {
+    "s_26f656c97b8eae": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "2171f4c6-7f94-4276-a409-2b0d21f8dd30",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Kraig Parkinson <kraig.parkinson@gmail.com>"
+    }
+  }
+}
