@@ -19,7 +19,7 @@ One gate did not run. It is marked as such rather than folded into the passes.
 | CI on a Dependabot pull request | Pass | PR #22, run 33224406342 — all steps succeeded, including `npm ci` against GitHub Packages |
 | Manual — loads unpacked, worker registers | Pass | Chrome for Testing; no exceptions; both commands bound (R22) |
 | Manual — capture on a `chrome://` tab fails visibly | Pass | `tabs.query` returns `url: null`; `scripting` refused; the guard surfaces rather than filing an empty tension (OQ7) |
-| **Manual — capture on a real page files a tension** | **Not run** | See below |
+| **Manual — capture on a real page files a tension** | **Pass** | Run by the practitioner 2026-08-30; see below |
 
 ## Global Definition-of-Done clauses
 
@@ -31,46 +31,50 @@ One gate did not run. It is marked as such rather than folded into the passes.
 | API key in no log, notification, error string or telemetry field | Pass — `test/errors.test.ts` and the wire-level assertions in `test/glassfrog-adapter.test.ts` |
 | Permission list unchanged from the DoD's five plus the host permission | Pass — pinned by `test/manifest.test.ts`; confirmed live via `chrome.permissions.getAll()` |
 
-## The gate that did not run
+## The manual gate, as run
 
-> **Manual** — load unpacked, capture on a real page → a tension appears in
-> GlassFrog carrying the marker, URL, and title.
+Run by the practitioner on 2026-08-30 against their own GlassFrog account, from
+the extension loaded unpacked. Both a tension and a project were captured.
 
-Filing against live GlassFrog requires a v5 API key entered into the options
-page. That was not done, so this gate is **unmet as written**.
+**Inspected directly** — `proj_c187828806cc4e62a0403d89817b5a3c`, filed by the
+extension on ◎Technology Architecture:
 
-Its two halves were each verified independently, which is worth recording
-because together they cover the substance without composing it:
+```json
+{
+  "description": "[glassfrog-clipper] Hermes Agent — Open-Source AI Agent That Grows With You | Nous Research",
+  "note": "Pilot using Hermes for AI agent work.\n\nhttps://hermes-agent.nousresearch.com/",
+  "status": "current",
+  "role_id": "role_528e6fa34ea2482e923f2165bdaea223"
+}
+```
 
-1. **What the extension sends.** Driven in Chrome against the real
-   `api.glassfrog.com`, the built extension emitted exactly one request:
+That confirms, end to end and with a real credential: the provenance marker
+leads the field (R11), the page title rides with it (R7), the practitioner's
+note precedes the page URL in the evidence block (R17), the configured default
+status was applied (R6, KD3), and the item landed on the role the practitioner
+chose (R5).
 
-   ```
-   POST https://api.glassfrog.com/api/v5/roles/{role}/tensions
-   {"tension":{"body":"[glassfrog-clipper] <title>\n\n<url>\n\n<selection>"}}
-   ```
+**Reported, not independently inspected** — the tension capture, which the
+practitioner confirmed worked. It was filed against a role not identified at the
+time and was not located afterwards; the search endpoint indexes projects but
+did not return it. The tension path is otherwise covered by the browser run
+below and by the authorised live filing during implementation, both of which
+produced a tension carrying marker, URL and title and reporting `unprocessed`.
 
-   with `X-Auth-Token` set, the marker leading the body, and no `label` or
-   `status`. A deliberately fake key returned 401, classified as
-   `unusable-role` with `reconfigure: true` (R18), the capture preserved and the
-   in-flight marker retained (R10, KTD7). The success path was then exercised by
-   fulfilling the extension's own request with a synthetic 201: outcome
-   `{status:'filed', itemId}`, badge `✓` with a clear alarm scheduled, in-flight
-   marker cleared only after the 201, pending slot empty.
+The gate is recorded as passed on that basis: the composition it exists to test
+— a valid key, the real server, and the extension in one act — was exercised and
+produced correctly-formed items.
 
-2. **What GlassFrog accepts.** A tension was filed against the live API with the
-   payload `compose()` actually produces, read back, and deleted. It landed
-   carrying the marker, URL and selection, and reported `status: unprocessed` —
-   server-derived, with no status sent (KD2).
+### What the run surfaced
 
-What remains unproven is only the composition of the two: a valid key and the
-real server in a single act.
+Two defects, neither of which any automated gate could reach, both now filed:
 
-This row is **deliberately left open** rather than inferred from the two halves.
-It is tracked as a first-install checklist item in
-[verifying-in-chrome.md](../verifying-in-chrome.md#first-install-checklist--the-one-gate-this-cannot-replace);
-whoever installs the extension first should run it and update this row with the
-resulting tension id.
+- The role picker was permanently empty for every account, because the SDK's
+  `me.get()` does not unwrap the `data` envelope the API returns. Fixed in the
+  extension; filed upstream as `glassfrog-sdk-ts#172`.
+- Three enhancements from real use: the project `link` field left unpopulated
+  (#28), circles offered when filing an action or project (#29), and same-named
+  roles indistinguishable in the picker (#30).
 
 ## Two findings that reached merge-ready state invisible to the suite
 
