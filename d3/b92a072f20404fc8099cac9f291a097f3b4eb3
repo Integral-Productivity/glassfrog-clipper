@@ -1,0 +1,21 @@
+docs/plans/2026-08-28-1123-feat-zero-decision-capture-path-plan.md
+  s_d771bc8f1cafd4::t_36dbe99d7834a0 159,178
+STRATEGY.md
+  s_d771bc8f1cafd4::t_64066bdd2a2308 3,30-48
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "d3b92a072f20404fc8099cac9f291a097f3b4eb3",
+  "prompts": {},
+  "sessions": {
+    "s_d771bc8f1cafd4": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "207800e7-c0c7-45df-aa44-de466a41b428",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Kraig Parkinson <kraig.parkinson@gmail.com>"
+    }
+  }
+}
