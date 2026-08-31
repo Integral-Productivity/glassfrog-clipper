@@ -12,7 +12,9 @@ import {
   surfaceFailure,
 } from '../src/notify.ts';
 
-const API_KEY = 'gfk_live_9f2b71c4e85d43aa8127';
+// Deliberately unmistakable. A realistic-looking value here trips secret
+// scanners on a public repo; redaction only needs length >= 8 (src/errors.ts).
+const API_KEY = 'gfk_live_EXAMPLE_NOT_A_REAL_KEY';
 
 function apiError(status: number, message = 'request failed'): Error & { status: number } {
   return Object.assign(new Error(message), { status });

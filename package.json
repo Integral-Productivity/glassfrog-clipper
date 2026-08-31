@@ -3,6 +3,12 @@
   "version": "0.0.1",
   "private": true,
   "description": "Clip the page you're on into GlassFrog as a tension, action, or project — without losing your train of thought.",
+  "license": "GPL-3.0-or-later",
+  "author": "Kraig Parkinson <kraigparkinson@integralproductivity.com>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Integral-Productivity/glassfrog-clipper-chrome-extension.git"
+  },
   "type": "module",
   "scripts": {
     "build": "tsup && cp -R public/. dist/",
