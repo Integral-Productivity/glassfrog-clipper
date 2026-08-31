@@ -158,8 +158,12 @@ test('a captured project carries the page URL in link AND in the note', () => {
   if (composed.kind !== 'project') return;
 
   assert.equal(composed.link, 'https://example.test/some/page');
-  assert.ok(
-    composed.note.split('\n\n').includes('https://example.test/some/page'),
+  // Compared as a whole block rather than searched for as a substring: the
+  // evidence block holds the URL and nothing else here, and a substring check
+  // would pass on a mangled URL that merely contained this one.
+  assert.equal(
+    composed.note.split('\n\n')[0],
+    'https://example.test/some/page',
     'the evidence block keeps its own copy',
   );
 });
