@@ -11,6 +11,7 @@
  */
 import { attemptConfiguration, describePending } from './config.ts';
 import { fetchRolesForKey } from './glassfrog.ts';
+import { discardPendingCapture } from './pending.ts';
 import { captureRoleCaveat, roleOptions } from './roles.ts';
 import {
   type DefaultStatus,
@@ -35,6 +36,8 @@ interface Elements {
   save: HTMLButtonElement;
   message: HTMLElement;
   pending: HTMLElement;
+  pendingText: HTMLElement;
+  discard: HTMLButtonElement;
 }
 
 function elements(): Elements | undefined {
@@ -46,8 +49,11 @@ function elements(): Elements | undefined {
   const save = byId<HTMLButtonElement>('save');
   const message = byId<HTMLElement>('message');
   const pending = byId<HTMLElement>('pending');
+  const pendingText = byId<HTMLElement>('pending-text');
+  const discard = byId<HTMLButtonElement>('discard');
   if (!form || !apiKey || !role || !status || !save || !message || !pending) return undefined;
-  return { form, apiKey, role, status, save, message, pending };
+  if (!pendingText || !discard) return undefined;
+  return { form, apiKey, role, status, save, message, pending, pendingText, discard };
 }
 
 function say(el: Elements, text: string, tone: 'error' | 'ok' | 'idle'): void {
@@ -76,14 +82,22 @@ function fillRoles(el: Elements, roles: RoleSummary[], selected?: string): void 
   el.role.disabled = roles.length === 0;
 }
 
+/**
+ * The whole block is hidden rather than emptied, because it now contains a
+ * control as well as text: an empty `<span>` beside a live Discard button would
+ * offer to discard nothing.
+ */
 async function showPending(el: Elements): Promise<void> {
   const pending = await readPendingCapture();
   if (pending.state !== 'current') {
-    el.pending.textContent = '';
+    el.pendingText.textContent = '';
+    el.pending.hidden = true;
     return;
   }
   const { page } = pending.pending.capture;
-  el.pending.textContent = `Waiting to file: ${describePending(page.title, page.url)}`;
+  el.pendingText.textContent = `Waiting to file: ${describePending(page.title, page.url)}`;
+  el.pending.hidden = false;
+  el.discard.disabled = false;
 }
 
 export function init(): void {
@@ -103,6 +117,14 @@ export function init(): void {
   el.form.addEventListener('submit', (event) => {
     event.preventDefault();
     void save(el);
+  });
+
+  // The plan's `Pending --> None: practitioner discards` edge. Until this, every
+  // exit from the slot was automatic, so a capture the practitioner had decided
+  // against could only be dropped by waiting out the seven-day expiry.
+  el.discard.addEventListener('click', () => {
+    el.discard.disabled = true;
+    void discardPendingCapture().then(() => showPending(el));
   });
 }
 

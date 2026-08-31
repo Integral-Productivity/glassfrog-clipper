@@ -51,6 +51,17 @@ export interface CaptureFailure {
   message: string;
   /** True when R18's reconfigure path applies rather than preserve-and-retry. */
   reconfigure: boolean;
+  /**
+   * Whether the item may exist in GlassFrog despite the failure.
+   *
+   * False for every failure that names its own rejection — a 4xx, or the
+   * client-side id validation that never reached the network. True only where
+   * the outcome is genuinely unknown: a request that may have been received
+   * before the connection died, or a 5xx that may have followed a completed
+   * write. KTD7 hands that ambiguity to the practitioner, and this is the flag
+   * that decides whether there is any ambiguity to hand over.
+   */
+  mayHaveFiled: boolean;
 }
 
 export type FileCaptureOutcome =
