@@ -1,6 +1,7 @@
 ---
 title: Verify sibling-repo facts against origin/main, not the local working tree
 date: 2026-08-28
+last_updated: 2026-08-31
 category: workflow-issues
 module: planning-research
 problem_type: workflow_issue
@@ -50,7 +51,7 @@ In this session the stale tree would have produced concrete wrong decisions:
 - Call shapes using `private_to_circle`, a parameter removed in 0.6.0 that now returns HTTP 422.
 - No awareness of the 60-second default timeout, `getLastRateLimit()`, or 422 field-error rendering.
 
-There is a second-order trap. The repo's own `package.json` pinned `^0.1.0`, which under npm's 0.x caret rule resolves to `>=0.1.0 <0.2.0`. So the stale tree and the stale pin agreed with each other, and agreeing looks like corroboration. The version the project *should* consume was in neither place.
+There is a second-order trap. The repo's own `package.json` pinned `^0.1.0`, which under npm's 0.x caret rule resolves to `>=0.1.0 <0.2.0`. So the stale tree and the stale pin agreed with each other, and agreeing looks like corroboration. The version the project *should* consume was in neither place. (The pin has since been corrected to `^0.6.0`; the sibling checkout is still on the stale branch.)
 
 ## When to Apply
 
@@ -79,9 +80,9 @@ git show origin/main:src/client.ts | grep -n 'for (let attempt'
 
 How the resolution was recorded so it survives the session — from the plan's Assumptions:
 
-> A4. The `@integral-productivity/glassfrog` SDK at `^0.6.0` is the version the extension builds against. The local `glassfrog-sdk-ts` working copy is on a stale May branch at 0.1.0 with different signatures — read `origin/main`, not the working tree.
+> A4. The `@integral-productivity/glassfrog` SDK at `^0.6.0` is the version the extension builds against. The local `glassfrog-sdk-ts` working copy is on a stale May branch at 0.1.0 with different signatures — read `origin/main`, not the working tree. `origin/main` also carries an unreleased BREAKING change wrapping `me.get()` in a `data` envelope, shipping in 0.7.0. Against the pinned `^0.6.0`, read roles from the bare `{ actor, organization, membership, roles? }` shape, not `result.data.roles`.
 
-A later review pass found that even `origin/main` needed a caveat: it carries an unreleased BREAKING change wrapping `me.get()` in a `data` envelope, shipping in 0.7.0 and therefore **not** in the pinned `^0.6.0`. So the rule has a sharper form: read `origin/main` for signatures, then confirm the change you are relying on has actually shipped in the version the project pins.
+That second sentence was added by a later review pass, and it sharpens the rule: read `origin/main` for signatures, then confirm the change you are relying on has actually shipped in the version the project pins. `origin/main` is authoritative for *what the library looks like*, not for *what you will install*.
 
 ## Related
 

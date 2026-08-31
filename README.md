@@ -5,6 +5,13 @@ action, or project — without losing your train of thought.
 
 Strategy and boundaries: [STRATEGY.md](STRATEGY.md).
 Architecture decisions: [docs/adr/](docs/adr/).
+Domain vocabulary: [CONCEPTS.md](CONCEPTS.md) — entities, named processes, and
+status concepts with project-specific meaning; relevant when orienting to the
+codebase or discussing domain concepts.
+Documented solutions: [docs/solutions/](docs/solutions/) — solutions to past
+problems (bugs, best practices, workflow patterns), organized by category with
+YAML frontmatter (`module`, `tags`, `problem_type`); relevant when implementing
+or debugging in documented areas.
 
 ## Status
 
