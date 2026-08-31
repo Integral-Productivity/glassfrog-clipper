@@ -173,61 +173,96 @@ test('a malformed role id is rejected before any request leaves', async (t) => {
   assert.equal(server.calls.length, 0, 'nothing reached the network');
 });
 
-test('KTD8: the key probe asks for roles in one call and maps them for the picker', async (t) => {
-  const server = await withServer(() => ({
-    status: 200,
-    json: {
-      actor: { id: 'per_1', name: 'Someone' },
-      organization: { id: 'org_1', name: 'Org' },
-      membership: { id: 'mem_1' },
-      roles: [
-        { id: 'role_0123456789abcdef0123456789abcdef', name: 'Platform Engineering' },
-        { id: 'role_fedcba9876543210fedcba9876543210', name: null },
-      ],
-    },
-  }));
-  t.after(() => server.close());
+const ROLE_A = { id: 'role_0123456789abcdef0123456789abcdef', name: 'Platform Engineering' };
+const ROLE_B = { id: 'role_fedcba9876543210fedcba9876543210', name: null };
 
-  const roles = await fetchRolesForKey(KEY, { baseUrl: server.baseUrl });
-
-  const call = server.calls[0];
-  assert.equal(call?.method, 'GET');
-  assert.match(call?.url ?? '', /^\/me\?/, 'one call proves the key and supplies the picker');
-  assert.match(call?.url ?? '', /include=roles/);
-
-  assert.equal(roles[0]?.name, 'Platform Engineering');
-  assert.match(
-    roles[1]?.name ?? '',
-    /^Untitled role \(/,
-    'a null name becomes something pickable rather than a blank option',
-  );
-});
-
-test('A4: roles are read from the bare response, not a data envelope', async (t) => {
-  // origin/main wraps me.get() in { data } for 0.7.0. Against the pinned ^0.6.0
-  // the roles sit at the top level; reading result.data.roles would silently
-  // yield an empty picker and look like "this account fills no roles".
-  const server = await withServer(() => ({
-    status: 200,
-    json: { actor: {}, organization: {}, membership: {}, roles: [{ id: 'role_'.padEnd(37, 'a'), name: 'R' }] },
-  }));
-  t.after(() => server.close());
-
-  const roles = await fetchRolesForKey(KEY, { baseUrl: server.baseUrl });
-  assert.equal(roles.length, 1);
+const rolesPage = (roles: unknown[]) => ({
+  data: roles,
+  meta: { pagination: { per_page: 100, has_next_page: false } },
 });
 
 /**
- * Regression guard for a bug that only manifests in a browser.
- *
- * The SDK keeps `options.fetch ?? globalThis.fetch` and later invokes it as
- * `this.fetchImpl(...)`, so an unbound global arrives with `this` set to the
- * client instance. Browsers require fetch's receiver to be the global scope and
- * throw "Illegal invocation"; Node's undici does not care. The result was a bug
- * invisible to every Node test while breaking every single capture in Chrome.
- *
- * This test makes Node behave the way a browser does.
+ * The regression from the first real install. `me.get()` is the one
+ * single-resource read in the SDK that does not go through `fetchOne`, so it
+ * never unwraps the `data` envelope the API actually returns — while its
+ * declared type claims otherwise. Reading `roles` straight off it yielded
+ * undefined for an account filling dozens of roles, and the options page then
+ * told the practitioner their account fills none.
  */
+test('KTD8: roles are read when /me arrives inside a data envelope', async (t) => {
+  const server = await withServer(() => ({
+    status: 200,
+    json: { data: { actor: {}, organization: {}, membership: {}, roles: [ROLE_A, ROLE_B] } },
+  }));
+  t.after(() => server.close());
+
+  const roles = await fetchRolesForKey(KEY, { baseUrl: server.baseUrl });
+
+  assert.equal(server.calls.length, 1, 'the embed answered, so no fallback was needed');
+  assert.match(server.calls[0]?.url ?? '', /^\/me\?/);
+  assert.match(server.calls[0]?.url ?? '', /include=roles/);
+  assert.equal(roles[0]?.name, 'Platform Engineering');
+  assert.match(roles[1]?.name ?? '', /^Untitled role \(/, 'a null name stays pickable');
+});
+
+test('KTD8: roles are read when /me returns them bare', async (t) => {
+  // The shape A4 documents for the pinned ^0.6.0. Both must work: the SDK may
+  // fix its own inconsistency, and 0.7.0 changes the envelope again.
+  const server = await withServer(() => ({
+    status: 200,
+    json: { actor: {}, organization: {}, membership: {}, roles: [ROLE_A] },
+  }));
+  t.after(() => server.close());
+
+  assert.deepEqual(await fetchRolesForKey(KEY, { baseUrl: server.baseUrl }), [
+    { id: ROLE_A.id, name: 'Platform Engineering' },
+  ]);
+});
+
+test('an empty embed falls back to /me/roles rather than concluding the account has none', async (t) => {
+  const server = await withServer((recorded) =>
+    recorded.url.startsWith('/me/roles')
+      ? { status: 200, json: rolesPage([ROLE_A]) }
+      : { status: 200, json: { data: { actor: {}, organization: {}, membership: {} } } },
+  );
+  t.after(() => server.close());
+
+  const roles = await fetchRolesForKey(KEY, { baseUrl: server.baseUrl });
+
+  assert.deepEqual(
+    server.calls.map((c) => c.url.split('?')[0]),
+    ['/me', '/me/roles'],
+    'an absent embed means we did not read the roles, not that there are none',
+  );
+  assert.equal(roles.length, 1);
+  assert.equal(roles[0]?.name, 'Platform Engineering');
+});
+
+test('R21: only an empty /me AND an empty /me/roles reports no roles', async (t) => {
+  const server = await withServer((recorded) =>
+    recorded.url.startsWith('/me/roles')
+      ? { status: 200, json: rolesPage([]) }
+      : { status: 200, json: { data: { actor: {}, organization: {}, membership: {}, roles: [] } } },
+  );
+  t.after(() => server.close());
+
+  assert.deepEqual(await fetchRolesForKey(KEY, { baseUrl: server.baseUrl }), []);
+  assert.equal(server.calls.length, 2, 'both reads were attempted before reporting none');
+});
+
+test('a malformed roles payload is ignored rather than crashing the options page', async (t) => {
+  const server = await withServer((recorded) =>
+    recorded.url.startsWith('/me/roles')
+      ? { status: 200, json: rolesPage(['not-a-role', { name: 'no id' }, ROLE_A]) }
+      : { status: 200, json: { data: { actor: {}, roles: 'not-an-array' } } },
+  );
+  t.after(() => server.close());
+
+  assert.deepEqual(await fetchRolesForKey(KEY, { baseUrl: server.baseUrl }), [
+    { id: ROLE_A.id, name: 'Platform Engineering' },
+  ]);
+});
+
 test('the client is given a bound fetch, or nothing reaches the network in a browser', async (t) => {
   const server = await withServer(() => ({ status: 201, json: { data: { id: 'ten_1', type: 'tension' } } }));
   t.after(() => server.close());

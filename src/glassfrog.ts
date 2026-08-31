@@ -91,24 +91,59 @@ export async function getWriter(): Promise<CaptureWriter> {
 }
 
 /**
- * KTD8: one call proves the key and supplies the role picker's options.
+ * KTD8: prove the key and populate the role picker.
  *
- * `GET /me?include=roles` is the same probe glassfrog-mcp-server uses at
- * api/oauth/authorize.ts. Role ids are opaque 32-hex values a practitioner
- * cannot obtain from the GlassFrog UI, so without this the picker cannot exist
- * and R8 is unsatisfiable.
+ * Role ids are opaque 32-hex values a practitioner cannot obtain from the
+ * GlassFrog UI, so without this the picker cannot exist and R8 is unsatisfiable.
  *
- * A4: against the pinned ^0.6.0 the roles sit on the bare response. origin/main
- * carries an unreleased BREAKING change wrapping this in a `data` envelope for
- * 0.7.0 — reading `result.data.roles` here would break against the pin.
+ * Two reads, because one is not reliable:
+ *
+ * 1. `GET /me?include=roles`, the single call KTD8 describes.
+ * 2. `GET /me/roles` when that embed comes back empty.
+ *
+ * The fallback is not defensive padding. `me.get()` is the one single-resource
+ * read in the SDK that does NOT go through `fetchOne`, so it never unwraps the
+ * `data` envelope the API actually returns — its declared `MeResponse` type is
+ * a lie about its runtime shape. Reading `roles` off it yields undefined even
+ * for an account filling dozens of roles. `unwrapBody` handles that (and the
+ * bare shape, and the 0.7.0 envelope A4 warns about), but an empty embed still
+ * cannot be trusted to mean "this account has no roles" — only that we did not
+ * read any. `/me/roles` goes through `fetchPage`, which unwraps correctly.
  */
 export async function fetchRolesForKey(
   apiKey: string,
   options: { baseUrl?: string } = {},
 ): Promise<RoleSummary[]> {
-  const me = await createClient(apiKey, options).me.get({ include: ['roles'] });
-  const roles = me.roles ?? [];
-  return roles.map((role) => ({ id: role.id, name: displayName(role.name, role.id) }));
+  const client = createClient(apiKey, options);
+
+  const embedded = toRoleSummaries(unwrapBody(await client.me.get({ include: ['roles'] })).roles);
+  if (embedded.length > 0) return embedded;
+
+  const page = await client.me.listRoles({ perPage: 100 });
+  return toRoleSummaries(page.items);
+}
+
+/**
+ * Returns the response body whether or not it arrived inside a `data` envelope.
+ *
+ * The API envelopes single resources; the SDK unwraps that everywhere except
+ * `me.get()`. Handling both shapes here means this keeps working when the SDK
+ * fixes its own inconsistency, and against the 0.7.0 envelope change too.
+ */
+function unwrapBody(payload: unknown): { roles?: unknown } {
+  if (typeof payload !== 'object' || payload === null) return {};
+  const enveloped = (payload as { data?: unknown }).data;
+  const body = typeof enveloped === 'object' && enveloped !== null ? enveloped : payload;
+  return body as { roles?: unknown };
+}
+
+function toRoleSummaries(roles: unknown): RoleSummary[] {
+  if (!Array.isArray(roles)) return [];
+  return roles
+    .filter((role): role is { id: string; name?: string | null } =>
+      typeof role === 'object' && role !== null && typeof (role as { id?: unknown }).id === 'string',
+    )
+    .map((role) => ({ id: role.id, name: displayName(role.name, role.id) }));
 }
 
 /**
