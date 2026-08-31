@@ -56,6 +56,10 @@ export interface FakeChrome {
     onMessage: { addListener(listener: (...args: unknown[]) => unknown): void };
     onStartup: { addListener(listener: () => void): void };
     onInstalled: { addListener(listener: () => void): void };
+    // The telemetry port (R13). The session handler is exported from
+    // src/telemetry.ts and tested directly against a fake port, so nothing here
+    // needs to deliver a connection — this exists so the module still imports.
+    onConnect: { addListener(listener: (port: unknown) => void): void };
   };
   tabs: {
     query(info: Record<string, unknown>): Promise<chrome.tabs.Tab[]>;
@@ -192,6 +196,7 @@ export function createFakeChrome(options: FakeChromeOptions = {}): FakeChrome {
       onMessage: { addListener: () => undefined },
       onStartup: { addListener: () => undefined },
       onInstalled: { addListener: () => undefined },
+      onConnect: { addListener: () => undefined },
     },
     scripting: {
       // Returns whatever __selection is set to, so the shortcut path can be

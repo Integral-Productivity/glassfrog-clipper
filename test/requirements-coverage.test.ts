@@ -26,12 +26,13 @@ const TOTAL_REQUIREMENTS = 22;
  * Requirements deliberately not implemented here, each with the issue that
  * carries it. The plan's Scope Boundaries defer these; this is that deferral
  * made executable, so "deferred" cannot silently become "forgotten".
+ *
+ * Empty since issue #3 landed telemetry: R13 was the only entry, and it is now
+ * implemented in src/telemetry.ts and enforced by test/telemetry.test.ts and
+ * test/telemetry-ownership.test.ts. The list stays because the mechanism is
+ * what matters — the next deferral has somewhere to be written down.
  */
-const DEFERRED: Record<number, string> = {
-  // Telemetry instrumentation. The DoD still forbids the API key reaching any
-  // telemetry field, which errors.test.ts enforces today.
-  13: 'https://github.com/Integral-Productivity/glassfrog-clipper-chrome-extension/issues/3',
-};
+const DEFERRED: Record<number, string> = {};
 
 async function filesUnder(dir: string): Promise<string[]> {
   const out: string[] = [];
@@ -74,5 +75,11 @@ test('every deferred requirement names the issue that carries it', () => {
 test('the deferral list has not quietly grown', () => {
   // A requirement moving from implemented to deferred is a scope change, and
   // scope changes belong in a conversation rather than in a diff.
-  assert.deepEqual(Object.keys(DEFERRED).map(Number), [13]);
+  assert.deepEqual(Object.keys(DEFERRED).map(Number), []);
+});
+
+test('every requirement is now implemented, none merely deferred', () => {
+  // The state issue #3 was filed to reach. Reverting it should cost a
+  // deliberate edit to this assertion, not a quiet re-entry in DEFERRED.
+  assert.equal(Object.keys(DEFERRED).length, 0);
 });

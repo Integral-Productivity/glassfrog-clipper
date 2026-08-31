@@ -20,6 +20,21 @@
   #message[data-tone="error"] { background: color-mix(in srgb, crimson 15%, transparent); }
   #message[data-tone="ok"] { background: color-mix(in srgb, seagreen 18%, transparent); }
   #pending { background: color-mix(in srgb, goldenrod 18%, transparent); }
+
+  .measure { margin-top: 2.5rem; border-top: 1px solid color-mix(in srgb, currentColor 20%, transparent); }
+  .measure h2 { font-size: 1.05rem; margin: 1.5rem 0 .25rem; }
+  .measure .caption { margin: 0 0 .75rem; opacity: .75; font-size: .9rem; }
+  .measure ul { list-style: none; margin: 0; padding: 0; }
+  .measure li { padding: .5rem 0; border-bottom: 1px solid color-mix(in srgb, currentColor 10%, transparent); }
+  .measure .row { display: flex; gap: 1rem; align-items: baseline; justify-content: space-between; }
+  .measure .name { font-weight: 600; }
+  .measure .figure { font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .measure .note { display: block; font-size: .82rem; opacity: .7; margin-top: .15rem; }
+  .measure [data-verdict="pass"] .figure { color: seagreen; }
+  .measure [data-verdict="fail"] .figure { color: crimson; }
+  .measure [data-verdict="unjudged"] .figure { opacity: .6; }
+  .actions { display: flex; gap: .6rem; flex-wrap: wrap; }
+  .actions button { margin-top: .75rem; font-weight: 500; }
 </style>
 <body>
   <h1>GlassFrog Clipper</h1>
@@ -56,6 +71,27 @@
   </form>
 
   <p id="message"></p>
+
+  <section class="measure">
+    <h2>Measurement</h2>
+    <p class="caption">
+      STRATEGY.md names four metrics. These are them. Everything below is computed on
+      this device, and nothing is ever sent anywhere — the only way any of it leaves is
+      the copy button, which you press.
+    </p>
+
+    <div id="capture-metrics"></div>
+    <div class="actions">
+      <button id="copy-telemetry" type="button">Copy telemetry as JSON</button>
+      <button id="clear-telemetry" type="button">Clear telemetry</button>
+    </div>
+
+    <div id="queue-health"></div>
+    <div class="actions">
+      <button id="check-queue" type="button">Check queue health in GlassFrog</button>
+    </div>
+    <p id="queue-message"></p>
+  </section>
 
   <script type="module" src="options.js"></script>
 </body>

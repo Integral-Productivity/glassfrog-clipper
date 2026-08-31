@@ -12,6 +12,8 @@ import { classifyFailure } from './errors.ts';
 import { getWriter } from './glassfrog.ts';
 import {
   type FileCaptureOutcome,
+  type Invocation,
+  TELEMETRY_PORT,
   isFileCaptureRequest,
 } from './messages.ts';
 import {
@@ -31,9 +33,11 @@ import {
 import {
   enableTrustedContexts,
   getApiKey,
+  getCaptureRoleId,
   getConfigurationState,
   onConfigurationChanged,
 } from './storage.ts';
+import { attachTelemetrySession, recordOutcome, recordStarted, structureOf } from './telemetry.ts';
 import type { Capture } from './types.ts';
 
 const QUICK_CAPTURE = 'quick-capture';
@@ -49,6 +53,16 @@ const QUICK_CAPTURE = 'quick-capture';
  */
 type WriterFactory = () => Promise<CaptureWriter>;
 
+/**
+ * Captures whose write has started and not yet finished.
+ *
+ * Only the popup's disconnect handler reads it. A worker restart empties it,
+ * which leaves the record open — src/metrics.ts settles a stale open popup
+ * record as abandoned, so the count degrades towards the honest answer rather
+ * than towards a flattering one.
+ */
+const submitting = new Set<string>();
+
 enableTrustedContexts();
 
 /* ------------------------------------------------------------- listeners -- */
@@ -60,10 +74,20 @@ chrome.commands.onCommand.addListener((command) => {
 
 chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
   if (!isFileCaptureRequest(message)) return false;
-  void submit(message.capture, message.captureId).then(sendResponse);
+  void submit(message.capture, message.captureId, getWriter, message.invocation).then(sendResponse);
   // Keeps the message channel open for the async reply. The popup may be gone
   // before it arrives, which KTD1 treats as expected rather than exceptional.
   return true;
+});
+
+/**
+ * R13's popup half. The port exists so Chrome tells the worker when the popup
+ * was destroyed — see TELEMETRY_PORT in src/messages.ts for why a message
+ * cannot do this.
+ */
+chrome.runtime.onConnect.addListener((port) => {
+  if (port.name !== TELEMETRY_PORT) return;
+  attachTelemetrySession(port, { isSubmitting: (captureId) => submitting.has(captureId) });
 });
 
 /**
@@ -96,11 +120,20 @@ onConfigurationChanged(() => void fileHeldCaptureIfPossible());
  * practitioner anything — that property is the product.
  */
 export async function quickCapture(writerFor: WriterFactory = getWriter): Promise<void> {
+  const captureId = newCaptureId();
+  const invocation: Invocation = { path: 'keystroke', startedAt: new Date().toISOString() };
+
+  // The tab is read before telemetry is written, not after. KTD6 requires the
+  // selection be taken on the invoking gesture, and measurement must never sit
+  // in the critical path of the thing it measures — a storage write here would
+  // put an await between the keystroke and the capture, for a number's sake.
   const page = await captureActiveTab();
+  await recordStarted({ id: captureId, path: invocation.path, startedAt: invocation.startedAt });
 
   // OQ7: a tab the extension cannot read fails visibly rather than filing an
   // empty tension — one carrying nothing is worse than none.
   if (!page) {
+    await recordOutcome(captureId, 'unreadable-tab', { path: invocation.path });
     await surfaceNotice(
       'Cannot capture this page',
       'Chrome does not allow extensions to read this tab. Try again on an ordinary web page.',
@@ -109,7 +142,7 @@ export async function quickCapture(writerFor: WriterFactory = getWriter): Promis
     return;
   }
 
-  await submit({ page }, newCaptureId(), writerFor);
+  await submit({ page }, captureId, writerFor, invocation);
 }
 
 /**
@@ -125,24 +158,52 @@ export async function submit(
   capture: Capture,
   captureId: string,
   writerFor: WriterFactory = getWriter,
+  invocation: Invocation = { path: 'keystroke', startedAt: new Date().toISOString() },
 ): Promise<FileCaptureOutcome> {
-  const state = await getConfigurationState();
-  if (!state.configured) {
-    // R9 / KD4: held, not lost. The first keystroke is where a practitioner
-    // decides whether the tool works, so a dead end here is the most expensive
-    // failure available.
-    return holdCapture(capture, captureId);
-  }
+  const path = invocation.path;
+  // Marked before the write starts, so a popup destroyed on blur mid-flight is
+  // not mistaken for abandonment while its capture is still going out.
+  submitting.add(captureId);
 
   try {
-    const created = await fileCapture(await writerFor(), capture, captureId);
-    await confirmSuccess();
-    return { status: 'filed', captureId, ...(created.id ? { itemId: created.id } : {}) };
-  } catch (error) {
-    const failure = classifyFailure(error, { apiKey: await getApiKey() });
-    // R10: preserved in the pending slot, which is also what gives R18's
-    // reconfigure something to find.
-    return preserveFailedCapture(capture, captureId, failure);
+    const state = await getConfigurationState();
+    if (!state.configured) {
+      // R9 / KD4: held, not lost. The first keystroke is where a practitioner
+      // decides whether the tool works, so a dead end here is the most expensive
+      // failure available.
+      //
+      // `held` is terminal for this invocation and sits outside every rate in
+      // src/metrics.ts. It is neither a success nor a failure: the extension did
+      // exactly what R9 asks, and the capture goes out later on a clock that has
+      // nothing to do with flow.
+      await recordOutcome(captureId, 'held', { path });
+      return holdCapture(capture, captureId);
+    }
+
+    const captureRoleId = await getCaptureRoleId();
+
+    try {
+      const created = await fileCapture(await writerFor(), capture, captureId);
+      const durationMs = Date.now() - Date.parse(invocation.startedAt);
+      await confirmSuccess();
+      await recordOutcome(captureId, 'filed', {
+        path,
+        ...(Number.isFinite(durationMs) ? { durationMs } : {}),
+        // R13: two booleans, derived here and never the role id itself.
+        structure: structureOf(capture, { ...(captureRoleId ? { captureRoleId } : {}) }),
+      });
+      return { status: 'filed', captureId, ...(created.id ? { itemId: created.id } : {}) };
+    } catch (error) {
+      const failure = classifyFailure(error, { apiKey: await getApiKey() });
+      // Recorded before the capture is preserved, so the telemetry outcome does
+      // not depend on the preserve path succeeding.
+      await recordOutcome(captureId, 'failed', { path, failureKind: failure.kind });
+      // R10: preserved in the pending slot, which is also what gives R18's
+      // reconfigure something to find.
+      return preserveFailedCapture(capture, captureId, failure);
+    }
+  } finally {
+    submitting.delete(captureId);
   }
 }
 

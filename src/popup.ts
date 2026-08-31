@@ -12,7 +12,13 @@
  * with anything longer than a word.
  */
 import { captureActiveTab } from './capture.ts';
-import { FILE_CAPTURE, type FileCaptureOutcome, type FileCaptureRequest } from './messages.ts';
+import {
+  FILE_CAPTURE,
+  type FileCaptureOutcome,
+  type FileCaptureRequest,
+  TELEMETRY_PORT,
+  type TelemetryMessage,
+} from './messages.ts';
 import { holdCapture } from './pending.ts';
 import { circleNotice, roleOptions } from './roles.ts';
 import {
@@ -73,6 +79,48 @@ export function newCaptureId(): string {
   return crypto.randomUUID();
 }
 
+/**
+ * The popup's end of the telemetry channel.
+ *
+ * It reports, it never records — the worker owns the log (KTD1), and this
+ * module cannot reach it: src/messages.ts declares the protocol precisely so
+ * the popup need not import src/telemetry.ts to speak it.
+ *
+ * Everything here is best-effort and silent on failure. A popup that could not
+ * open a measurement channel must still file a capture; measurement is strictly
+ * secondary to the product working.
+ */
+export interface TelemetryChannel {
+  started(captureId: string, startedAt: string): void;
+  outcome(captureId: string, outcome: Extract<TelemetryMessage, { kind: 'outcome' }>['outcome']): void;
+}
+
+function openTelemetry(): TelemetryChannel {
+  let port: chrome.runtime.Port | undefined;
+  try {
+    port = chrome.runtime.connect({ name: TELEMETRY_PORT });
+    // The worker may be gone; nothing here should surface to the practitioner.
+    port.onDisconnect.addListener(() => {
+      port = undefined;
+    });
+  } catch {
+    port = undefined;
+  }
+
+  const send = (message: TelemetryMessage): void => {
+    try {
+      port?.postMessage(message);
+    } catch {
+      port = undefined;
+    }
+  };
+
+  return {
+    started: (captureId, startedAt) => send({ kind: 'started', captureId, path: 'popup', startedAt }),
+    outcome: (captureId, outcome) => send({ kind: 'outcome', captureId, path: 'popup', outcome }),
+  };
+}
+
 /* ------------------------------------------------------------------- DOM -- */
 
 interface Elements {
@@ -126,8 +174,17 @@ async function start(): Promise<void> {
   const el = elements();
   if (!el) return;
 
+  // One id for the whole popup session, so the record opened on load is the
+  // same record the filing closes. Two ids would make every popup capture look
+  // like one invocation abandoned and a second one filed out of nowhere.
+  const captureId = newCaptureId();
+  const startedAt = new Date().toISOString();
+  const telemetry = openTelemetry();
+  telemetry.started(captureId, startedAt);
+
   const page = await captureActiveTab();
   if (!page) {
+    telemetry.outcome(captureId, 'unreadable-tab');
     el.message.textContent = 'Chrome does not allow extensions to read this tab.';
     el.file.disabled = true;
     return;
@@ -140,7 +197,8 @@ async function start(): Promise<void> {
   if (!state.configured) {
     // R9: the same routing the shortcut does. Rendering an empty form over an
     // unconfigured extension would waste whatever the practitioner then typed.
-    await holdCapture({ page }, newCaptureId());
+    telemetry.outcome(captureId, 'held');
+    await holdCapture({ page }, captureId);
     window.close();
     return;
   }
@@ -183,11 +241,15 @@ async function start(): Promise<void> {
 
   el.form.addEventListener('submit', (event) => {
     event.preventDefault();
-    void file(el, page);
+    void file(el, page, { captureId, startedAt });
   });
 }
 
-async function file(el: Elements, page: PageContext): Promise<void> {
+async function file(
+  el: Elements,
+  page: PageContext,
+  session: { captureId: string; startedAt: string },
+): Promise<void> {
   el.file.disabled = true;
   el.message.textContent = 'Filing…';
 
@@ -197,7 +259,14 @@ async function file(el: Elements, page: PageContext): Promise<void> {
     note: el.note.value,
   });
 
-  const request: FileCaptureRequest = { type: FILE_CAPTURE, captureId: newCaptureId(), capture };
+  const request: FileCaptureRequest = {
+    type: FILE_CAPTURE,
+    captureId: session.captureId,
+    capture,
+    // The worker measures time-to-capture from here: only the popup knows when
+    // it was opened, and that is where the practitioner's wait began.
+    invocation: { path: 'popup', startedAt: session.startedAt },
+  };
 
   try {
     // Best-effort: the popup may well be gone before this resolves, which KTD1

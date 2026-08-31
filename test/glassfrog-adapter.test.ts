@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { createServer, type IncomingMessage, type Server } from 'node:http';
 import type { AddressInfo } from 'node:net';
 
-import { createClient, createWriter, fetchRolesForKey } from '../src/glassfrog.ts';
+import { createClient, createQueueReader, createWriter, fetchRolesForKey } from '../src/glassfrog.ts';
 
 /**
  * The only test that exercises what this extension actually puts on the wire.
@@ -356,4 +356,129 @@ test('the client is given a bound fetch, or nothing reaches the network in a bro
   await writer.createTension(ROLE, { body: 'x' });
 
   assert.equal(server.calls.length, 1, 'the request went out rather than dying as a network error');
+});
+
+/* ------------------------------------------------------- the queue reader -- */
+
+/**
+ * The read side of STRATEGY.md's fourth metric, on the wire.
+ *
+ * src/queue-health.ts is exercised exhaustively against plain objects, which is
+ * exactly the arrangement that let the `label`-on-create defect survive every
+ * test in this file's absence. So the same rule applies to reading: the paths,
+ * the pagination, and the shape that comes back are proved against a real
+ * server built by a real GlassFrogClient, not asserted about a fake.
+ */
+
+const page = (items: unknown[], nextCursor?: string): unknown => ({
+  data: items,
+  meta: {
+    pagination: {
+      per_page: 100,
+      has_next_page: Boolean(nextCursor),
+      ...(nextCursor ? { next_cursor: nextCursor } : {}),
+    },
+  },
+});
+
+const tension = (over: Record<string, unknown> = {}): Record<string, unknown> => ({
+  id: 'ten_aaaabbbbccccddddeeeeffff00001111',
+  type: 'tension',
+  body: '[glassfrog-clipper] A page',
+  status: 'unprocessed',
+  created_at: '2026-01-01T00:00:00.000Z',
+  updated_at: '2026-08-01T00:00:00.000Z',
+  ...over,
+});
+
+test('the queue reader reads the role and its sub-role tree, and unions them', async (t) => {
+  const server = await withServer((recorded) => {
+    if (recorded.url?.startsWith(`/roles/${ROLE}/subroles/tensions`)) {
+      return { json: page([tension({ id: 'ten_sub' })]) };
+    }
+    return { json: page([tension({ id: 'ten_own' })]) };
+  });
+  t.after(() => server.close());
+
+  const records = await createQueueReader(createClient(KEY, { baseUrl: server.baseUrl })).listCircleTree(ROLE);
+
+  assert.deepEqual(records.map((r) => r.id).sort(), ['ten_own', 'ten_sub']);
+
+  const paths = server.calls.map((c) => (c.url ?? '').split('?')[0]).sort();
+  assert.deepEqual(
+    paths,
+    [`/roles/${ROLE}/subroles/tensions`, `/roles/${ROLE}/tensions`],
+    'subroles alone would miss tensions filed against the circle itself',
+  );
+});
+
+test('a tension returned by both endpoints is counted once', async (t) => {
+  // The two reads overlap by design; double-counting would inflate inflow and
+  // pull every percentile towards whichever items happen to appear twice.
+  const server = await withServer(() => ({ json: page([tension({ id: 'ten_same' })]) }));
+  t.after(() => server.close());
+
+  const records = await createQueueReader(createClient(KEY, { baseUrl: server.baseUrl })).listCircleTree(ROLE);
+  assert.deepEqual(records.map((r) => r.id), ['ten_same']);
+});
+
+test('every page is drained, because the aged tail is the whole point', async (t) => {
+  let ownPage = 0;
+  const server = await withServer((recorded) => {
+    if (recorded.url?.startsWith(`/roles/${ROLE}/subroles/tensions`)) return { json: page([]) };
+    ownPage += 1;
+    return ownPage === 1
+      ? { json: page([tension({ id: 'ten_first' })], 'cursor_2') }
+      : { json: page([tension({ id: 'ten_last' })]) };
+  });
+  t.after(() => server.close());
+
+  const records = await createQueueReader(createClient(KEY, { baseUrl: server.baseUrl })).listCircleTree(ROLE);
+
+  assert.deepEqual(records.map((r) => r.id).sort(), ['ten_first', 'ten_last']);
+  const followed = server.calls.some((c) => (c.url ?? '').includes('cursor_2'));
+  assert.ok(followed, 'the next cursor is actually sent back');
+});
+
+test('created_at and updated_at survive the round trip under their own names', async (t) => {
+  // ADR 0006 turns on these being two different fields. A reader that silently
+  // mapped one onto the other would produce a report that looks right and is
+  // the exact defect issue #19 was filed about.
+  const server = await withServer((recorded) =>
+    recorded.url?.startsWith(`/roles/${ROLE}/subroles/tensions`)
+      ? { json: page([]) }
+      : { json: page([tension({ created_at: '2024-11-01T00:00:00.000Z', updated_at: '2026-07-31T00:00:00.000Z' })]) },
+  );
+  t.after(() => server.close());
+
+  const [record] = await createQueueReader(createClient(KEY, { baseUrl: server.baseUrl })).listCircleTree(ROLE);
+
+  assert.equal(record?.createdAt, '2024-11-01T00:00:00.000Z');
+  assert.equal(record?.updatedAt, '2026-07-31T00:00:00.000Z');
+  assert.notEqual(record?.createdAt, record?.updatedAt);
+});
+
+test('a tension missing a timestamp is dropped rather than dated to now', async (t) => {
+  const server = await withServer((recorded) =>
+    recorded.url?.startsWith(`/roles/${ROLE}/subroles/tensions`)
+      ? { json: page([]) }
+      : { json: page([tension({ id: 'ten_ok' }), { id: 'ten_broken', type: 'tension', status: 'unprocessed' }]) },
+  );
+  t.after(() => server.close());
+
+  const records = await createQueueReader(createClient(KEY, { baseUrl: server.baseUrl })).listCircleTree(ROLE);
+  assert.deepEqual(records.map((r) => r.id), ['ten_ok'], 'a fabricated created_at would drag the p90 towards fresh');
+});
+
+test('R12 holds on the read path too: the key travels only in X-Auth-Token', async (t) => {
+  const server = await withServer(() => ({ json: page([]) }));
+  t.after(() => server.close());
+
+  await createQueueReader(createClient(KEY, { baseUrl: server.baseUrl })).listCircleTree(ROLE);
+
+  for (const call of server.calls) {
+    assert.equal(call.headers['x-auth-token'], KEY);
+    assert.equal((call.url ?? '').includes(KEY), false, 'never in the query string');
+    assert.equal(JSON.stringify(call.body ?? '').includes(KEY), false);
+  }
 });
