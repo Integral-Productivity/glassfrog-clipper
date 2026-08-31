@@ -48,6 +48,31 @@ outside contributors. Publishing the SDK publicly is the next gate — see
 [ADR 0005](docs/adr/0005-the-open-source-path-runs-through-a-public-sdk.md) and
 [#2](../../issues/2).
 
+## AI authorship
+
+This repository is built with heavy AI assistance, and it publishes a line-level
+record of that rather than asking you to take a summary on trust. The
+`refs/notes/ai` ref carries [git-ai](https://usegitai.com) authorship notes:
+which lines of which files came from an AI session and which from a human, along
+with session identifiers and the model used.
+
+This is published deliberately, not as a side effect of the tooling.
+
+Two limits, stated plainly so the record is not read as more than it is:
+
+- The notes carry **no prompt text.** The `prompts` object is empty in every
+  note.
+- Most notes attach to pre-squash working commits, which squash-merging leaves
+  unreachable from `main`. A clone therefore resolves notes for only the subset
+  of commits that survived onto `main` — currently a minority of them.
+
+Notes are not fetched by `git clone`. To read them:
+
+```
+git fetch origin refs/notes/ai:refs/notes/ai
+git log --notes=ai
+```
+
 ## Licence
 
 [GPL-3.0-or-later](LICENSE), with an
