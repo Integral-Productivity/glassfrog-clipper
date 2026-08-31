@@ -1,6 +1,6 @@
 ---
 name: GlassFrog Clipper
-last_updated: 2026-08-28
+last_updated: 2026-08-31
 ---
 
 # GlassFrog Clipper Strategy
@@ -27,10 +27,25 @@ _Resist a change when:_ it puts a decision between sensing and filing, or moves 
 
 ## Key metrics
 
-- **Time-to-capture (p50/p95)** — seconds from invoking the extension to a filed item; extension telemetry.
-- **Capture abandonment rate** — share of invocations started but cancelled or dropped before filing; extension telemetry.
-- **Structure-at-capture rate** — share of items filed with role and/or work-type set at capture rather than deferred; extension telemetry.
-- **Triage survival rate** — share of clipped items processed in a tactical or governance meeting rather than deleted or left to rot; GlassFrog API.
+Thresholds are judged over a rolling 30 days with at least 20 captures, except
+triage, which is judged over a rolling 90 days. Where a threshold applies to
+clipped items, the whole unprocessed queue is reported alongside it, so a small
+clipped sample stays readable.
+
+- **Time-to-capture (p50/p95)** — seconds from invoking the extension to a filed item; extension telemetry. **Threshold: p95 ≤ 2s on the keystroke path.** The popup path is recorded but not thresholded — human deliberation dominates it, so it is not a measure of flow.
+- **Capture abandonment rate** — share of invocations started but cancelled or dropped before filing; extension telemetry. **Threshold: ≤ 30% on the popup path, and ≤ 1% capture failure on the keystroke path** — a keystroke that does not file is a defect, not a preference.
+- **Structure-at-capture rate** — share of items filed with role and/or work-type set at capture rather than deferred; extension telemetry. **Threshold: ≥ 25%.** This is the falsification test for Positioning: below it, the optional path is not reachable enough and "never discard" is aspirational.
+- **Triage survival rate** — share of clipped items processed in a tactical or governance meeting rather than deleted; GlassFrog API. Retained only as a tripwire for outright deletion. On its own it reports near-perfect health on a stalled backlog, because rotting and surviving look identical to it, so it is never read alone. Its companions:
+  - **Age of unprocessed clipped items (p90), on two clocks** — since capture, and since last touch. **Threshold: p90 since capture ≤ 90 days, and no clipped item unprocessed past 180 days.** Capture-age is the health signal; touch-age separates "stuck in triage" from "never looked at". An item can be reworked repeatedly and still never resolve, which is precisely the state survival cannot see.
+  - **Inflow versus outflow per period** — clipped items filed against clipped items processed. The capture path exists to raise inflow; without this, a queue that grows without being worked reads as healthier over time, not worse.
+
+_Observed baseline, 2026-08-31 — 15 unprocessed tensions across the Anchor Circle
+tree, two of them clipped that day. Since capture: median 38 days, p90 662, max
+671; 5 of the 15 past a year. Since last touch: median 31 days, p90 38, max 38 —
+nothing is stale on that clock, because an inbox-processing pass on 2026-07-31
+touched every aged item without resolving any. The two clocks disagreeing by an
+order of magnitude is why both are named, and the 90-day threshold is set against
+the capture clock knowingly above what today's queue would pass._
 
 ## Tracks
 

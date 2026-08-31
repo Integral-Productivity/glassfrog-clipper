@@ -156,13 +156,13 @@ flowchart TD
 - Time-to-capture p95 stays low enough that F1 does not interrupt the practitioner's task. Measured in extension telemetry (issue #3).
 - Capture failure rate — the share of F1 invocations that do not produce a filed item — is measurable. Abandonment is measured on F2, where the practitioner can open the surface and leave without filing.
 - Structure-at-capture rate is measurable and non-trivial. This is the falsification test for STRATEGY.md's positioning: if it sits near zero, the popup path is not reachable enough and "never discard" is aspirational.
-- Triage survival rate is computable, which requires filed items to be distinguishable from items created by other means (R11, issue #3).
+- Triage survival rate is computable, which requires filed items to be distinguishable from items created by other means (R11, issue #3). Survival is no longer read alone: STRATEGY.md now pairs it with the p90 age of unprocessed clipped items on two clocks, and with inflow versus outflow, because survival reports near-perfect health on a stalled backlog (issue #19).
 - Before the capture path ships, the practitioner's existing GlassFrog unprocessed-tension queue is observed, so A2 is tested against current behavior rather than only after clipped items exist.
 
 ### Dependencies and Assumptions
 
 - A1. `@integral-productivity/glassfrog` exposes the three role-scoped creates and the authenticated caller's role list (`GET /me/roles`), and is bundleable into an MV3 service worker (ADR 0002).
-- A2. GlassFrog's unprocessed-tension queue is the practitioner's working triage surface. Load-bearing: KD2, the Round-trip & triage track, and the triage survival criterion all rest on it. Stated by the practitioner, not yet observed in data.
+- A2. GlassFrog's unprocessed-tension queue is the practitioner's working triage surface. Load-bearing: KD2, the Round-trip & triage track, and the triage survival criterion all rest on it. **Confirmed 2026-08-30** against the real queue (issue #19, [verification record](2026-08-28-capture-path-verification-record.md)): 13 unprocessed tensions, demonstrably worked — provenance notes, superseded tensions archived, venues assigned. Confirming it also showed the queue is worked without being resolved, which is what issue #19 settles.
 - A3. `host_permissions` scoped to `https://api.glassfrog.com/*` is sufficient for the service worker to call the API.
 
 ### Outstanding Questions
@@ -175,7 +175,7 @@ None block implementation. Planning resolved OQ2 (evidence placement — KTD5), 
 
 **Deferred to product**
 
-- OQ8. Threshold values for the success criteria — what p95 time-to-capture counts as non-interrupting, what structure-at-capture rate is non-trivial, and over what window each is judged. Needed to interpret the metrics, not to build them.
+- OQ8. **Resolved 2026-08-31 by product**, in [STRATEGY.md](../../STRATEGY.md) Key metrics, which now carries a threshold and a judging window for every success criterion. Original question: threshold values for the success criteria — what p95 time-to-capture counts as non-interrupting, what structure-at-capture rate is non-trivial, and over what window each is judged. Needed to interpret the metrics, not to build them. Settling it also changed the shape of the triage criterion; see issue #19.
 
 ### Sources / Research
 
