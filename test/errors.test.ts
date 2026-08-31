@@ -43,11 +43,21 @@ test('KTD9: 403 on the role path is an unusable role; status 0 is transient', ()
   assert.equal(offline.reconfigure, false, 'preserve-and-retry, not reconfigure');
 });
 
-test('KTD9: the four classes stay distinguishable', () => {
-  const kinds = [403, 429, 422, 0].map((status) => classifyFailure(apiError(status)).kind);
+test('KTD9: every failure class stays distinguishable', () => {
+  // Five kinds, not the four KTD9 names: 401 joined the reconfigure path and an
+  // unclassified status falls to `unknown` rather than being guessed at. The
+  // plan is annotated; this asserts the count that is real.
+  const kinds = [403, 401, 429, 422, 0, 503].map((status) => classifyFailure(apiError(status)).kind);
 
-  assert.deepEqual(kinds, ['unusable-role', 'rate-limited', 'invalid-payload', 'network']);
-  assert.equal(new Set(kinds).size, 4, 'each failure class produces a distinguishable message');
+  assert.deepEqual(kinds, [
+    'unusable-role',
+    'unusable-role',
+    'rate-limited',
+    'invalid-payload',
+    'network',
+    'unknown',
+  ]);
+  assert.equal(new Set(kinds).size, 5, 'each failure class produces a distinguishable message');
 });
 
 test('a rejected API key routes to reconfigure rather than retry', () => {
