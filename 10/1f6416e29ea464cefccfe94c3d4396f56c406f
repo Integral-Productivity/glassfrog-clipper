@@ -1,0 +1,25 @@
+apple/README.md
+  s_00879e9434f69e::t_0b693207cfc9df 1-122
+README.md
+  s_00879e9434f69e::t_700812ad5e5aaa 19-21,29-33,44-46
+docs/adr/0007-the-apple-build-shares-this-repo-and-this-capture-path.md
+  s_00879e9434f69e::t_310d21bc92337a 1-118
+.github/workflows/apple.yml
+  s_00879e9434f69e::t_1244ef7ab6c7c5 1-96
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "101f6416e29ea464cefccfe94c3d4396f56c406f",
+  "prompts": {},
+  "sessions": {
+    "s_00879e9434f69e": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "7547593c-88cf-4e75-bb30-e020d595b1ff",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Kraig Parkinson <kraig.parkinson@gmail.com>"
+    }
+  }
+}
