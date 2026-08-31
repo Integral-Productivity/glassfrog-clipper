@@ -45,7 +45,12 @@ export function truncate(text: string, limit: number = EVIDENCE_FIELD_LIMIT): st
 export type Composed =
   | { kind: 'tension'; body: string }
   | { kind: 'action'; description: string; note: string }
-  | { kind: 'project'; description: string; note: string };
+  /**
+   * Only a project carries `link`. `ActionInput` has no such field and neither
+   * does a tension — verified against the SDK's own types — so there is nothing
+   * to invent an equivalent for on those two paths.
+   */
+  | { kind: 'project'; description: string; note: string; link?: string };
 
 /**
  * Marker first, then as much of the title as fits inside HEADLINE_LIMIT.
@@ -92,7 +97,19 @@ export function compose(capture: Capture): Composed {
     case 'action':
       return { kind: 'action', description: head, note: body };
     case 'project':
-      return { kind: 'project', description: head, note: body };
+      // The URL goes to `link` AND stays in the note. The note is the
+      // human-readable evidence block and is subject to R7's truncation; `link`
+      // is the single canonical field GlassFrog renders the project as linked
+      // from, and truncation must never reach it. Both, deliberately.
+      //
+      // An empty URL is omitted rather than sent blank: `link: ''` would read
+      // as a link that exists and is broken.
+      return {
+        kind: 'project',
+        description: head,
+        note: body,
+        ...(capture.page.url.trim() ? { link: capture.page.url } : {}),
+      };
     default:
       // No `label`. The generated OpenAPI types list it on TensionInput, but
       // the API rejects it on create — the tension is created first and the

@@ -77,10 +77,14 @@ export function createWriter(client: GlassFrogClient): CaptureWriter {
       return { id: action.id };
     },
     async createProject(roleId, input): Promise<CreatedItem> {
+      // `link` is spread only when there is one: the SDK's create input types it
+      // `link?: string`, with no null to mean "clear", so sending the key with
+      // an undefined value would put a bare `link` on the wire for nothing.
       const project = await client.projects.createForRole(roleId, {
         description: input.description,
         note: input.note,
         status: input.status,
+        ...(input.link ? { link: input.link } : {}),
       });
       return { id: project.id };
     },

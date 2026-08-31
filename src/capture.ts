@@ -28,7 +28,7 @@ export interface CaptureWriter {
   ): Promise<CreatedItem>;
   createProject(
     roleId: string,
-    input: { description: string; note: string; status: DefaultStatus },
+    input: { description: string; note: string; status: DefaultStatus; link?: string },
   ): Promise<CreatedItem>;
 }
 
@@ -145,6 +145,7 @@ async function write(
         description: composed.description,
         note: composed.note,
         status: await getDefaultStatus(),
+        ...(composed.link ? { link: composed.link } : {}),
       });
   }
 }

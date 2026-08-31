@@ -117,10 +117,32 @@ test('a project POSTs to its own path', async (t) => {
   t.after(() => server.close());
 
   const writer = createWriter(createClient(KEY, { baseUrl: server.baseUrl }));
+  await writer.createProject(ROLE, {
+    description: 'd',
+    note: 'n',
+    status: 'current',
+    link: 'https://example.test/some/page',
+  });
+
+  const project = (server.calls[0]?.body as { project?: Record<string, unknown> })?.project;
+  assert.equal(server.calls[0]?.url, `/roles/${ROLE}/projects`);
+  assert.equal(project?.status, 'current');
+  assert.equal(project?.description, 'd');
+  // The whole point of #28: `link` reaches the wire, not just the note. Only a
+  // wire-level assertion can prove it — the port would happily carry a field the
+  // adapter then dropped.
+  assert.equal(project?.link, 'https://example.test/some/page');
+});
+
+test('a project filed from a page with no URL sends no link key at all', async (t) => {
+  const server = await withServer(() => ({ status: 201, json: { data: { id: 'prj_1', type: 'project' } } }));
+  t.after(() => server.close());
+
+  const writer = createWriter(createClient(KEY, { baseUrl: server.baseUrl }));
   await writer.createProject(ROLE, { description: 'd', note: 'n', status: 'current' });
 
-  assert.equal(server.calls[0]?.url, `/roles/${ROLE}/projects`);
-  assert.equal((server.calls[0]?.body as { project?: { status?: string } })?.project?.status, 'current');
+  const project = (server.calls[0]?.body as { project?: Record<string, unknown> })?.project;
+  assert.equal('link' in (project ?? {}), false, 'the SDK input has no null to mean "clear"');
 });
 
 /**

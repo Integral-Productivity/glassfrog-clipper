@@ -47,10 +47,12 @@ function fakeWriter(options: { onCall?: () => Promise<void> } = {}): {
   };
 }
 
+const PAGE_URL = 'https://example.test/page';
+
 function capture(overrides: Partial<Capture> = {}): Capture {
   return {
     page: {
-      url: 'https://example.test/page',
+      url: PAGE_URL,
       title: 'A page',
       capturedAt: '2026-08-28T12:00:00.000Z',
     },
@@ -84,6 +86,24 @@ test('AE3: an action is filed with the configured default status', async (t) => 
 
   assert.equal(calls[0]?.method, 'action');
   assert.equal(calls[0]?.input.status, 'someday');
+});
+
+/**
+ * The middle hop. compose() produces the link and the adapter puts it on the
+ * wire; this is the one place that proves the capture path carries it between
+ * the two rather than dropping it on the way through.
+ */
+test('a project reaches the writer with the page URL in link, and an action does not', async (t) => {
+  const { restore } = installFakeChrome();
+  t.after(restore);
+  await setCaptureRoleId(ROLE);
+
+  const { writer, calls } = fakeWriter();
+  await fileCapture(writer, capture({ workType: 'project' }), 'cap-1');
+  await fileCapture(writer, capture({ workType: 'action' }), 'cap-2');
+
+  assert.equal(calls[0]?.input.link, PAGE_URL);
+  assert.equal('link' in (calls[1]?.input ?? {}), false, 'ActionInput has no link field to carry one');
 });
 
 test('AE4: a role named on the capture wins over the configured capture role', async (t) => {
