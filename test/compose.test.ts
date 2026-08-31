@@ -137,13 +137,56 @@ test('an action composes the marker into description and the evidence into note'
   assert.equal(noteBlocks[2], 'quoted from the page', 'then the selection');
 });
 
-test('a project composes the same way as an action', () => {
+test('a project composes the same way as an action, plus its link', () => {
   const composed = compose(capture({ workType: 'project' }));
   assert.equal(composed.kind, 'project');
   if (composed.kind !== 'project') return;
 
   assert.ok(composed.description.startsWith(PROVENANCE_MARKER));
   assert.match(composed.note, /https:\/\/example\.test\/some\/page/);
+});
+
+/**
+ * Belt and suspenders, deliberately. The note is the human-readable evidence
+ * block and R7 truncates it; `link` is the one canonical field GlassFrog renders
+ * a project as linked from, and truncation must never reach it. Asserting only
+ * one of the two would let the other be dropped as a redundancy later.
+ */
+test('a captured project carries the page URL in link AND in the note', () => {
+  const composed = compose(capture({ workType: 'project' }));
+  assert.equal(composed.kind, 'project');
+  if (composed.kind !== 'project') return;
+
+  assert.equal(composed.link, 'https://example.test/some/page');
+  // Compared as a whole block rather than searched for as a substring: the
+  // evidence block holds the URL and nothing else here, and a substring check
+  // would pass on a mangled URL that merely contained this one.
+  assert.equal(
+    composed.note.split('\n\n')[0],
+    'https://example.test/some/page',
+    'the evidence block keeps its own copy',
+  );
+});
+
+/**
+ * `ActionInput` has no `link` field and neither does a tension — verified
+ * against the SDK's types. Composing one for either path would put a key on the
+ * wire the API has no home for.
+ */
+test('only a project composes a link', () => {
+  assert.equal('link' in compose(capture()), false, 'a tension has none');
+  assert.equal('link' in compose(capture({ workType: 'action' })), false, 'and neither does an action');
+});
+
+test('a project with no URL omits link rather than sending it blank', () => {
+  const composed = compose({
+    page: { url: '', title: 'A page worth clipping', capturedAt: '2026-08-28T12:00:00.000Z' },
+    workType: 'project',
+  });
+  assert.equal(composed.kind, 'project');
+  if (composed.kind !== 'project') return;
+
+  assert.equal('link' in composed, false, 'an empty link reads as one that exists and is broken');
 });
 
 test('a capture with no selection leaves no hole where one would have gone', () => {
