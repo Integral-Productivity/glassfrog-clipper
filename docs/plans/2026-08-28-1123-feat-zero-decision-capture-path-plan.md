@@ -162,7 +162,7 @@ flowchart TD
 ### Dependencies and Assumptions
 
 - A1. `@integral-productivity/glassfrog` exposes the three role-scoped creates and the authenticated caller's role list (`GET /me/roles`), and is bundleable into an MV3 service worker (ADR 0002).
-- A2. GlassFrog's unprocessed-tension queue is the practitioner's working triage surface. Load-bearing: KD2, the Round-trip & triage track, and the triage survival criterion all rest on it. Stated by the practitioner, not yet observed in data.
+- A2. GlassFrog's unprocessed-tension queue is the practitioner's working triage surface. Load-bearing: KD2, the Round-trip & triage track, and the triage survival criterion all rest on it. **Confirmed 2026-08-30** against the real queue (issue #19, [verification record](2026-08-28-capture-path-verification-record.md)): 13 unprocessed tensions, demonstrably worked — provenance notes, superseded tensions archived, venues assigned. Confirming it also showed the queue is worked without being resolved, which is what issue #19 settles.
 - A3. `host_permissions` scoped to `https://api.glassfrog.com/*` is sufficient for the service worker to call the API.
 
 ### Outstanding Questions
