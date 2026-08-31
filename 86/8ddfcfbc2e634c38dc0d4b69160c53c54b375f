@@ -1,0 +1,50 @@
+scripts/generate-compose-fixtures.mjs
+  s_00879e9434f69e::t_f55ae0a2512bb9 36-44
+apple/README.md
+  s_00879e9434f69e::t_42be0d52ec3663 1-109
+test/notice-chain.test.ts
+  s_00879e9434f69e::t_f55ae0a2512bb9 24-26
+.gitignore
+  s_00879e9434f69e::t_effbd9e2ed670c 14-15
+  s_f4c07856e75a37::t_699fbd8962ba62 10-13
+apple/GlassFrogClipperCore/Tests/GlassFrogClipperCoreTests/CoreTests.swift
+  s_00879e9434f69e::t_cc6b3e74bd4a8b 228-290
+apple/GlassFrogClipperCore/Sources/GlassFrogClipperCore/GlassFrogClient.swift
+  s_00879e9434f69e::t_e7c33b61ab5190 60-67
+test/fixtures/compose-cases.json
+  s_00879e9434f69e::t_f55ae0a2512bb9 82,94-128
+apple/GlassFrogClipperCore/Sources/GlassFrogClipperCore/Compose.swift
+  s_00879e9434f69e::t_e7c33b61ab5190 116-125,140-143,152
+README.md
+  s_00879e9434f69e::t_888fed90cb191a 19-21,29-33,44-46
+apple/GlassFrogClipperCore/Tests/GlassFrogClipperCoreTests/ComposeParityTests.swift
+  s_00879e9434f69e::t_7dbf943ef56c1b 35-39,45,71,75
+.github/workflows/apple.yml
+  s_f4c07856e75a37::t_ad39b6d7edc005 1-106
+apple/GlassFrogClipperCore/Sources/GlassFrogClipperCore/Failure.swift
+  s_00879e9434f69e::t_e7c33b61ab5190 32-40,42,46,52-57,79-80,86-87,93-94,100-101,104-109,120-123,129-130
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "868ddfcfbc2e634c38dc0d4b69160c53c54b375f",
+  "prompts": {},
+  "sessions": {
+    "s_00879e9434f69e": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "7547593c-88cf-4e75-bb30-e020d595b1ff",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Kraig Parkinson <kraig.parkinson@gmail.com>"
+    },
+    "s_f4c07856e75a37": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "668a8f4b-2104-4416-8211-e8293c89f4c7",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Kraig Parkinson <kraig.parkinson@gmail.com>"
+    }
+  }
+}
