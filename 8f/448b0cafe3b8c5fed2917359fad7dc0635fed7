@@ -1,0 +1,21 @@
+README.md
+  s_8fceb4e87a8c25::t_5f2c73285c298c 15-17
+docs/agents/triage-labels.md
+  s_8fceb4e87a8c25::t_c119376b92d1b5 1-103
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "8f448b0cafe3b8c5fed2917359fad7dc0635fed7",
+  "prompts": {},
+  "sessions": {
+    "s_8fceb4e87a8c25": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "e6f86a91-3d71-4f7b-bd31-6ec565034ff8",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Kraig Parkinson <kraig.parkinson@gmail.com>"
+    }
+  }
+}
