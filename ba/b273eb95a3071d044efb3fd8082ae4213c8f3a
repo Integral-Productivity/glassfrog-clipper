@@ -28,6 +28,7 @@ public/options.html
 src/options.ts
   s_f4c07856e75a37::t_af6c58a345064b 13-14,16-17,24,32,46-51,66-71,73-83,86-144,146-153,156-164,167-175,178-191,194-202,254,268,277-280
   s_f4c07856e75a37::t_ebdd6f84c173d0 281
+  s_f4c07856e75a37::t_0c68ab8fa4fd1b 84-85,145,154-155,165-166,176-177,192-193,276
 test/telemetry-ownership.test.ts
   s_f4c07856e75a37::t_6a4543381b9585 1-75
 src/queue-health.ts
@@ -38,6 +39,7 @@ src/background.ts
   s_f4c07856e75a37::t_c8fb243d1fdff7 40,90
   s_f4c07856e75a37::t_b0fb2bf2730b84 15-16,36,56-65,83-89,123-129,131,136,158-159,161-163,166,169-185,187-197,200,204-206
   s_f4c07856e75a37::t_d95bee3b4feb0d 91-92
+  s_f4c07856e75a37::t_ce617b35571ffe 77,145,164-165,186,198-199,201-203
 docs/adr/0007-telemetry-is-local-only-and-allowlisted-at-the-write-boundary.md
   s_f4c07856e75a37::t_0cb455b7169fff 1-118
 test/telemetry.test.ts
@@ -52,6 +54,8 @@ test/metrics.test.ts
 test/queue-health.test.ts
   s_f4c07856e75a37::t_8f599b1e2740a3 255-258
   s_f4c07856e75a37::t_ee00ce79f46692 1-254,259-311
+test/support/chrome.ts
+  s_f4c07856e75a37::t_4ede9e8610ad31 59-62,199
 ---
 {
   "schema_version": "authorship/3.0.0",
