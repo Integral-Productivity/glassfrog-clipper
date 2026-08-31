@@ -1,0 +1,21 @@
+docs/plans/2026-08-28-capture-path-verification-record.md
+  s_bf01341bbdf16a::t_900deae6165e26 22,34-77
+docs/verifying-in-chrome.md
+  s_bf01341bbdf16a::t_a392be1ba5200f 84-87
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "703bb45208bdd7b61198e8d472bab8545dcef412",
+  "prompts": {},
+  "sessions": {
+    "s_bf01341bbdf16a": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "27a645a7-c9f3-4a1d-ac97-28006bc732b6",
+        "model": "unknown"
+      },
+      "human_author": "Kraig Parkinson <kraig.parkinson@gmail.com>"
+    }
+  }
+}
