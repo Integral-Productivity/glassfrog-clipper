@@ -1,0 +1,34 @@
+{
+  "repo": "Integral-Productivity/glassfrog-clipper-chrome-extension",
+  "trackDescriptionPrefix": "STRATEGY.md track — ",
+  "states": [
+    { "name": "needs-triage", "description": "Not yet assessed", "color": "ededed" },
+    { "name": "needs-info", "description": "Blocked pending information", "color": "fbca04" },
+    { "name": "ready-for-agent", "description": "Scoped enough for an agent to pick up", "color": "0e8a16" },
+    { "name": "ready-for-human", "description": "Needs a human judgment call", "color": "1d76db" },
+    { "name": "backlog", "description": "On-strategy, deliberately not now", "color": "c5def5" },
+    { "name": "wontfix", "description": "This will not be worked on", "color": "ffffff" }
+  ],
+  "markers": [
+    { "name": "status:in-progress", "description": "Actively being worked by a session", "color": "0e8a16" },
+    { "name": "blocked-on-upstream", "description": "Cannot proceed until a fix lands in another repo", "color": "d4c5f9" }
+  ],
+  "tracks": [
+    { "name": "track:capture-surface", "description": "STRATEGY.md track — Capture surface", "color": "5319e7" },
+    { "name": "track:role-identity", "description": "STRATEGY.md track — Role & identity resolution", "color": "5319e7" },
+    { "name": "track:round-trip", "description": "STRATEGY.md track — Round-trip & triage", "color": "5319e7" },
+    { "name": "track:distribution", "description": "STRATEGY.md track — Distribution & trust", "color": "5319e7" }
+  ],
+  "other": [
+    { "name": "bug", "description": "Something isn't working", "color": "d73a4a" },
+    { "name": "documentation", "description": "Improvements or additions to documentation", "color": "0075ca" },
+    { "name": "enhancement", "description": "New feature or request", "color": "a2eeef" },
+    { "name": "question", "description": "Further information is requested", "color": "d876e3" },
+    { "name": "duplicate", "description": "This issue or pull request already exists", "color": "cfd3d7" },
+    { "name": "invalid", "description": "This doesn't seem right", "color": "e4e669" },
+    { "name": "good first issue", "description": "Good for newcomers", "color": "7057ff" },
+    { "name": "help wanted", "description": "Extra attention is needed", "color": "008672" },
+    { "name": "dependencies", "description": "Pull requests that update a dependency file", "color": "0366d6" },
+    { "name": "github_actions", "description": "Pull requests that update GitHub Actions code", "color": "000000" }
+  ]
+}
