@@ -1,0 +1,35 @@
+docs/agents/triage-labels.md
+  s_d3f740682ae343::t_f9d909b40bea8c 8-38,41,75,93
+test/label-manifest.test.ts
+  s_d3f740682ae343::t_a74d734036a410 177-189
+  s_d3f740682ae343::t_6f56e0096eab7b 1-54,58-59,61-83,97-99,104-114,119-165,173-176,190-291
+  s_d3f740682ae343::t_a7602c35cc0d61 166-172
+  s_d3f740682ae343::t_1fdb6036a26e6a 84-96,100-103,115-118
+  s_d3f740682ae343::t_4b2215b4f45a10 55-57,60
+docs/agents/labels.json
+  s_d3f740682ae343::t_fbfac7840bcc67 1-34
+scripts/check-labels.mjs
+  s_d3f740682ae343::t_972ed435da7567 1-27,29-43,45-110,113-194,221,223-224,226,238-239
+  s_d3f740682ae343::t_a102ff2d93497f 111-112
+  s_d3f740682ae343::t_00230d9101f370 28,44,195-220,222,225,227-237,240
+.github/workflows/label-drift.yml
+  s_d3f740682ae343::t_c1f24fdd7fcefa 1-134
+README.md
+  s_d3f740682ae343::t_a74d734036a410 17-21
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "9c25919841638b3d0e0f074aa1583712fca2071d",
+  "prompts": {},
+  "sessions": {
+    "s_d3f740682ae343": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "5bc13a26-807c-42cf-91e2-f6a1fb15b26a",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Kraig Parkinson <kraig.parkinson@gmail.com>"
+    }
+  }
+}
