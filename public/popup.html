@@ -9,7 +9,8 @@
   select, textarea { width: 100%; padding: .35rem; font: inherit; box-sizing: border-box; }
   textarea { min-height: 4.5rem; resize: vertical; }
   button { margin-top: .8rem; width: 100%; padding: .45rem; font: inherit; font-weight: 600; }
-  #message:empty { display: none; }
+  #message:empty, #role-note:empty { display: none; }
+  #role-note { margin: .3rem 0 0; font-size: .78rem; opacity: .75; }
   #message { margin: .6rem 0 0; font-size: .82rem; opacity: .85; }
 </style>
 <body>
@@ -17,6 +18,7 @@
   <form id="capture">
     <label for="role">Role</label>
     <select id="role"></select>
+    <p id="role-note"></p>
 
     <label for="work-type">File as</label>
     <select id="work-type">

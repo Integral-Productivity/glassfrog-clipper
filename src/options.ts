@@ -11,6 +11,7 @@
  */
 import { attemptConfiguration, describePending } from './config.ts';
 import { fetchRolesForKey } from './glassfrog.ts';
+import { captureRoleCaveat, roleOptions } from './roles.ts';
 import {
   type DefaultStatus,
   type RoleSummary,
@@ -56,13 +57,20 @@ function say(el: Elements, text: string, tone: 'error' | 'ok' | 'idle'): void {
   el.message.dataset.tone = tone;
 }
 
+/**
+ * The capture role is the default for every work type, tensions included, so
+ * every role stays selectable here — the work-type-dependent filter belongs to
+ * the popup, where a work type has actually been chosen. What this picker does
+ * need is #30's qualification: three roles called `Circle Lead` are otherwise
+ * indistinguishable, and choosing the wrong one misfiles every later capture.
+ */
 function fillRoles(el: Elements, roles: RoleSummary[], selected?: string): void {
   el.role.replaceChildren();
-  for (const role of roles) {
+  for (const entry of roleOptions(roles, 'tension')) {
     const option = document.createElement('option');
-    option.value = role.id;
-    option.textContent = role.name;
-    if (role.id === selected) option.selected = true;
+    option.value = entry.id;
+    option.textContent = entry.label;
+    if (entry.id === selected) option.selected = true;
     el.role.append(option);
   }
   el.role.disabled = roles.length === 0;
@@ -128,7 +136,14 @@ async function save(el: Elements): Promise<void> {
   }
 
   await setCaptureRoleId(chosen);
-  say(el, 'Saved. Any capture waiting to be filed will go out now.', 'ok');
+  // Saving a circle here is legitimate — tensions file against circles as a
+  // matter of course — but every action and project will then need a different
+  // role picked in the popup, and finding that out at filing time is too late.
+  say(
+    el,
+    `Saved. Any capture waiting to be filed will go out now.${captureRoleCaveat(attempt.roles, chosen)}`,
+    'ok',
+  );
   el.save.disabled = false;
 }
 

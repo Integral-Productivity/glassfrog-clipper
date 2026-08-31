@@ -14,6 +14,7 @@
 import { captureActiveTab } from './capture.ts';
 import { FILE_CAPTURE, type FileCaptureOutcome, type FileCaptureRequest } from './messages.ts';
 import { holdCapture } from './pending.ts';
+import { circleNotice, roleOptions } from './roles.ts';
 import {
   type PopupDraft,
   type RoleSummary,
@@ -77,6 +78,7 @@ export function newCaptureId(): string {
 interface Elements {
   form: HTMLFormElement;
   role: HTMLSelectElement;
+  roleNote: HTMLElement;
   workType: HTMLSelectElement;
   note: HTMLTextAreaElement;
   page: HTMLElement;
@@ -84,27 +86,38 @@ interface Elements {
   file: HTMLButtonElement;
 }
 
+const currentWorkType = (el: Elements): WorkType =>
+  isWorkType(el.workType.value) ? el.workType.value : 'tension';
+
 function elements(): Elements | undefined {
   const byId = <T extends HTMLElement>(id: string): T | null => document.getElementById(id) as T | null;
   const form = byId<HTMLFormElement>('capture');
   const role = byId<HTMLSelectElement>('role');
+  const roleNote = byId<HTMLElement>('role-note');
   const workType = byId<HTMLSelectElement>('work-type');
   const note = byId<HTMLTextAreaElement>('note');
   const page = byId<HTMLElement>('page');
   const message = byId<HTMLElement>('message');
   const file = byId<HTMLButtonElement>('file');
-  if (!form || !role || !workType || !note || !page || !message || !file) return undefined;
-  return { form, role, workType, note, page, message, file };
+  if (!form || !role || !roleNote || !workType || !note || !page || !message || !file) return undefined;
+  return { form, role, roleNote, workType, note, page, message, file };
 }
 
-function fillRoles(el: Elements, roles: RoleSummary[], selected: string): void {
+/**
+ * Rebuilds the picker for the current work type.
+ *
+ * A circle is rendered disabled rather than dropped: a practitioner who expects
+ * to see one needs to learn it is not selectable, not that the list is broken.
+ */
+function fillRoles(el: Elements, roles: RoleSummary[], selected: string, workType: WorkType): void {
   el.role.replaceChildren();
-  for (const role of roles) {
+  for (const entry of roleOptions(roles, workType)) {
     const option = document.createElement('option');
-    option.value = role.id;
+    option.value = entry.id;
     // textContent: role names come from GlassFrog and are not ours to trust (R7).
-    option.textContent = role.name;
-    if (role.id === selected) option.selected = true;
+    option.textContent = entry.label;
+    option.disabled = !entry.selectable;
+    if (entry.id === selected && entry.selectable) option.selected = true;
     el.role.append(option);
   }
 }
@@ -139,21 +152,33 @@ async function start(): Promise<void> {
   ]);
   const fields = initialFields(draft, { roleId: configuredRole ?? undefined });
 
-  fillRoles(el, roles, fields.roleId);
   el.workType.value = fields.workType;
   el.note.value = fields.note;
+
+  // Which roles may be filed against depends on the work type, so the picker is
+  // rebuilt whenever that changes rather than filled once at load.
+  const renderRoles = (): void => {
+    const workType = currentWorkType(el);
+    const wanted = el.role.value || fields.roleId;
+    fillRoles(el, roles, wanted, workType);
+    el.roleNote.textContent = circleNotice(roles, workType, wanted);
+  };
+  renderRoles();
 
   const persist = (): void => {
     void writeDraft({
       roleId: el.role.value,
-      workType: isWorkType(el.workType.value) ? el.workType.value : 'tension',
+      workType: currentWorkType(el),
       note: el.note.value,
     });
   };
   // Every change, not just submit — the popup can be destroyed on blur at any
   // moment, and there is no event that reliably precedes it.
   el.role.addEventListener('change', persist);
-  el.workType.addEventListener('change', persist);
+  el.workType.addEventListener('change', () => {
+    renderRoles();
+    persist();
+  });
   el.note.addEventListener('input', persist);
 
   el.form.addEventListener('submit', (event) => {
@@ -168,7 +193,7 @@ async function file(el: Elements, page: PageContext): Promise<void> {
 
   const capture = toCapture(page, {
     roleId: el.role.value,
-    workType: isWorkType(el.workType.value) ? el.workType.value : 'tension',
+    workType: currentWorkType(el),
     note: el.note.value,
   });
 
