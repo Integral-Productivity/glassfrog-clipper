@@ -250,6 +250,54 @@ test('R21: only an empty /me AND an empty /me/roles reports no roles', async (t)
   assert.equal(server.calls.length, 2, 'both reads were attempted before reporting none');
 });
 
+/**
+ * #29 and #30 both turn on fields the mapper used to drop. This asserts against
+ * a real response body rather than a hand-built RoleSummary, because the defect
+ * was never in the picker — it was that `has_subroles` and `parent_role_id`
+ * never survived the wire in the first place.
+ */
+test('a role carries its circle-ness and its parent through the mapping', async (t) => {
+  const server = await withServer(() => ({
+    status: 200,
+    json: {
+      data: {
+        actor: {},
+        organization: {},
+        membership: {},
+        roles: [
+          { ...ROLE_A, has_subroles: true, parent_role_id: null },
+          { ...ROLE_B, has_subroles: false, parent_role_id: ROLE_A.id },
+        ],
+      },
+    },
+  }));
+  t.after(() => server.close());
+
+  const roles = await fetchRolesForKey(KEY, { baseUrl: server.baseUrl });
+
+  assert.equal(roles[0]?.hasSubroles, true);
+  assert.equal(roles[0]?.parentRoleId, null, 'the anchor role has no parent, and null says so');
+  assert.equal(roles[1]?.hasSubroles, false);
+  assert.equal(roles[1]?.parentRoleId, ROLE_A.id);
+});
+
+/**
+ * Absent must stay distinguishable from false. A payload without the fields
+ * means we did not read them, not that the role is a non-circle orphan — and
+ * the picker declines to hide a role on the strength of what it did not read.
+ */
+test('a payload missing the two fields yields a summary missing them too', async (t) => {
+  const server = await withServer(() => ({
+    status: 200,
+    json: { data: { actor: {}, organization: {}, membership: {}, roles: [ROLE_A] } },
+  }));
+  t.after(() => server.close());
+
+  assert.deepEqual(await fetchRolesForKey(KEY, { baseUrl: server.baseUrl }), [
+    { id: ROLE_A.id, name: 'Platform Engineering' },
+  ]);
+});
+
 test('a malformed roles payload is ignored rather than crashing the options page', async (t) => {
   const server = await withServer((recorded) =>
     recorded.url.startsWith('/me/roles')

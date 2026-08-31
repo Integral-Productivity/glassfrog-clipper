@@ -46,6 +46,19 @@ export const DEFAULT_STATUS_FALLBACK: DefaultStatus = 'current';
 export interface RoleSummary {
   id: string;
   name: string;
+  /**
+   * Whether the role has subroles — i.e. whether it is a circle. Optional
+   * because a role list cached before this field was read has no answer, and
+   * "absent" must stay distinguishable from "false": the picker treats the
+   * former as unknown and keeps offering the role.
+   */
+  hasSubroles?: boolean;
+  /**
+   * The circle this role sits in. `null` for the anchor role, absent for a list
+   * cached before parents were read. Names collide across an organisation, so
+   * this is what lets the picker say *which* `Circle Lead` an option is.
+   */
+  parentRoleId?: string | null;
 }
 
 /** A capture parked while the extension is unconfigured (R9). */

@@ -1,6 +1,7 @@
 import { GlassFrogClient } from '@integral-productivity/glassfrog';
 
 import type { CaptureWriter, CreatedItem } from './capture.ts';
+import { displayName } from './roles.ts';
 import { type RoleSummary, getApiKey } from './storage.ts';
 
 /**
@@ -137,22 +138,33 @@ function unwrapBody(payload: unknown): { roles?: unknown } {
   return body as { roles?: unknown };
 }
 
+/**
+ * `has_subroles` and `parent_role_id` are on the `Role` payload both reads
+ * return — they were simply dropped here. Each is spread only when the payload
+ * actually carried it, so a response missing one yields a summary missing it
+ * too: "we did not read this" stays distinguishable from "false" and "no
+ * parent", and the picker can decline to act on what it does not know.
+ */
 function toRoleSummaries(roles: unknown): RoleSummary[] {
   if (!Array.isArray(roles)) return [];
   return roles
-    .filter((role): role is { id: string; name?: string | null } =>
-      typeof role === 'object' && role !== null && typeof (role as { id?: unknown }).id === 'string',
+    .filter(
+      (
+        role,
+      ): role is {
+        id: string;
+        name?: string | null;
+        has_subroles?: unknown;
+        parent_role_id?: unknown;
+      } =>
+        typeof role === 'object' && role !== null && typeof (role as { id?: unknown }).id === 'string',
     )
-    .map((role) => ({ id: role.id, name: displayName(role.name, role.id) }));
-}
-
-/**
- * A role's name is nullable in the v5 schema. An unnamed role would otherwise
- * render as a blank option the practitioner cannot tell apart from another one
- * — and since role ids are opaque hex, there would be nothing else to go on.
- * The id fragment keeps two unnamed roles distinguishable.
- */
-function displayName(name: string | null | undefined, id: string): string {
-  const trimmed = name?.trim();
-  return trimmed || `Untitled role (${id.replace(/^role_/, '').slice(0, 8)})`;
+    .map((role) => ({
+      id: role.id,
+      name: displayName(role.name, role.id),
+      ...(typeof role.has_subroles === 'boolean' ? { hasSubroles: role.has_subroles } : {}),
+      ...(typeof role.parent_role_id === 'string' || role.parent_role_id === null
+        ? { parentRoleId: role.parent_role_id }
+        : {}),
+    }));
 }
