@@ -1,4 +1,4 @@
-# 5. Queue health is measured from capture, not from last touch
+# 6. Queue health is measured from capture, not from last touch
 
 Date: 2026-08-31
 
