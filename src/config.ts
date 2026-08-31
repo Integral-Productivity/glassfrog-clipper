@@ -55,14 +55,18 @@ export async function attemptConfiguration(
   }
 
   if (roles.length === 0) {
-    // A5: /me/roles returns only primary, non-discarded assignments. An account
-    // without one cannot satisfy R8 at all, and an empty dropdown would read as
-    // a loading bug rather than an account problem.
+    // Deliberately describes what was observed rather than asserting a fact
+    // about the practitioner's org. The first real install hit this message on
+    // an account filling dozens of roles, because the SDK's me.get() does not
+    // unwrap the API's `data` envelope — the reader was broken, not the account.
+    // A5's genuine case (no primary, non-discarded assignment) is real, but it
+    // is not the only way to get here, and telling someone to go ask their Lead
+    // Link for a role they already hold sends them somewhere useless.
     return {
       ok: false,
       reason: 'no-roles',
       message:
-        'That key works, but the account fills no roles, so there is nothing to file against. Ask your Lead Link for a role assignment.',
+        'That key works, but GlassFrog returned no roles to file against. If you do fill roles, the key may belong to a different account.',
     };
   }
 
