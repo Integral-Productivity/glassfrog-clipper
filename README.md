@@ -16,12 +16,20 @@ Triage labels: [docs/agents/triage-labels.md](docs/agents/triage-labels.md) —
 the six mutually exclusive issue states, the orthogonal markers, and the
 `track:*` set; relevant when triaging an issue or claiming one to work on.
 
+Apple platforms: [apple/README.md](apple/README.md) — the Safari extension, the
+iOS/iPadOS/macOS app, and the share sheet, sharing this capture path.
+
 ## Status
 
 Pre-alpha. The capture path is implemented and under test — a keystroke files
 the current page as a tension against a configured capture role, and the popup
 exposes the same capture with role, work type, and note editable. Not yet
 exercised end-to-end against a live GlassFrog org.
+
+Chrome and Safari run the same compiled bundle. The Apple targets compile on
+both platforms but have not been run: App Groups and a shared Keychain both need
+an Apple Developer team, which is not set up yet — see
+[apple/README.md](apple/README.md#before-this-can-actually-run).
 
 ## Develop
 
@@ -33,7 +41,9 @@ from GitHub Packages — see `.npmrc`). Use **npm**, not pnpm, per
 ```
 npm install
 npm run typecheck
-npm run build      # → dist/, load unpacked in chrome://extensions
+npm test
+npm run build         # → dist/, load unpacked in chrome://extensions
+npm run build:safari  # → dist-safari/, the Safari bundle
 ```
 
 ## Contributing
