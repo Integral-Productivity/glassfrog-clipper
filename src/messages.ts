@@ -21,9 +21,13 @@ export interface FileCaptureRequest {
 }
 
 /**
- * KTD9 splits failure four ways rather than two, because R18 requires the
- * practitioner learn that an unusable role needs *reconfiguring* rather than a
- * retry — a distinction a single "it failed" cannot carry.
+ * KTD9 splits failure rather than reporting one "it failed", because R18
+ * requires the practitioner learn that an unusable role needs *reconfiguring*
+ * rather than a retry — a distinction a single message cannot carry.
+ *
+ * KTD9 says four kinds. There are five: 401 joined the reconfigure path, and
+ * an unclassified status needs somewhere to go that is not a guess. The plan
+ * is annotated; this is the count that is real.
  */
 export type CaptureFailureKind =
   /** Malformed stored role id; the SDK rejects it before any request goes out. */
