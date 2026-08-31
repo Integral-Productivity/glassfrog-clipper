@@ -1,0 +1,37 @@
+LICENSE
+  s_37959cf8c73a6b::t_5f5af60d63836f 1-674
+README.md
+  s_37959cf8c73a6b::t_6c19aebfc018ff 35-62
+CLA.md
+  s_37959cf8c73a6b::t_83c3c34d4bd27d 1-72
+.github/workflows/cla.yml
+  s_37959cf8c73a6b::t_48367ea585d5e2 1-50
+package.json
+  s_37959cf8c73a6b::t_8a2ceb75d088ea 6-11
+test/errors.test.ts
+  s_37959cf8c73a6b::t_c492c33516f8dc 15-17
+.github/FUNDING.yml
+  s_37959cf8c73a6b::t_48367ea585d5e2 1-3
+LICENSE-EXCEPTION.md
+  s_37959cf8c73a6b::t_ddb75fcf9a2a94 1-53
+test/options-config.test.ts
+  s_37959cf8c73a6b::t_c492c33516f8dc 19-21
+CONTRIBUTING.md
+  s_37959cf8c73a6b::t_bea2f30ffe3173 1-74
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "f59401ccf00e530119b2daa2a87b47924cb4db31",
+  "prompts": {},
+  "sessions": {
+    "s_37959cf8c73a6b": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "f16527e5-aadf-4f65-9825-946b567c3ca9",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Kraig Parkinson <kraig.parkinson@gmail.com>"
+    }
+  }
+}
