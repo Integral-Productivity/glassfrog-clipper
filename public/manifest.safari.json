@@ -1,0 +1,24 @@
+{
+  "$comment": [
+    "Deltas from public/manifest.json for the Safari build. Only what differs lives here —",
+    "scripts/build-safari.mjs merges this over the Chrome manifest so the shared keys (name,",
+    "version, commands, action, options_ui, host_permissions) cannot drift between platforms.",
+    "A key set to null is removed rather than overwritten."
+  ],
+
+  "minimum_chrome_version": null,
+
+  "browser_specific_settings": {
+    "safari": {
+      "strict_min_version": "18.0"
+    }
+  },
+
+  "permissions": [
+    "storage",
+    "activeTab",
+    "scripting",
+    "alarms",
+    "nativeMessaging"
+  ]
+}

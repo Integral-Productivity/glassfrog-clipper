@@ -13,6 +13,7 @@
  */
 import { captureActiveTab } from './capture.ts';
 import { FILE_CAPTURE, type FileCaptureOutcome, type FileCaptureRequest } from './messages.ts';
+import { takeUnseenNotice } from './notify.ts';
 import { holdCapture } from './pending.ts';
 import { circleNotice, roleOptions } from './roles.ts';
 import {
@@ -144,6 +145,13 @@ async function start(): Promise<void> {
     window.close();
     return;
   }
+
+  // Where a notice had nowhere else to go — Safari with no reachable containing
+  // app — this is where the practitioner finally learns a previous capture did
+  // not file. Shown before anything they type here, because it may change what
+  // they do next (R18: an unusable role wants reconfiguring, not a retry).
+  const unseen = await takeUnseenNotice();
+  if (unseen) el.message.textContent = `${unseen.title}: ${unseen.message}`;
 
   const [draft, roles, configuredRole] = await Promise.all([
     readDraft(),
