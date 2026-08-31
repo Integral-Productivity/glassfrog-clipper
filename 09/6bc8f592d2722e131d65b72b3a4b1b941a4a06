@@ -1,0 +1,171 @@
+.gitignore
+  s_00879e9434f69e::t_08cc9ff911e775 9-20
+"apple/GlassFrog Clipper/Entitlements/iOS.entitlements"
+  s_00879e9434f69e::t_5b47c0666b0a79 1-34
+"apple/GlassFrog Clipper/Entitlements/macOS.entitlements"
+  s_00879e9434f69e::t_df03998e542a98 1-28
+"apple/GlassFrog Clipper/GlassFrog Clipper.xcodeproj/project.pbxproj"
+  s_00879e9434f69e::t_a5ce822c44b68a 1-1492
+"apple/GlassFrog Clipper/GlassFrog Clipper.xcodeproj/project.xcworkspace/contents.xcworkspacedata"
+  s_00879e9434f69e::t_1066fd5ef7d3a2 1-7
+"apple/GlassFrog Clipper/Shared (App)/Assets.xcassets/AccentColor.colorset/Contents.json"
+  s_00879e9434f69e::t_bc34ad8a378cfb 1-11
+"apple/GlassFrog Clipper/Shared (App)/Assets.xcassets/AppIcon.appiconset/Contents.json"
+  s_00879e9434f69e::t_1286ac658373c2 1-98
+"apple/GlassFrog Clipper/Shared (App)/Assets.xcassets/Contents.json"
+  s_00879e9434f69e::t_345fa0f9f01732 1-6
+"apple/GlassFrog Clipper/Shared (App)/Assets.xcassets/LargeIcon.imageset/Contents.json"
+  s_00879e9434f69e::t_2db56e1d0166b8 1-21
+"apple/GlassFrog Clipper/Shared (App)/Resources/Base.lproj/Main.html"
+  s_00879e9434f69e::t_35c55bd7baa9f5 1-20
+"apple/GlassFrog Clipper/Shared (App)/Resources/Script.js"
+  s_00879e9434f69e::t_5672790b6e0b43 1-24
+"apple/GlassFrog Clipper/Shared (App)/Resources/Style.css"
+  s_00879e9434f69e::t_8f92159c8c0f56 1-61
+"apple/GlassFrog Clipper/Shared (App)/SettingsModel.swift"
+  s_00879e9434f69e::t_0193798ed66ba0 1-129
+"apple/GlassFrog Clipper/Shared (App)/SettingsView.swift"
+  s_00879e9434f69e::t_ad399e19224973 1-163
+"apple/GlassFrog Clipper/Shared (App)/ViewController.swift"
+  s_00879e9434f69e::t_14e5961b1e9bc8 1-63
+"apple/GlassFrog Clipper/Shared (Extension)/SafariWebExtensionHandler.swift"
+  s_00879e9434f69e::t_fc414407457110 1-83
+"apple/GlassFrog Clipper/Shared (Share)/ShareCaptureModel.swift"
+  s_00879e9434f69e::t_658f3dea76803d 1-97
+"apple/GlassFrog Clipper/Shared (Share)/ShareCaptureView.swift"
+  s_00879e9434f69e::t_8185fe538c5931 1-156
+"apple/GlassFrog Clipper/Shared (Share)/ShareViewController.swift"
+  s_00879e9434f69e::t_6c53b41db55475 1-60
+"apple/GlassFrog Clipper/Shared (Share)/SharedItem.swift"
+  s_00879e9434f69e::t_06a30278c3a2f7 1-72
+"apple/GlassFrog Clipper/iOS (App)/AppDelegate.swift"
+  s_00879e9434f69e::t_518a0d6cdc0f5b 1-24
+"apple/GlassFrog Clipper/iOS (App)/Base.lproj/LaunchScreen.storyboard"
+  s_00879e9434f69e::t_691ff0f432c4b3 1-36
+"apple/GlassFrog Clipper/iOS (App)/Base.lproj/Main.storyboard"
+  s_00879e9434f69e::t_9a8fb068598d5c 1-38
+"apple/GlassFrog Clipper/iOS (App)/Info.plist"
+  s_00879e9434f69e::t_66d06483b19b50 1-27
+"apple/GlassFrog Clipper/iOS (App)/SceneDelegate.swift"
+  s_00879e9434f69e::t_1a54164679d3d4 1-18
+"apple/GlassFrog Clipper/iOS (Extension)/Info.plist"
+  s_00879e9434f69e::t_ab575947160de8 1-13
+"apple/GlassFrog Clipper/iOS (Share)/Info.plist"
+  s_00879e9434f69e::t_a8e7e2e289d521 1-35
+"apple/GlassFrog Clipper/macOS (App)/AppDelegate.swift"
+  s_00879e9434f69e::t_91a020be5b5864 1-21
+"apple/GlassFrog Clipper/macOS (App)/Base.lproj/Main.storyboard"
+  s_00879e9434f69e::t_14e7064b037e89 1-124
+"apple/GlassFrog Clipper/macOS (App)/Info.plist"
+  s_00879e9434f69e::t_9b71da3b697642 1-8
+"apple/GlassFrog Clipper/macOS (Extension)/Info.plist"
+  s_00879e9434f69e::t_9afed63b98e763 1-13
+"apple/GlassFrog Clipper/macOS (Share)/Info.plist"
+  s_00879e9434f69e::t_8f7c90479ebabe 1-35
+apple/GlassFrogClipperCore/Package.swift
+  s_00879e9434f69e::t_23010f09a84ea4 1-31
+apple/GlassFrogClipperCore/Sources/GlassFrogClipperCore/Capture.swift
+  s_00879e9434f69e::t_c93cec285cb325 1-74
+apple/GlassFrogClipperCore/Sources/GlassFrogClipperCore/CaptureFiler.swift
+  s_00879e9434f69e::t_f655b14c9c4920 1-72
+apple/GlassFrogClipperCore/Sources/GlassFrogClipperCore/Compose.swift
+  s_00879e9434f69e::t_ea4b16f15fe900 1-155
+apple/GlassFrogClipperCore/Sources/GlassFrogClipperCore/Configuration.swift
+  s_00879e9434f69e::t_f6c2a143966bfc 1-116
+apple/GlassFrogClipperCore/Sources/GlassFrogClipperCore/Failure.swift
+  s_00879e9434f69e::t_99003bf5aa065c 1-133
+apple/GlassFrogClipperCore/Sources/GlassFrogClipperCore/GlassFrogClient.swift
+  s_00879e9434f69e::t_3000d76e62984b 1-190
+apple/GlassFrogClipperCore/Sources/GlassFrogClipperCore/Keychain.swift
+  s_00879e9434f69e::t_74a5d1502e1c37 1-80
+apple/GlassFrogClipperCore/Sources/GlassFrogClipperCore/NativeMessage.swift
+  s_00879e9434f69e::t_473b7516032097 1-100
+apple/GlassFrogClipperCore/Sources/GlassFrogClipperCore/Notifier.swift
+  s_00879e9434f69e::t_f7ea11af685d58 1-63
+apple/GlassFrogClipperCore/Tests/GlassFrogClipperCoreTests/ComposeParityTests.swift
+  s_00879e9434f69e::t_4d4ff0d4758cf9 1-126
+apple/GlassFrogClipperCore/Tests/GlassFrogClipperCoreTests/CoreTests.swift
+  s_00879e9434f69e::t_4fd6196d3def4d 1-290
+docs/adr/0006-queue-health-is-measured-from-capture-not-from-last-touch.md
+  s_00879e9434f69e::t_7d34c40328b4a2 1
+package.json
+  s_00879e9434f69e::t_c50d1ff2c4794f 11-13
+public/manifest.safari.json
+  s_00879e9434f69e::t_051889c8bb3c54 1-24
+scripts/build-safari.mjs
+  s_00879e9434f69e::t_b4e19593eb0a5c 1-53
+scripts/generate-compose-fixtures.mjs
+  s_00879e9434f69e::t_54e89ec28379cd 1-71
+scripts/manifest-merge.mjs
+  s_00879e9434f69e::t_e91368b5bcfed8 1-22
+scripts/verify-apple.sh
+  s_00879e9434f69e::t_5cab6281c01358 1-48
+scripts/xcode-add-share.py
+  s_00879e9434f69e::t_25381c5fda3bad 1-269
+scripts/xcode-bootstrap.sh
+  s_00879e9434f69e::t_9ee1e08a03f9ce 1-62
+scripts/xcode-entitlements.py
+  s_00879e9434f69e::t_e6140ac28ebe59 1-58
+scripts/xcode-resource-phase.py
+  s_00879e9434f69e::t_3765d1d4e0144f 1-31,33-133
+scripts/xcode-wire.py
+  s_00879e9434f69e::t_cb8cc87aa956d3 1-197
+src/background.ts
+  s_00879e9434f69e::t_9c1897c3b50b70 10,172-176
+src/bridge.ts
+  s_00879e9434f69e::t_1e1a04f600be67 1-132
+src/notify.ts
+  s_00879e9434f69e::t_8e06d8a27ef935 12-13,68-90,92-119,123-151,160-165
+src/options.ts
+  s_00879e9434f69e::t_05915a5ff78984 12,15,114-121,171-176,182-183
+src/platform.ts
+  s_00879e9434f69e::t_823afb3d6d16cb 1-92
+src/popup.ts
+  s_00879e9434f69e::t_450401b51406f1 16,149-155
+src/storage.ts
+  s_00879e9434f69e::t_da74ea523386e4 25,92-114,240-258
+test/adr-numbering.test.ts
+  s_00879e9434f69e::t_2dcd5934a49f95 3
+test/bridge.test.ts
+  s_00879e9434f69e::t_3bf5d5ce9c69a9 1-132
+test/compose-fixture.test.ts
+  s_00879e9434f69e::t_e800e794c1d841 1-67
+test/errors.test.ts
+  s_00879e9434f69e::t_ee0cfeeb5d2355 15
+test/fixtures/compose-cases.json
+  s_00879e9434f69e::t_196defc8b62fc5 1-217
+test/notice-chain.test.ts
+  s_00879e9434f69e::t_c5e718dc88cb56 1-161
+test/options-config.test.ts
+  s_bf01341bbdf16a::t_d0ab590c9d08f0 19
+test/platform.test.ts
+  s_00879e9434f69e::t_f022374e284755 1-128
+test/safari-manifest.test.ts
+  s_00879e9434f69e::t_d219ff87a92eb2 1-94
+test/support/chrome.ts
+  s_00879e9434f69e::t_68b973ffa54daf 52-54,86-87,101-114,118-120,210,242,245-260
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "096bc8f592d2722e131d65b72b3a4b1b941a4a06",
+  "prompts": {},
+  "sessions": {
+    "s_00879e9434f69e": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "7547593c-88cf-4e75-bb30-e020d595b1ff",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Kraig Parkinson <kraig.parkinson@gmail.com>"
+    },
+    "s_bf01341bbdf16a": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "27a645a7-c9f3-4a1d-ac97-28006bc732b6",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Kraig Parkinson <kraig.parkinson@gmail.com>"
+    }
+  }
+}
