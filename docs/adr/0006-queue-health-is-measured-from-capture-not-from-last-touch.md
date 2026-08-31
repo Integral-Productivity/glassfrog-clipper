@@ -1,4 +1,4 @@
-# 5. Queue health is measured from capture, not from last touch
+# 6. Queue health is measured from capture, not from last touch
 
 Date: 2026-08-31
 
@@ -70,10 +70,24 @@ repeatedly reworked but never resolved are different failures with different
 remedies, and the capture clock alone cannot separate them.
 
 A breach of the capture-age threshold is ambiguous in a way the metric does not
-resolve: it can mean the capture path is over-producing, or that the meeting
-cadence consuming the queue has lapsed. Those have opposite remedies, and the
-inflow-versus-outflow companion is likely but not certainly sufficient to tell
-them apart. What a breach routes to is tracked in issue #38, not settled here.
+resolve on its own: it can mean the capture path is over-producing, or that the
+meeting cadence consuming the queue has lapsed. Those have opposite remedies.
+The inflow-versus-outflow companion resolves it, but only if the two terms are
+reported separately — a ratio moves identically under rising inflow and falling
+outflow, so a ratio alone cannot tell the two causes apart. The reading rule
+lives in [STRATEGY.md](../../STRATEGY.md) beside the metric, so it is read at the
+same moment as the number rather than reconstructed from here. Two points in it
+are worth recording as decisions rather than derivations:
+
+- **The inherited backlog is checked first.** Against the baseline above, the
+  items driving p90 are years old and predate the capture path entirely, so the
+  first several breaches carry no evidence about either cause. A rule that went
+  straight to inflow-versus-outflow would misattribute them.
+- **An indeterminate pair defaults to lapsed cadence**, rather than escalating
+  to a fresh judgment. The practice remedy is cheap and reversible where an
+  extension change is neither, and restoring cadence eliminates that explanation
+  rather than assuming it — so the default is informative even when it is wrong.
+  The cost is that a genuine over-production breach is acted on one cycle late.
 
 The touch clock depends on `updated_at`, which GlassFrog moves for any edit.
 Sharpening a tension and correcting a typo are the same event to it, so the
