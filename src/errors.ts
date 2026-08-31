@@ -8,6 +8,12 @@
  *
  * R12 governs everything that leaves here: no surfaced or logged string may
  * carry the API key or the headers bearing it.
+ *
+ * A second axis rides alongside the four kinds: `mayHaveFiled`. R10 preserves a
+ * failed capture in every case, but only an *ambiguous* failure should leave the
+ * in-flight marker behind for U6 to surface — a definite 4xx means no item was
+ * created, and telling the practitioner to go check GlassFrog for it sends them
+ * looking for something that does not exist.
  */
 import type { CaptureFailure, CaptureFailureKind } from './messages.ts';
 
@@ -63,7 +69,7 @@ export function classifyFailure(error: unknown, options: ClassifyOptions = {}): 
   // Client-side id validation. Never reached the network, and never will with
   // the role currently stored.
   if (status === undefined && isValidationTypeError(error)) {
-    return failure('unusable-role', `That capture role is not usable: ${detail}`, true);
+    return failure('unusable-role', `That capture role is not usable: ${detail}`, true, NOT_FILED);
   }
 
   switch (status) {
@@ -79,18 +85,38 @@ export function classifyFailure(error: unknown, options: ClassifyOptions = {}): 
           ? 'GlassFrog rejected the API key. Open the extension options to update it.'
           : 'GlassFrog would not file to that role. Open the extension options to choose another.',
         true,
+        NOT_FILED,
       );
     case 429:
-      return failure('rate-limited', 'GlassFrog is rate limiting requests. Your capture is saved — try again shortly.', false);
+      return failure('rate-limited', 'GlassFrog is rate limiting requests. Your capture is saved — try again shortly.', false, NOT_FILED);
     case 422:
-      return failure('invalid-payload', `GlassFrog refused the request: ${detail}`, false);
+      return failure('invalid-payload', `GlassFrog refused the request: ${detail}`, false, NOT_FILED);
     case 0:
-      return failure('network', 'Could not reach GlassFrog. Your capture is saved — try again when you are back online.', false);
+      // Not NOT_FILED. Status 0 covers both a connection that never opened and
+      // a request that went out and whose response was lost, and nothing here
+      // can tell those apart. Treating it as definitely-not-filed would drop the
+      // in-flight marker that is the only trace of a write that may have landed.
+      return failure('network', 'Could not reach GlassFrog. Your capture is saved — try again when you are back online.', false, MAY_HAVE_FILED);
     default:
-      return failure('unknown', `Filing failed: ${detail}`, false);
+      // Unclassified, which includes 5xx: a server error can follow a write that
+      // already succeeded, so the outcome is unknown rather than negative.
+      return failure('unknown', `Filing failed: ${detail}`, false, MAY_HAVE_FILED);
   }
 }
 
-function failure(kind: CaptureFailureKind, message: string, reconfigure: boolean): CaptureFailure {
-  return { kind, message, reconfigure };
+/**
+ * Named rather than passed as a bare boolean: `failure(..., false, false)` at a
+ * call site says nothing about which `false` is which, and the two flags mean
+ * opposite kinds of thing.
+ */
+const NOT_FILED = false;
+const MAY_HAVE_FILED = true;
+
+function failure(
+  kind: CaptureFailureKind,
+  message: string,
+  reconfigure: boolean,
+  mayHaveFiled: boolean,
+): CaptureFailure {
+  return { kind, message, reconfigure, mayHaveFiled };
 }

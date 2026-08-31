@@ -13,8 +13,10 @@
   .hint { font-weight: 400; opacity: .75; display: block; margin-top: .15rem; }
   input, select { width: 100%; padding: .5rem; font: inherit; box-sizing: border-box; }
   button { margin-top: 1.5rem; padding: .55rem 1.1rem; font: inherit; font-weight: 600; }
-  #message:empty, #pending:empty { display: none; }
+  #message:empty { display: none; }
+  #pending[hidden] { display: none; }
   #message, #pending { margin-top: 1rem; padding: .6rem .8rem; border-radius: .3rem; }
+  #discard { margin-top: .5rem; padding: .3rem .7rem; font-weight: 400; }
   #message[data-tone="error"] { background: color-mix(in srgb, crimson 15%, transparent); }
   #message[data-tone="ok"] { background: color-mix(in srgb, seagreen 18%, transparent); }
   #pending { background: color-mix(in srgb, goldenrod 18%, transparent); }
@@ -23,7 +25,10 @@
   <h1>GlassFrog Clipper</h1>
   <p class="lede">Set this up once. After that, the shortcut files without asking anything.</p>
 
-  <p id="pending"></p>
+  <div id="pending" hidden>
+    <span id="pending-text"></span>
+    <button id="discard" type="button">Discard this capture</button>
+  </div>
 
   <form id="config">
     <label for="api-key">

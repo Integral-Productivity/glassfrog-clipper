@@ -43,15 +43,27 @@ export interface FakeChrome {
   };
   commands: {
     getAll(): Promise<Array<{ name?: string; shortcut?: string; description?: string }>>;
+    onCommand: { addListener(listener: (command: string) => void): void };
   };
   runtime: {
     getManifest(): { commands?: Record<string, unknown> };
     getURL(path: string): string;
     openOptionsPage(): Promise<void>;
     lastError?: { message: string };
+    // Registered by src/background.ts at module evaluation. Present so the
+    // module can be imported at all; no test drives them through Chrome, since
+    // the flows they wrap are exported and called directly.
+    onMessage: { addListener(listener: (...args: unknown[]) => unknown): void };
+    onStartup: { addListener(listener: () => void): void };
+    onInstalled: { addListener(listener: () => void): void };
   };
   tabs: {
     query(info: Record<string, unknown>): Promise<chrome.tabs.Tab[]>;
+  };
+  scripting: {
+    executeScript(injection: { target: { tabId: number }; func: () => unknown }): Promise<
+      Array<{ result?: unknown }>
+    >;
   };
   /** Everything currently stored, for assertions about slot occupancy. */
   __dump(): Record<string, unknown>;
@@ -63,6 +75,8 @@ export interface FakeChrome {
   __boundCommands: Array<{ name?: string; shortcut?: string }>;
   __manifestCommands: Record<string, unknown>;
   __tabs: chrome.tabs.Tab[];
+  /** What chrome.scripting.executeScript reports as the page selection. */
+  __selection: string;
   /** True if anything took focus — nothing in the capture path may (R14). */
   __focusTaken: boolean;
   __optionsPageOpened: number;
@@ -167,12 +181,25 @@ export function createFakeChrome(options: FakeChromeOptions = {}): FakeChrome {
       async getAll() {
         return fake.__boundCommands;
       },
+      onCommand: { addListener: () => undefined },
     },
     runtime: {
       getManifest: () => ({ commands: fake.__manifestCommands }),
       getURL: (path) => `chrome-extension://fake/${path}`,
       async openOptionsPage() {
         fake.__optionsPageOpened += 1;
+      },
+      onMessage: { addListener: () => undefined },
+      onStartup: { addListener: () => undefined },
+      onInstalled: { addListener: () => undefined },
+    },
+    scripting: {
+      // Returns whatever __selection is set to, so the shortcut path can be
+      // exercised. The real API is the only way to read a selection, and
+      // src/capture.ts treats a throw here as "no selection" rather than as a
+      // capture failure.
+      async executeScript() {
+        return [{ result: fake.__selection }];
       },
     },
     tabs: {
@@ -187,6 +214,7 @@ export function createFakeChrome(options: FakeChromeOptions = {}): FakeChrome {
     __boundCommands: [],
     __manifestCommands: {},
     __tabs: [],
+    __selection: '',
     __focusTaken: false,
     __optionsPageOpened: 0,
   };
