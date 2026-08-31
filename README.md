@@ -12,6 +12,9 @@ Documented solutions: [docs/solutions/](docs/solutions/) — solutions to past
 problems (bugs, best practices, workflow patterns), organized by category with
 YAML frontmatter (`module`, `tags`, `problem_type`); relevant when implementing
 or debugging in documented areas.
+Triage labels: [docs/agents/triage-labels.md](docs/agents/triage-labels.md) —
+the six mutually exclusive issue states, the orthogonal markers, and the
+`track:*` set; relevant when triaging an issue or claiming one to work on.
 
 ## Status
 
