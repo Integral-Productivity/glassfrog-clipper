@@ -81,10 +81,10 @@ Everything above can be run without a credential. This cannot, and it is the
 last open row in
 [the verification record](plans/2026-08-28-capture-path-verification-record.md).
 
-**Whoever installs this extension first should run it before anything else, and
-update that row.** It is deliberately left open rather than inferred: the two
-halves below are each verified, but their composition — a valid key and the real
-server in a single act — is not.
+**Run on 2026-08-30, and the record's row is now Pass.** Keep this checklist:
+it is the right sequence for anyone installing the extension on a new machine or
+against a different organisation, and the run that first exercised it found two
+defects no automated gate could reach.
 
 - [ ] `chrome://extensions` → Developer mode → **Load unpacked** → the built
       `dist/`. The extension id is derived from that path, so pick a location
