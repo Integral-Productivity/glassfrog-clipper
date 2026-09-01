@@ -1,0 +1,30 @@
+fitness/checks/sdk-boundary.ts
+  s_7fa391641cb19f::t_0f95295e6294ee 41-50,78
+features/step_definitions/capture.steps.ts
+  s_7fa391641cb19f::t_6b3a9b86228aa6 27,239-248
+features/step_definitions/chrome-surface.steps.ts
+  s_7fa391641cb19f::t_6b3a9b86228aa6 20,30
+test/fitness/suite.test.ts
+  s_7fa391641cb19f::t_530927b8a1f79d 5-8,12,95-126
+  s_7fa391641cb19f::t_6dd0ac4ba9fadb 127
+fitness/self/cli.ts
+  s_7fa391641cb19f::t_c03bb2eb6c9ab5 20,79-97
+features/support/world.ts
+  s_7fa391641cb19f::t_0f95295e6294ee 29-35
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "a373949dd01aa1882711bbd3637eceb0b2d06529",
+  "prompts": {},
+  "sessions": {
+    "s_7fa391641cb19f": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "905b1742-bc96-4d9b-a307-3fb50a2ae145",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Kraig Parkinson <kraig.parkinson@gmail.com>"
+    }
+  }
+}
