@@ -1,0 +1,25 @@
+test/fitness/sdk-boundary.test.ts
+  s_7fa391641cb19f::t_d409e2da253a7c 3,6,58-73
+  s_7fa391641cb19f::t_f1dee040d3edac 8-9,14,21,31,39,46
+  s_7fa391641cb19f::t_7adebad26b6fa2 7,74
+fitness/checks/sdk-boundary.ts
+  s_7fa391641cb19f::t_f1dee040d3edac 42,44-52,54-61,64,89,104,108
+docs/adr/0010-four-architectural-characteristics-get-fitness-functions.md
+  s_7fa391641cb19f::t_d409e2da253a7c 112-119
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "77fdffb615af7efe94234ed9b1d37a818fd34dd2",
+  "prompts": {},
+  "sessions": {
+    "s_7fa391641cb19f": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "905b1742-bc96-4d9b-a307-3fb50a2ae145",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Kraig Parkinson <kraig.parkinson@gmail.com>"
+    }
+  }
+}
