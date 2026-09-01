@@ -58,17 +58,23 @@ with session identifiers and the model used.
 
 This is published deliberately, not as a side effect of the tooling.
 
-Two limits, stated plainly so the record is not read as more than it is:
+Three limits, stated plainly so the record is not read as more than it is:
 
 - The notes carry **no prompt text.** The `prompts` object is empty in every
   note.
-- **The record currently stops at the repository's first day.** Notes attach to
-  the commit that was worked on; squash-merging a pull request creates a *new*
-  commit on `main` and leaves the noted one unreachable, so the attribution does
-  not follow the change. Every note that resolves on `main` today is from the
-  bootstrap commits of 2026-08-28, made before the pull-request workflow began.
-  Nothing merged since carries attribution, and the gap grows with each merge.
-  Tracked in [#71](../../issues/71).
+- **Coverage is partial, by design.** Notes attach to the commit that was worked
+  on, and squash-merging creates a *new* commit on `main`, so attribution does
+  not follow the change on its own. A workflow carries it across — but only for
+  a single-commit pull request, where the squashed diff is byte-identical and
+  the note's line ranges still describe the code. A multi-commit pull request
+  lands with **no** attribution rather than with attribution pointing at the
+  wrong lines. See
+  [ADR 9](docs/adr/0009-ai-authorship-survives-a-squash-only-where-the-diff-is-unchanged.md).
+- **Nothing merged before 2026-09-01 is attributed.** The notes that resolve
+  from the repository's first weeks are its bootstrap commits, made directly on
+  `main`; everything merged through a pull request in between lost its
+  attribution to the squash. Those notes still exist and their commits are still
+  served by `origin` if you know the SHA, but a clone will not find them.
 
 Notes are not fetched by `git clone`. To read them:
 
