@@ -11,7 +11,7 @@
   },
   "type": "module",
   "scripts": {
-    "build": "tsup && cp -R public/. dist/",
+    "build": "tsup && cp -R public/. dist/ && rm -f dist/manifest.safari.json",
     "dev": "tsup --watch",
     "typecheck": "tsc --noEmit",
     "test": "node --test 'test/**/*.test.ts'",
