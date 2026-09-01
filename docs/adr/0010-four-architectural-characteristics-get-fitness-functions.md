@@ -109,6 +109,14 @@ have, not a line to add. This is intended. It is also the check most likely to b
 wrong-shaped later — if a content script becomes genuinely necessary, the check
 should be narrowed to "no credential reachable from it" rather than deleted.
 
+**`sdk-boundary` reads the GlassFrog origin from the manifest rather than
+carrying its own copy.** `public/manifest.json` already declares the one origin
+the extension may reach, and `manifest-permissions` pins it. A second hardcoded
+copy would mean a change to the origin moved the boundary while the guard kept
+watching the old one. CodeQL prompted this — it flagged the hardcoded form as
+incomplete URL sanitization, which is a false positive on a grep over source
+text, but the fix it pushed us toward is better than what it replaced.
+
 **A false red is possible and is preferable to a false green.** The first run of
 `manifest-permissions` reported a violation that was a bug in the check —
 `chrome.commands` is unlocked by the manifest's `commands` key, not by a
