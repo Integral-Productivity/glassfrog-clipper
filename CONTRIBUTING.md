@@ -57,6 +57,15 @@ explains why.
 
 - **Tests before implementation.** The suite is the specification.
 - **Conventional Commits** — `feat:`, `fix:`, `docs:`, `chore(scope):`.
+- **One commit per pull request, where that is natural.** Not a gate — a
+  genuinely multi-commit change is fine. The reason is narrow and worth knowing:
+  this repository publishes line-level AI-authorship notes, and those notes
+  record line ranges tied to a single commit's diff. Squash-merging a one-commit
+  pull request produces a byte-identical diff, so the attribution can be carried
+  onto `main` intact; squashing several commits collapses the intermediate
+  states and the ranges no longer describe anything real. A multi-commit pull
+  request therefore lands without attribution rather than with wrong
+  attribution. See [ADR 9](docs/adr/0009-ai-authorship-survives-a-squash-only-where-the-diff-is-unchanged.md).
 - **Architectural decisions get an ADR.** See [docs/adr/](docs/adr/). If you
   find yourself explaining *why* a change is shaped the way it is, that
   explanation belongs in an ADR rather than a commit message.
