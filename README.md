@@ -62,9 +62,13 @@ Two limits, stated plainly so the record is not read as more than it is:
 
 - The notes carry **no prompt text.** The `prompts` object is empty in every
   note.
-- Most notes attach to pre-squash working commits, which squash-merging leaves
-  unreachable from `main`. A clone therefore resolves notes for only the subset
-  of commits that survived onto `main` — currently a minority of them.
+- **The record currently stops at the repository's first day.** Notes attach to
+  the commit that was worked on; squash-merging a pull request creates a *new*
+  commit on `main` and leaves the noted one unreachable, so the attribution does
+  not follow the change. Every note that resolves on `main` today is from the
+  bootstrap commits of 2026-08-28, made before the pull-request workflow began.
+  Nothing merged since carries attribution, and the gap grows with each merge.
+  Tracked in [#71](../../issues/71).
 
 Notes are not fetched by `git clone`. To read them:
 
