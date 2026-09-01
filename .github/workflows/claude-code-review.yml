@@ -1,0 +1,115 @@
+# Automated Claude review of every pull request.
+#
+# DIRECT-ACTION STAND-IN FOR THE TIER-1 CALLER.
+# ---------------------------------------------
+# Tier-1 repos get this by calling the org's private reusable:
+#
+#   uses: Integral-Productivity/devops-excellence/.github/workflows/reusable-claude-code-review.yml@v1
+#     secrets:
+#       CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+#
+# This repo cannot use that form. It is headed for public visibility, and a
+# public repo cannot resolve a reusable workflow hosted in a private repo — the
+# call fails at workflow startup, not at runtime. So this file wires
+# `anthropics/claude-code-action` DIRECTLY instead, inlining what the reusable
+# does. That works today on the private repo AND survives the visibility flip
+# unchanged.
+#
+# This is Stage 1 of the tier-3 -> tier-1 transition. At Stage 4, once
+# Integral-Productivity/devops-excellence#603 provides a publicly-resolvable
+# host for the tier-1 reusables, this file gets swapped for the canonical
+# caller above. Keep this comment until that swap happens — otherwise the
+# reason for the divergence is archaeology.
+#
+# CONTEXTS WHERE THE REVIEW IS SKIPPED, NOT RUN
+# ----------------------------------------------
+# Two contexts get a SKIPPED (grey) check and no review, because GitHub
+# STRUCTURALLY withholds CLAUDE_CODE_OAUTH_TOKEN from them:
+#
+#   1. Dependabot-triggered runs, which read the Dependabot secret store rather
+#      than the Actions store. We deliberately do not provision the token
+#      there — a dependency bump is gated by typecheck, test, and build, not by
+#      a prose review of a version string.
+#   2. `pull_request` runs from FORKED head repos, to which GitHub passes no
+#      secrets at all. This matters more once the repo is public.
+#
+# The skip is at the JOB level on purpose. A job whose every step is gated off
+# still concludes SUCCESS — which is how a green "reviewed" check gets painted
+# on a PR nothing reviewed. A job skipped by `if:` reports grey instead.
+# Any OTHER run reaching the action with an empty token is a real
+# misconfiguration and fails RED at the precheck below.
+#
+# `github.actor` is the predicate, not `github.event.pull_request.user.login`
+# (the PR author — a human pushing to a dependabot/* branch fires `synchronize`
+# WITH Actions-scoped secrets and should be reviewed) and not
+# `github.triggering_actor` (which becomes the human who clicked Re-run, while
+# secret scope still follows the original event).
+
+name: Claude Code Review
+
+on:
+  pull_request:
+    types: [opened, synchronize, ready_for_review, reopened]
+
+# The repo default is `default_workflow_permissions: read`, which grants only
+# contents/packages read — everything else defaults to `none`. pull-requests is
+# WRITE so the bot can post a PR review; contents stays read (the reviewer only
+# reads code), issues stays read (the review path does not touch issues), and
+# id-token is for OIDC.
+permissions:
+  contents: read
+  pull-requests: write
+  issues: read
+  id-token: write
+
+concurrency:
+  group: claude-review-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  claude-review:
+    name: Claude Code Review
+    if: >-
+      github.actor != 'dependabot[bot]'
+      && github.event.pull_request.head.repo.fork != true
+    runs-on: ubuntu-latest
+    steps:
+      # Reaching this step with an empty token means a real misconfiguration —
+      # the job-level `if:` has already excluded every context where the token
+      # is legitimately absent. So it fails RED rather than emitting a warning
+      # nobody reads. There is deliberately no soft `ready` output gating the
+      # steps below: this step either exits 1 (job red, nothing downstream
+      # runs) or exits 0 (everything downstream runs).
+      #
+      # Do NOT interpolate the secret into the ::error:: text — GitHub expands
+      # ${{ }} inside `run:` before bash sees it, which would print the real
+      # token into the annotation.
+      - name: Verify CLAUDE_CODE_OAUTH_TOKEN is configured
+        env:
+          OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+        run: |
+          if [ -z "${OAUTH_TOKEN:-}" ]; then
+            echo "::error::CLAUDE_CODE_OAUTH_TOKEN is empty in the Actions secrets scope, and this run is not a known-tokenless context (Dependabot-triggered runs and fork PRs are skipped at the job level, by design)."
+            echo "::error::Provision it org-wide: run 'claude setup-token' locally to mint a long-lived token, then: gh secret set CLAUDE_CODE_OAUTH_TOKEN --org Integral-Productivity --visibility all"
+            exit 1
+          fi
+          echo "CLAUDE_CODE_OAUTH_TOKEN is present — running the review."
+
+      - name: Check out repo
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 1
+
+      - name: Run Claude Code Review
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          plugin_marketplaces: 'https://github.com/anthropics/claude-code.git'
+          plugins: 'code-review@claude-code-plugins'
+          prompt: '/code-review:code-review ${{ github.repository }}/pull/${{ github.event.pull_request.number }}'
+          # Our automation Apps drive PRs (ip-automerge pushes branch updates,
+          # producing a non-human `synchronize`; ip-adopt-standard opens the
+          # org-wide adopt-standard PRs). Without this they hard-fail the
+          # action's "workflow initiated by non-human actor" guard. Dependabot
+          # is deliberately absent — those runs never reach here.
+          allowed_bots: 'ip-automerge,ip-automerge-bot,ip-adopt-standard'
