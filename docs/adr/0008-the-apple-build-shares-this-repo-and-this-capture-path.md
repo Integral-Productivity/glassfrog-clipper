@@ -1,4 +1,4 @@
-# 7. The Apple build shares this repo, and this capture path
+# 8. The Apple build shares this repo, and this capture path
 
 Date: 2026-08-31
 

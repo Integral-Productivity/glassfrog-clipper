@@ -3,7 +3,7 @@
 A Safari web extension, a container app for iOS/iPadOS/macOS, and a Share
 Extension — sharing the capture path in [`../src`](../src) rather than
 re-deriving it. See
-[ADR 0007](../docs/adr/0007-the-apple-build-shares-this-repo-and-this-capture-path.md)
+[ADR 0008](../docs/adr/0008-the-apple-build-shares-this-repo-and-this-capture-path.md)
 for why this lives in the same repository as the Chrome extension.
 
 ## What is here
