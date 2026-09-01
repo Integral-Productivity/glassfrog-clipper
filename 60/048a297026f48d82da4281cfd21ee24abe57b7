@@ -1,0 +1,81 @@
+.github/workflows/bdd-and-fitness.yml
+  s_7fa391641cb19f::t_dcac358cd638b7 1-154
+cucumber.cjs
+  s_7fa391641cb19f::t_c104fe633e86a1 1-32
+docs/adr/0010-four-architectural-characteristics-get-fitness-functions.md
+  s_7fa391641cb19f::t_aa81afd0a41fff 1-140
+docs/adr/0011-behaviour-is-specified-at-the-domain-with-a-thin-platform-surface-layer.md
+  s_7fa391641cb19f::t_b5032dfaab32a8 1-117
+features/clipping-a-page.feature
+  s_7fa391641cb19f::t_86a4d6a30528fc 1-71
+features/never-losing-a-capture.feature
+  s_7fa391641cb19f::t_27747a6e293b78 1-56
+features/step_definitions/capture.steps.ts
+  s_7fa391641cb19f::t_359596a39d4db8 1-280
+features/step_definitions/chrome-surface.steps.ts
+  s_7fa391641cb19f::t_a1cd11c3ff81bc 1-109
+features/support/hooks.ts
+  s_7fa391641cb19f::t_2274238138b9f9 1-25
+features/support/world.ts
+  s_7fa391641cb19f::t_d15136d2993bde 1-137
+features/surface/chrome.feature
+  s_7fa391641cb19f::t_11ef5172711ee8 1-54
+fitness/checks/adr-numbering.ts
+  s_7fa391641cb19f::t_3ce51887f5f2d0 1-142
+fitness/checks/bundle-shape.ts
+  s_7fa391641cb19f::t_abdd012a0b22e5 1-119
+fitness/checks/credential-confinement.ts
+  s_7fa391641cb19f::t_a014e345380dbc 1-155
+fitness/checks/manifest-permissions.ts
+  s_7fa391641cb19f::t_c0fee13a183e5a 1-181
+fitness/checks/requirements-traceability.ts
+  s_7fa391641cb19f::t_c2a461d21ccab9 1-119
+fitness/checks/sdk-boundary.ts
+  s_7fa391641cb19f::t_c174d1e8f0c81d 1-106
+fitness/report.ts
+  s_7fa391641cb19f::t_301e1037e5399f 1-89
+fitness/root.ts
+  s_7fa391641cb19f::t_542cf305ced36a 1-19
+fitness/self/cli.ts
+  s_7fa391641cb19f::t_94172a6524cb2c 1-78
+package-lock.json
+  s_7fa391641cb19f::t_710a3640e0ded7 10,15,25-315,1176-1185,1238-1244,1258-1270,1278-1296,1339-1354,1400-1426,1487-1515,1543-1546,1549-1551,1553-1556,1559-1562,1565-1567,1569,1572,1575-1578,1580-1586,1588-1591,1595-1598,1601-1604,1607-1611,1614-1617,1619-1621,1624-1817,1833-1847,1858-1901,1994-2038,2053-2082,2139-2158,2169-2280,2304-2329,2353-2359,2384-2390,2461-2476,2505-2587
+package.json
+  s_7fa391641cb19f::t_a0be4e6ba3ce91 5,17-19,25
+scripts/check-bundle.mjs
+  s_7fa391641cb19f::t_4bc199122d7443 4-8,12,14,16-19,23
+test/adr-numbering.test.ts
+  s_7fa391641cb19f::t_ee2614354059e6 3-9,25,27-35
+test/fitness/bundle-shape.test.ts
+  s_7fa391641cb19f::t_900a74688afdc9 1-58
+test/fitness/credential-confinement.test.ts
+  s_7fa391641cb19f::t_12b5759535dbdf 1-65
+test/fitness/manifest-permissions.test.ts
+  s_7fa391641cb19f::t_b051e826b1c4e5 1-75
+test/fitness/sdk-boundary.test.ts
+  s_7fa391641cb19f::t_2743c4f199235b 1-50
+test/fitness/suite.test.ts
+  s_7fa391641cb19f::t_f6399e28ee2654 1-89
+test/requirements-coverage.test.ts
+  s_7fa391641cb19f::t_b5e2d1fa053b9c 3-11,25-30,35,42,50-72
+test/workflow-contexts.test.ts
+  s_7fa391641cb19f::t_c44c47eb55bbb4 1-74
+tsconfig.json
+  s_7fa391641cb19f::t_5cb458a6e0ec11 23-25
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "60048a297026f48d82da4281cfd21ee24abe57b7",
+  "prompts": {},
+  "sessions": {
+    "s_7fa391641cb19f": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "905b1742-bc96-4d9b-a307-3fb50a2ae145",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Kraig Parkinson <kraig.parkinson@gmail.com>"
+    }
+  }
+}
