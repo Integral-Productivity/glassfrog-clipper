@@ -2,9 +2,14 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile, readdir } from 'node:fs/promises';
 import { join } from 'node:path';
+import { pathToFileURL } from 'node:url';
+
+import { execFile } from 'node:child_process';
+import { promisify } from 'node:util';
 
 import { CHECKS, runAll } from '../../fitness/self/cli.ts';
 import { fail, pass, renderMarkdown } from '../../fitness/report.ts';
+import { REPO_ROOT, fromRoot } from '../../fitness/root.ts';
 
 /**
  * The guard on the guards.
@@ -86,4 +91,37 @@ test('an all-green run says so without listing anything', () => {
   const rendered = renderMarkdown([pass('a', 'characteristic a', 'fine')]);
   assert.match(rendered, /\*\*1 checks, all compliant\.\*\*/);
   assert.ok(!rendered.includes('❌'));
+});
+
+test('importing the CLI runs nothing — it is a module as well as a command', async () => {
+  /*
+   * A regression test for a bug CI caught and local runs could not.
+   *
+   * `fitness/self/cli.ts` used to `await main()` at module scope. This file
+   * imports `CHECKS` and `runAll` from it, so the import ran the whole suite:
+   * it printed the report into the TAP stream, and set `process.exitCode = 1`
+   * whenever any check failed — failing this test file even though every
+   * assertion in it passed.
+   *
+   * It was invisible locally because `dist/` already existed. In CI, `ci.yml`
+   * runs `npm test` before `npm run build`, so the bundle check found no
+   * artifact and reported a failure (a failure rather than a skip, deliberately)
+   * whose exit code the test process inherited.
+   *
+   * Asserting on stdout rather than on the exit code is what makes this catch
+   * the bug in either environment: if `main()` runs on import it prints the
+   * markdown report, whether the suite is green or red.
+   */
+  const cli = fromRoot('fitness/self/cli.ts');
+  const { stdout } = await promisify(execFile)(
+    process.execPath,
+    ['--input-type=module', '-e', `await import(${JSON.stringify(pathToFileURL(cli).href)});`],
+    { cwd: REPO_ROOT },
+  );
+
+  assert.equal(
+    stdout.trim(),
+    '',
+    'importing the CLI printed a report, so it executed on import — restore the entry-point guard',
+  );
 });

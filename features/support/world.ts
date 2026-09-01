@@ -26,6 +26,13 @@ import type { DefaultStatus } from '../../src/storage.ts';
 import { type FakeChrome, installFakeChrome } from '../../test/support/chrome.ts';
 import type { Capture } from '../../src/types.ts';
 
+/**
+ * The page every scenario clips. Shared by both step files so the domain steps
+ * and the surface steps cannot drift onto different URLs and quietly stop
+ * asserting the same thing.
+ */
+export const PAGE_URL = 'https://example.test/the-page';
+
 /** One accepted write, in the shape the port received it. */
 export interface FiledItem {
   kind: 'tension' | 'action' | 'project';

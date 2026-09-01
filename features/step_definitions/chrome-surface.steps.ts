@@ -17,7 +17,7 @@ import { Given, Then, When } from '@cucumber/cucumber';
 
 import { EVIDENCE_FIELD_LIMIT } from '../../src/compose.ts';
 import { installFakeChrome } from '../../test/support/chrome.ts';
-import type { ClipperWorld } from '../support/world.ts';
+import { PAGE_URL, type ClipperWorld } from '../support/world.ts';
 
 // See the note in capture.steps.ts: background.ts needs `chrome` to exist at
 // module evaluation, so the fake goes up before the dynamic import.
@@ -25,11 +25,9 @@ installFakeChrome();
 const { quickCapture } = await import('../../src/background.ts');
 await new Promise((resolve) => setImmediate(resolve));
 
-const TAB_URL = 'https://example.test/the-page';
-
 /** An ordinary readable tab, which most of these scenarios start from. */
 function readableTab(): chrome.tabs.Tab {
-  return { id: 1, url: TAB_URL, title: 'A page worth clipping' } as chrome.tabs.Tab;
+  return { id: 1, url: PAGE_URL, title: 'A page worth clipping' } as chrome.tabs.Tab;
 }
 
 /**

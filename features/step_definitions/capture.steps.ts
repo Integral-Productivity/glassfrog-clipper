@@ -24,7 +24,7 @@ import {
 } from '../../src/storage.ts';
 import type { Capture, WorkType } from '../../src/types.ts';
 import { installFakeChrome } from '../../test/support/chrome.ts';
-import type { ClipperWorld } from '../support/world.ts';
+import { PAGE_URL, type ClipperWorld } from '../support/world.ts';
 
 /**
  * `src/background.ts` registers its listeners and calls `enableTrustedContexts()`
@@ -43,7 +43,6 @@ await new Promise((resolve) => setImmediate(resolve));
 const API_KEY = 'test-key-not-a-real-one';
 const CAPTURE_ROLE = 'role_0123456789abcdef0123456789abcdef';
 const NAMED_ROLE = 'role_fedcba9876543210fedcba9876543210';
-const PAGE_URL = 'https://example.test/the-page';
 
 let captureCounter = 0;
 const nextCaptureId = (): string => `scenario-capture-${(captureCounter += 1)}`;
@@ -237,7 +236,16 @@ Then('the detail contains {string}', function (this: ClipperWorld, needle: strin
 });
 
 Then('the detail contains the page address', function (this: ClipperWorld) {
-  assert.ok(this.detailOf(this.onlyFiled()).includes(PAGE_URL));
+  // Compared field-by-field rather than as a substring of the whole block. The
+  // evidence fields are joined by a blank line, so this asserts the URL IS one
+  // of them — a substring check would also pass on a URL that merely had this
+  // one as a prefix, which is both a weaker assertion and the shape CodeQL
+  // flags as incomplete URL sanitization.
+  const fields = this.detailOf(this.onlyFiled()).split('\n\n');
+  assert.ok(
+    fields.includes(PAGE_URL),
+    `expected the page address as an evidence field, got ${JSON.stringify(fields)}`,
+  );
 });
 
 Then('the project links to the page', function (this: ClipperWorld) {

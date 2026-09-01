@@ -17,6 +17,7 @@
  */
 import { mkdir, writeFile } from 'node:fs/promises';
 import { dirname } from 'node:path';
+import { pathToFileURL } from 'node:url';
 
 import { runAdrNumberingCheck } from '../checks/adr-numbering.ts';
 import { runBundleShapeCheck } from '../checks/bundle-shape.ts';
@@ -75,4 +76,22 @@ async function main(): Promise<void> {
   if (results.some((result) => !result.compliant)) process.exitCode = 1;
 }
 
-await main();
+/**
+ * Only run when invoked as a command, never on import.
+ *
+ * `test/fitness/suite.test.ts` imports `CHECKS` and `runAll` from this module.
+ * Without this guard that import *executes the whole suite*, printing the report
+ * into the TAP stream and — the part that actually bit — setting
+ * `process.exitCode = 1` whenever any check fails, which fails the test file
+ * even though every assertion in it passed.
+ *
+ * It surfaced only in CI, because `ci.yml` runs `npm test` before `npm run
+ * build`: with no `dist/background.js` the bundle check reports a failure (a
+ * failure rather than a skip, deliberately), and the test process inherited its
+ * exit code. Locally the build had already run, so the suite was green and the
+ * side effect was invisible. A module with a top-level side effect is only safe
+ * while nothing imports it.
+ */
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  await main();
+}

@@ -38,8 +38,16 @@ const SDK_PACKAGE = '@integral-productivity/glassfrog';
 const DIRECT_HTTP =
   /\b(?:fetch|XMLHttpRequest|axios)\b[^\n]{0,200}?(?:api\.glassfrog\.com|glassfrog\.com\/api)/;
 
-/** The GlassFrog origin appearing anywhere it is not a declared destination. */
-const GLASSFROG_ORIGIN = /api\.glassfrog\.com/;
+/**
+ * The GlassFrog host, searched for as a plain substring of source text.
+ *
+ * Deliberately not a regex. This is a grep over a `.ts` file, not a check on a
+ * URL — there is nothing to anchor, and an unanchored host *pattern* is exactly
+ * what CodeQL's `js/regex/missing-regexp-anchor` warns about, correctly, in the
+ * context that rule is written for. `String.includes` says what this actually
+ * does and cannot be misread as origin validation.
+ */
+const GLASSFROG_HOST = 'api.glassfrog.com';
 
 /** The pure rule over one file, so a fixture can exercise the red path. */
 export function boundaryViolations(path: string, source: string): Violation[] {
@@ -67,7 +75,7 @@ export function boundaryViolations(path: string, source: string): Violation[] {
   // The origin outside the adapter is not automatically wrong — the manifest's
   // host_permissions names it too — but in a source file it is the strongest
   // available signal that a second client is being grown.
-  if (!isAdapter && GLASSFROG_ORIGIN.test(source) && !DIRECT_HTTP.test(source)) {
+  if (!isAdapter && source.includes(GLASSFROG_HOST) && !DIRECT_HTTP.test(source)) {
     violations.push({
       where: path,
       detail:
