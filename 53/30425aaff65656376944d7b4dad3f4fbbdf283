@@ -1,0 +1,218 @@
+"apple/GlassFrog Clipper/Shared (App)/Assets.xcassets/Contents.json"
+  s_7fa391641cb19f::t_0594198bb8820f 1-6
+test/requirements-coverage.test.ts
+  s_7fa391641cb19f::t_0594198bb8820f 48-54
+fitness/checks/bundle-shape.ts
+  s_7fa391641cb19f::t_ce3ae812818159 15,53-68,70-74,77-87,128,133,143
+"apple/GlassFrog Clipper/GlassFrog Clipper.xcodeproj/project.xcworkspace/contents.xcworkspacedata"
+  s_7fa391641cb19f::t_0594198bb8820f 1-7
+test/report.test.ts
+  s_7fa391641cb19f::t_0594198bb8820f 1-189
+"apple/GlassFrog Clipper/iOS (App)/Base.lproj/LaunchScreen.storyboard"
+  s_7fa391641cb19f::t_0594198bb8820f 1-36
+fitness/checks/requirements-traceability.ts
+  s_7fa391641cb19f::t_ce3ae812818159 29-33,35,117-118
+test/safari-manifest.test.ts
+  s_7fa391641cb19f::t_0594198bb8820f 1-94
+docs/verifying-in-chrome.md
+  s_7fa391641cb19f::t_0594198bb8820f 123-174
+test/fixtures/compose-cases.json
+  s_7fa391641cb19f::t_0594198bb8820f 1-217
+test/fitness/bundle-shape.test.ts
+  s_7fa391641cb19f::t_ec7216ee138d74 49-61
+src/notify.ts
+  s_7fa391641cb19f::t_0594198bb8820f 12-13,68-90,92-119,123-151,160-165
+apple/README.md
+  s_7fa391641cb19f::t_0594198bb8820f 1-122
+"apple/GlassFrog Clipper/Shared (App)/SettingsModel.swift"
+  s_7fa391641cb19f::t_0594198bb8820f 1-129
+docs/agents/labels.json
+  s_7fa391641cb19f::t_0594198bb8820f 1-34
+scripts/build-safari.mjs
+  s_7fa391641cb19f::t_0594198bb8820f 1-53
+src/bridge.ts
+  s_7fa391641cb19f::t_0594198bb8820f 1-132
+public/manifest.safari.json
+  s_7fa391641cb19f::t_0594198bb8820f 1-24
+docs/adr/0007-telemetry-is-local-only-and-allowlisted-at-the-write-boundary.md
+  s_7fa391641cb19f::t_0594198bb8820f 1-118
+"apple/GlassFrog Clipper/macOS (Share)/Info.plist"
+  s_7fa391641cb19f::t_0594198bb8820f 1-35
+"apple/GlassFrog Clipper/Shared (App)/Resources/Script.js"
+  s_7fa391641cb19f::t_0594198bb8820f 1-24
+apple/GlassFrogClipperCore/Sources/GlassFrogClipperCore/Compose.swift
+  s_7fa391641cb19f::t_0594198bb8820f 1-155
+apple/GlassFrogClipperCore/Sources/GlassFrogClipperCore/CaptureFiler.swift
+  s_7fa391641cb19f::t_0594198bb8820f 1-72
+public/options.html
+  s_7fa391641cb19f::t_0594198bb8820f 23-37,75-94
+  s_7fa391641cb19f::t_7b68f3bad69773 95
+scripts/xcode-add-share.py
+  s_7fa391641cb19f::t_0594198bb8820f 1-269
+"apple/GlassFrog Clipper/Shared (App)/Assets.xcassets/AccentColor.colorset/Contents.json"
+  s_7fa391641cb19f::t_0594198bb8820f 1-11
+.github/workflows/label-drift.yml
+  s_7fa391641cb19f::t_0594198bb8820f 1-134
+src/background.ts
+  s_7fa391641cb19f::t_0594198bb8820f 10,16-17,37,41,57-66,78,84-93,124-130,132,137,146,162,164-167,170-207,233-237
+src/popup.ts
+  s_7fa391641cb19f::t_0594198bb8820f 15-22,83-124,178-185,188,201-202,207-215,220-224,258,262-266,276-283
+apple/GlassFrogClipperCore/Sources/GlassFrogClipperCore/Configuration.swift
+  s_7fa391641cb19f::t_0594198bb8820f 1-116
+src/messages.ts
+  s_7fa391641cb19f::t_0594198bb8820f 12,17-26,32-60
+src/queue-health.ts
+  s_7fa391641cb19f::t_0594198bb8820f 1-297
+test/queue-health.test.ts
+  s_7fa391641cb19f::t_0594198bb8820f 1-311
+test/telemetry-ownership.test.ts
+  s_7fa391641cb19f::t_0594198bb8820f 1-75
+.github/workflows/apple.yml
+  s_7fa391641cb19f::t_0594198bb8820f 1-96
+apple/GlassFrogClipperCore/Sources/GlassFrogClipperCore/Failure.swift
+  s_7fa391641cb19f::t_0594198bb8820f 1-133
+"apple/GlassFrog Clipper/iOS (App)/AppDelegate.swift"
+  s_7fa391641cb19f::t_0594198bb8820f 1-24
+"apple/GlassFrog Clipper/iOS (App)/Base.lproj/Main.storyboard"
+  s_7fa391641cb19f::t_0594198bb8820f 1-38
+"apple/GlassFrog Clipper/Shared (Share)/ShareViewController.swift"
+  s_7fa391641cb19f::t_0594198bb8820f 1-60
+test/metrics.test.ts
+  s_7fa391641cb19f::t_0594198bb8820f 1-272
+test/platform.test.ts
+  s_7fa391641cb19f::t_0594198bb8820f 1-128
+test/support/chrome.ts
+  s_7fa391641cb19f::t_0594198bb8820f 52-54,62-65,90-91,105-118,122-124,214,221,247,250-264
+  s_7fa391641cb19f::t_b7a984e88c81df 265
+"apple/GlassFrog Clipper/macOS (App)/Info.plist"
+  s_7fa391641cb19f::t_0594198bb8820f 1-8
+scripts/manifest-merge.mjs
+  s_7fa391641cb19f::t_0594198bb8820f 1-22
+scripts/xcode-entitlements.py
+  s_7fa391641cb19f::t_0594198bb8820f 1-58
+"apple/GlassFrog Clipper/macOS (App)/Base.lproj/Main.storyboard"
+  s_7fa391641cb19f::t_0594198bb8820f 1-124
+"apple/GlassFrog Clipper/iOS (Share)/Info.plist"
+  s_7fa391641cb19f::t_0594198bb8820f 1-35
+.gitignore
+  s_7fa391641cb19f::t_0594198bb8820f 9-20
+test/label-manifest.test.ts
+  s_7fa391641cb19f::t_0594198bb8820f 1-291
+"apple/GlassFrog Clipper/Shared (App)/Assets.xcassets/LargeIcon.imageset/Contents.json"
+  s_7fa391641cb19f::t_0594198bb8820f 1-21
+scripts/check-bundle.mjs
+  s_7fa391641cb19f::t_04e07d61e5d2cb 10-12
+test/notice-chain.test.ts
+  s_7fa391641cb19f::t_0594198bb8820f 1-161
+scripts/generate-compose-fixtures.mjs
+  s_7fa391641cb19f::t_0594198bb8820f 1-71
+"apple/GlassFrog Clipper/Shared (App)/Assets.xcassets/AppIcon.appiconset/Contents.json"
+  s_7fa391641cb19f::t_0594198bb8820f 1-98
+test/telemetry.test.ts
+  s_7fa391641cb19f::t_0594198bb8820f 1-403
+apple/GlassFrogClipperCore/Sources/GlassFrogClipperCore/Keychain.swift
+  s_7fa391641cb19f::t_0594198bb8820f 1-80
+test/bridge.test.ts
+  s_7fa391641cb19f::t_0594198bb8820f 1-132
+"apple/GlassFrog Clipper/Shared (App)/SettingsView.swift"
+  s_7fa391641cb19f::t_0594198bb8820f 1-163
+src/platform.ts
+  s_7fa391641cb19f::t_0594198bb8820f 1-92
+src/storage.ts
+  s_7fa391641cb19f::t_0594198bb8820f 12,26-27,94-116,242-260,275-297
+  s_7fa391641cb19f::t_e393cb8d0a0361 298
+scripts/xcode-bootstrap.sh
+  s_7fa391641cb19f::t_0594198bb8820f 1-62
+"apple/GlassFrog Clipper/Shared (App)/ViewController.swift"
+  s_7fa391641cb19f::t_0594198bb8820f 1-63
+"apple/GlassFrog Clipper/iOS (App)/Info.plist"
+  s_7fa391641cb19f::t_0594198bb8820f 1-27
+"apple/GlassFrog Clipper/GlassFrog Clipper.xcodeproj/project.pbxproj"
+  s_7fa391641cb19f::t_0594198bb8820f 1-1492
+"apple/GlassFrog Clipper/iOS (Extension)/Info.plist"
+  s_7fa391641cb19f::t_0594198bb8820f 1-13
+"apple/GlassFrog Clipper/Shared (Share)/SharedItem.swift"
+  s_7fa391641cb19f::t_0594198bb8820f 1-72
+"apple/GlassFrog Clipper/Shared (Share)/ShareCaptureView.swift"
+  s_7fa391641cb19f::t_0594198bb8820f 1-156
+"apple/GlassFrog Clipper/Entitlements/macOS.entitlements"
+  s_7fa391641cb19f::t_0594198bb8820f 1-28
+"apple/GlassFrog Clipper/Shared (App)/Resources/Style.css"
+  s_7fa391641cb19f::t_0594198bb8820f 1-61
+package.json
+  s_7fa391641cb19f::t_0594198bb8820f 14
+  s_7fa391641cb19f::t_04e07d61e5d2cb 18-19
+src/report.ts
+  s_7fa391641cb19f::t_0594198bb8820f 1-162
+"apple/GlassFrog Clipper/Entitlements/iOS.entitlements"
+  s_7fa391641cb19f::t_0594198bb8820f 1-34
+src/telemetry.ts
+  s_7fa391641cb19f::t_0594198bb8820f 1-306
+"apple/GlassFrog Clipper/macOS (Extension)/Info.plist"
+  s_7fa391641cb19f::t_0594198bb8820f 1-13
+docs/agents/triage-labels.md
+  s_7fa391641cb19f::t_0594198bb8820f 8-38,41,75,93
+apple/GlassFrogClipperCore/Sources/GlassFrogClipperCore/GlassFrogClient.swift
+  s_7fa391641cb19f::t_0594198bb8820f 1-190
+apple/GlassFrogClipperCore/Sources/GlassFrogClipperCore/Notifier.swift
+  s_7fa391641cb19f::t_0594198bb8820f 1-63
+"apple/GlassFrog Clipper/Shared (Extension)/SafariWebExtensionHandler.swift"
+  s_7fa391641cb19f::t_0594198bb8820f 1-83
+"apple/GlassFrog Clipper/macOS (App)/AppDelegate.swift"
+  s_7fa391641cb19f::t_0594198bb8820f 1-21
+"apple/GlassFrog Clipper/Shared (Share)/ShareCaptureModel.swift"
+  s_7fa391641cb19f::t_0594198bb8820f 1-97
+apple/GlassFrogClipperCore/Package.swift
+  s_7fa391641cb19f::t_0594198bb8820f 1-31
+scripts/check-labels.mjs
+  s_7fa391641cb19f::t_0594198bb8820f 1-240
+README.md
+  s_7fa391641cb19f::t_0594198bb8820f 17-24,33-37,48-50
+src/glassfrog.ts
+  s_7fa391641cb19f::t_0594198bb8820f 4,99-181
+  s_7fa391641cb19f::t_ae1a6685820d4f 182
+apple/GlassFrogClipperCore/Tests/GlassFrogClipperCoreTests/CoreTests.swift
+  s_7fa391641cb19f::t_0594198bb8820f 1-290
+apple/GlassFrogClipperCore/Tests/GlassFrogClipperCoreTests/ComposeParityTests.swift
+  s_7fa391641cb19f::t_0594198bb8820f 1-126
+docs/adr/0008-the-apple-build-shares-this-repo-and-this-capture-path.md
+  s_7fa391641cb19f::t_0594198bb8820f 1-118
+scripts/verify-apple.sh
+  s_7fa391641cb19f::t_0594198bb8820f 1-48
+apple/GlassFrogClipperCore/Sources/GlassFrogClipperCore/NativeMessage.swift
+  s_7fa391641cb19f::t_0594198bb8820f 1-100
+scripts/xcode-resource-phase.py
+  s_7fa391641cb19f::t_0594198bb8820f 1-133
+src/metrics.ts
+  s_7fa391641cb19f::t_0594198bb8820f 1-243
+src/options.ts
+  s_7fa391641cb19f::t_0594198bb8820f 12,14-16,18-19,26,34,48-53,68-73,75-204,256,261-268,286-291,324-329,335-336
+"apple/GlassFrog Clipper/iOS (App)/SceneDelegate.swift"
+  s_7fa391641cb19f::t_0594198bb8820f 1-18
+scripts/xcode-wire.py
+  s_7fa391641cb19f::t_0594198bb8820f 1-197
+apple/GlassFrogClipperCore/Sources/GlassFrogClipperCore/Capture.swift
+  s_7fa391641cb19f::t_0594198bb8820f 1-74
+test/glassfrog-adapter.test.ts
+  s_7fa391641cb19f::t_0594198bb8820f 6,360-484
+test/compose-fixture.test.ts
+  s_7fa391641cb19f::t_0594198bb8820f 1-67
+"apple/GlassFrog Clipper/Shared (App)/Resources/Base.lproj/Main.html"
+  s_7fa391641cb19f::t_0594198bb8820f 1-20
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "5330425aaff65656376944d7b4dad3f4fbbdf283",
+  "prompts": {},
+  "sessions": {
+    "s_7fa391641cb19f": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "905b1742-bc96-4d9b-a307-3fb50a2ae145",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Kraig Parkinson <kraig.parkinson@gmail.com>"
+    }
+  }
+}
