@@ -1,0 +1,40 @@
+docs/adr/0011-behaviour-is-specified-at-the-domain-with-a-thin-platform-surface-layer.md
+  s_e1ba14da3f6ac0::t_be90333b563cdf 7-8,101-151
+  s_e1ba14da3f6ac0::t_1f3000fa476b9d 152-174
+features/surface/chrome.feature
+  s_e1ba14da3f6ac0::t_588d866b133a76 17-21
+apple/GlassFrogClipperCore/Tests/GlassFrogClipperCoreTests/ShareSheetSurfaceTests.swift
+  s_e1ba14da3f6ac0::t_d45e32493eac5d 1-13,15-19,21-23,28-29,32-45,48-58,99-101,115-116,118-121,125-130,137-138,141,154-157,160,170-171,173,186-193,195-197,199,208-209,215-216,222-224,226-228,232-234,240-241
+  s_e1ba14da3f6ac0::t_7eaeb7577129b2 14,20,24-27,30-31,46-47,102-114,117,122-123,131-136,139-140,142-153,158-159,161-162,164-169,172,174-185,198,200-207,210-214,217-221,225,229-230,235-239
+  s_e1ba14da3f6ac0::t_a10a886914f1cb 124,163,194,231
+  s_e1ba14da3f6ac0::t_73f3215fb7443b 59-98
+  s_e1ba14da3f6ac0::t_ef2346524932cb 242-334
+"apple/GlassFrog Clipper/GlassFrog Clipper.xcodeproj/project.pbxproj"
+  s_e1ba14da3f6ac0::t_0d7806558d9928 177,290,712,732
+apple/GlassFrogClipperCore/Package.swift
+  s_e1ba14da3f6ac0::t_55a0519f62f1c9 14-18
+  s_e1ba14da3f6ac0::t_aac0319ea0d9f2 19-20
+apple/GlassFrogClipperCore/Sources/GlassFrogClipperCore/SharedItem.swift
+  s_e1ba14da3f6ac0::t_55a0519f62f1c9 3,13-20
+  s_e1ba14da3f6ac0::t_3d605039c05740 51,54,73,75-83,86,89-114
+  s_e1ba14da3f6ac0::t_54bcfc811f842b 1-2,4-12,21-50,52-53,55-72,74,84-85,87-88,115-116
+  s_e1ba14da3f6ac0::t_50ad6932a46204 117-132
+CONCEPTS.md
+  s_e1ba14da3f6ac0::t_be90333b563cdf 41-42
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "2089a6145db0573f67513ce8ce85d65a0a315cde",
+  "prompts": {},
+  "sessions": {
+    "s_e1ba14da3f6ac0": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "fff66259-fe97-4a13-88ee-cc2a59b0636a",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Kraig Parkinson <kraig.parkinson@gmail.com>"
+    }
+  }
+}
