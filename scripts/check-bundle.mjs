@@ -7,6 +7,9 @@
  * keeps working unchanged — there is one implementation, called from two
  * places, rather than two implementations that drift.
  *
+ * The Safari-manifest rule that arrived with the Apple targets (#66) moved into
+ * that same module rather than staying here, for the same reason.
+ *
  * Run after `npm run build`. Exits non-zero with a message naming the cause.
  */
 import { runBundleShapeCheck } from '../fitness/checks/bundle-shape.ts';

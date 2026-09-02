@@ -46,6 +46,19 @@ test('a bundle over budget is caught, and one at the budget is not', () => {
   assert.match(over[0]!.detail, /over the 256 KiB budget/);
 });
 
+test('a build input for another platform shipping in dist/ is caught', () => {
+  // Arrived with the Apple targets (#66): `npm run build` copies all of public/
+  // into dist/, so the Safari manifest overlay rides along unless something
+  // removes it. The `build` script deletes it and this asserts it is gone —
+  // this is the half that survives someone editing the build script.
+  assert.deepEqual(bundleViolations('', 100, ['background.js', 'manifest.json']), []);
+
+  const violations = bundleViolations('', 100, ['background.js', 'manifest.safari.json']);
+  assert.equal(violations.length, 1);
+  assert.equal(violations[0]!.where, 'dist/manifest.safari.json');
+  assert.match(violations[0]!.detail, /build input for another platform/);
+});
+
 test('the real bundle is checked, and a missing one is a failure rather than a skip', async () => {
   const result = await runBundleShapeCheck();
   // Either outcome is legitimate depending on whether `npm run build` has run,

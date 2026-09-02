@@ -5,15 +5,41 @@ disk — or an agent without repo API access — can see the convention without
 running `gh label list`, and so a triage pass does not have to re-derive which
 state fits.
 
-**Reconcile, don't drift.** GitHub is where these labels are enforced; this file
-is where they are explained. When the two disagree, the live label set wins and
-this file is what needs correcting. Check with:
+## Which way authority runs
+
+[`docs/agents/labels.json`](labels.json) is the **source of truth** for this
+repository's labels. This file explains that manifest in prose; GitHub is
+applied from it. When any two of the three disagree, the manifest is right and
+the other one is what needs correcting.
+
+Nothing here is maintained by remembering to. Both disagreements are caught:
+
+| Disagreement | Caught by | When |
+|---|---|---|
+| This document vs. the manifest | `test/label-manifest.test.ts`, in `npm test` | Every pull request, before merge |
+| The manifest vs. the live GitHub labels | [`.github/workflows/label-drift.yml`](../../.github/workflows/label-drift.yml) | Daily, and whenever the manifest changes on `main` |
+
+The split exists because labels live behind the GitHub API. A check that needed
+a token could not run in `npm test` — it would fail red on a fork, and on any
+clone without one — so only the offline half blocks a pull request. The online
+half never blocks anything: it reopens a standing issue describing the drift,
+and closes that issue once the two agree again.
+
+**To change a label**, edit `labels.json` and this document together — `npm test`
+fails if you change only one — then run the **Label drift** workflow with
+*apply* checked to push the change to GitHub. Editing a label in the GitHub web
+UI instead is not forbidden, but it is not durable: the next scheduled run
+raises it as drift, and the next apply overwrites it.
+
+One thing apply cannot do is remove a label that exists on GitHub but not in the
+manifest, because deleting a label strips it off every issue carrying it. Those
+are reported for a person to resolve deliberately.
+
+You can check by hand at any time:
 
 ```
-gh label list --repo Integral-Productivity/glassfrog-clipper-chrome-extension --limit 60 --json name,description
+node scripts/check-labels.mjs
 ```
-
-Last reconciled against the live set: 2026-08-31.
 
 > **On the count.** [Issue #43](https://github.com/Integral-Productivity/glassfrog-clipper-chrome-extension/issues/43),
 > which asked for this document, says "six-state vocabulary" in its body and "the
@@ -46,7 +72,7 @@ STRATEGY.md track the work serves. They are orthogonal to both state and marker.
 Every issue carries exactly one. A newly filed issue that has not been triaged
 carries `needs-triage`.
 
-| State | Description (live) | Assign it when |
+| State | Description | Assign it when |
 |---|---|---|
 | `needs-triage` | Not yet assessed | The issue has just been filed and nobody has read it against the strategy yet. The default on arrival; never a resting place. |
 | `needs-info` | Blocked pending information | Triage cannot decide because something is missing from the issue itself — reproduction steps, a decision the filer has to make, a spec. The gap is answerable by a person; name who is being asked, in a comment. |
@@ -64,7 +90,7 @@ never leave two on one issue.
 
 Compatible with any state, and with each other.
 
-| Marker | Description (live) | Assign it when |
+| Marker | Description | Assign it when |
 |---|---|---|
 | `status:in-progress` | Actively being worked by a session | A session has claimed the issue and started. This is the claim signal: apply it *before* any code, alongside self-assigning and setting the GitHub Project item to In Progress, and remove it when the work lands or is abandoned. Work in progress is invisible on GitHub until a PR appears, so without this label a second session reads the issue as free and starts it too. |
 | `blocked-on-upstream` | Cannot proceed until a fix lands in another repo | The blocker lives in another repository — the `@integral-productivity/glassfrog` SDK, a `devops-excellence` workflow. Distinct from `needs-info`, whose blocker is information a person can supply; this one waits on someone else's merge. Name the upstream issue or PR in a comment. |

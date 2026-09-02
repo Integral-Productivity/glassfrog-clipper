@@ -26,12 +26,13 @@ export const TOTAL_REQUIREMENTS = 22;
  * Requirements deliberately not implemented here, each with the issue that
  * carries it. The plan's Scope Boundaries defer these; this is that deferral
  * made executable, so "deferred" cannot silently become "forgotten".
+ *
+ * Empty since issue #3 landed telemetry: R13 was the only entry, and it is now
+ * implemented in src/telemetry.ts and enforced by test/telemetry.test.ts and
+ * test/telemetry-ownership.test.ts. The list stays because the mechanism is
+ * what matters — the next deferral has somewhere to be written down.
  */
-export const DEFERRED: Record<number, string> = {
-  // Telemetry instrumentation. The DoD still forbids the API key reaching any
-  // telemetry field, which errors.test.ts enforces today.
-  13: 'https://github.com/Integral-Productivity/glassfrog-clipper-chrome-extension/issues/3',
-};
+export const DEFERRED: Record<number, string> = {};
 
 /**
  * Where a citation counts as a claim.
@@ -113,7 +114,8 @@ export async function runRequirementsTraceabilityCheck(): Promise<CheckResult> {
     ? pass(
         NAME,
         CHARACTERISTIC,
-        `${TOTAL_REQUIREMENTS - Object.keys(DEFERRED).length} of ${TOTAL_REQUIREMENTS} requirements traced; ${Object.keys(DEFERRED).length} deferred with an issue.`,
+        `${TOTAL_REQUIREMENTS - Object.keys(DEFERRED).length} of ${TOTAL_REQUIREMENTS} requirements traced` +
+          `${Object.keys(DEFERRED).length > 0 ? `; ${Object.keys(DEFERRED).length} deferred with an issue.` : ', none deferred.'}`,
       )
     : fail(NAME, CHARACTERISTIC, 'a requirement is unclaimed', violations);
 }

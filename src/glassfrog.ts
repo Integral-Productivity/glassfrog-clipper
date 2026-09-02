@@ -1,6 +1,7 @@
 import { GlassFrogClient } from '@integral-productivity/glassfrog';
 
 import type { CaptureWriter, CreatedItem } from './capture.ts';
+import type { QueueReader, TensionRecord, TensionStatus } from './queue-health.ts';
 import { displayName } from './roles.ts';
 import { type RoleSummary, getApiKey } from './storage.ts';
 
@@ -93,6 +94,90 @@ export function createWriter(client: GlassFrogClient): CaptureWriter {
 
 export async function getWriter(): Promise<CaptureWriter> {
   return createWriter(await getClient());
+}
+
+/**
+ * The read side of STRATEGY.md's fourth metric.
+ *
+ * Two calls, unioned. `GET /roles/{id}/subroles/tensions` returns the sub-role
+ * tree and, by its own name, not the role's own tensions — so a capture role
+ * that files against the circle itself would be invisible to a report reading
+ * only that endpoint. Reading both and deduplicating by id is cheap and cannot
+ * be wrong in the direction that matters: the failure mode of the alternative
+ * is a queue-health report that silently omits the clipped items it exists to
+ * measure.
+ *
+ * Every page is drained. A first page alone would cap the measure at the page
+ * size, and the whole point of a p90 is the tail — which is exactly what sits
+ * on the last page of a queue sorted any way at all.
+ */
+export function createQueueReader(client: GlassFrogClient): QueueReader {
+  return {
+    async listCircleTree(roleId): Promise<TensionRecord[]> {
+      const seen = new Map<string, TensionRecord>();
+
+      const drain = async (
+        fetchPage: (cursor?: string) => Promise<{
+          items: unknown[];
+          pagination: { has_next_page: boolean; next_cursor?: string };
+        }>,
+      ): Promise<void> => {
+        let cursor: string | undefined;
+        // Bounded so a server that always reports another page cannot spin the
+        // options page forever; QUEUE_PAGE_LIMIT pages is far more queue than
+        // any practitioner has.
+        for (let page = 0; page < QUEUE_PAGE_LIMIT; page += 1) {
+          const result = await fetchPage(cursor);
+          for (const record of toTensionRecords(result.items)) seen.set(record.id, record);
+          if (!result.pagination?.has_next_page || !result.pagination.next_cursor) return;
+          cursor = result.pagination.next_cursor;
+        }
+      };
+
+      await drain((cursor) =>
+        client.tensions.listByRole(roleId, { perPage: QUEUE_PAGE_SIZE, ...(cursor ? { cursor } : {}) }),
+      );
+      await drain((cursor) =>
+        client.tensions.listBySubRoles(roleId, { perPage: QUEUE_PAGE_SIZE, ...(cursor ? { cursor } : {}) }),
+      );
+
+      return [...seen.values()];
+    },
+  };
+}
+
+export const QUEUE_PAGE_SIZE = 100;
+export const QUEUE_PAGE_LIMIT = 50;
+
+const TENSION_STATUSES: readonly TensionStatus[] = ['unprocessed', 'processed', 'archived'];
+
+/**
+ * Keeps only the five fields the measure reads, and drops any tension missing
+ * one of them rather than substituting a default. A tension counted with a
+ * fabricated `created_at` of now would pull the p90 towards fresh, which is the
+ * one direction this report must never drift in on its own.
+ */
+function toTensionRecords(items: readonly unknown[]): TensionRecord[] {
+  const out: TensionRecord[] = [];
+  for (const item of items) {
+    if (typeof item !== 'object' || item === null) continue;
+    const { id, body, status, created_at, updated_at } = item as Record<string, unknown>;
+    if (typeof id !== 'string') continue;
+    if (typeof created_at !== 'string' || typeof updated_at !== 'string') continue;
+    if (!TENSION_STATUSES.includes(status as TensionStatus)) continue;
+    out.push({
+      id,
+      body: typeof body === 'string' ? body : null,
+      status: status as TensionStatus,
+      createdAt: created_at,
+      updatedAt: updated_at,
+    });
+  }
+  return out;
+}
+
+export async function getQueueReader(): Promise<QueueReader> {
+  return createQueueReader(await getClient());
 }
 
 /**

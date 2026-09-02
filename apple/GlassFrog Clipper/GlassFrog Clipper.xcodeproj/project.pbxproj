@@ -1,0 +1,1492 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		C1AFEE00000000000000041C /* GlassFrog Clipper Share.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = C1AFEE000000000000000418 /* GlassFrog Clipper Share.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		C1AFEE000000000000000417 /* Notifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1AFEE000000000000000029 /* Notifier.swift */; };
+		C1AFEE000000000000000416 /* NativeMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1AFEE000000000000000024 /* NativeMessage.swift */; };
+		C1AFEE000000000000000415 /* Keychain.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1AFEE00000000000000001F /* Keychain.swift */; };
+		C1AFEE000000000000000414 /* GlassFrogClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1AFEE00000000000000001A /* GlassFrogClient.swift */; };
+		C1AFEE000000000000000413 /* Failure.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1AFEE000000000000000015 /* Failure.swift */; };
+		C1AFEE000000000000000412 /* Configuration.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1AFEE000000000000000010 /* Configuration.swift */; };
+		C1AFEE000000000000000411 /* Compose.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1AFEE00000000000000000B /* Compose.swift */; };
+		C1AFEE000000000000000410 /* CaptureFiler.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1AFEE000000000000000006 /* CaptureFiler.swift */; };
+		C1AFEE00000000000000040F /* Capture.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1AFEE000000000000000001 /* Capture.swift */; };
+		C1AFEE00000000000000040E /* SharedItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1AFEE0000000000000003EB /* SharedItem.swift */; };
+		C1AFEE00000000000000040D /* ShareCaptureModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1AFEE0000000000000003EA /* ShareCaptureModel.swift */; };
+		C1AFEE00000000000000040C /* ShareCaptureView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1AFEE0000000000000003E9 /* ShareCaptureView.swift */; };
+		C1AFEE00000000000000040B /* ShareViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1AFEE0000000000000003E8 /* ShareViewController.swift */; };
+		C1AFEE000000000000000404 /* GlassFrog Clipper Share.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = C1AFEE000000000000000400 /* GlassFrog Clipper Share.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		C1AFEE0000000000000003FF /* Notifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1AFEE000000000000000029 /* Notifier.swift */; };
+		C1AFEE0000000000000003FE /* NativeMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1AFEE000000000000000024 /* NativeMessage.swift */; };
+		C1AFEE0000000000000003FD /* Keychain.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1AFEE00000000000000001F /* Keychain.swift */; };
+		C1AFEE0000000000000003FC /* GlassFrogClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1AFEE00000000000000001A /* GlassFrogClient.swift */; };
+		C1AFEE0000000000000003FB /* Failure.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1AFEE000000000000000015 /* Failure.swift */; };
+		C1AFEE0000000000000003FA /* Configuration.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1AFEE000000000000000010 /* Configuration.swift */; };
+		C1AFEE0000000000000003F9 /* Compose.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1AFEE00000000000000000B /* Compose.swift */; };
+		C1AFEE0000000000000003F8 /* CaptureFiler.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1AFEE000000000000000006 /* CaptureFiler.swift */; };
+		C1AFEE0000000000000003F7 /* Capture.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1AFEE000000000000000001 /* Capture.swift */; };
+		C1AFEE0000000000000003F6 /* SharedItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1AFEE0000000000000003EB /* SharedItem.swift */; };
+		C1AFEE0000000000000003F5 /* ShareCaptureModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1AFEE0000000000000003EA /* ShareCaptureModel.swift */; };
+		C1AFEE0000000000000003F4 /* ShareCaptureView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1AFEE0000000000000003E9 /* ShareCaptureView.swift */; };
+		C1AFEE0000000000000003F3 /* ShareViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1AFEE0000000000000003E8 /* ShareViewController.swift */; };
+		C1AFEE000000000000000002 /* Capture.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1AFEE000000000000000001 /* Capture.swift */; };
+		C1AFEE000000000000000003 /* Capture.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1AFEE000000000000000001 /* Capture.swift */; };
+		C1AFEE000000000000000004 /* Capture.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1AFEE000000000000000001 /* Capture.swift */; };
+		C1AFEE000000000000000005 /* Capture.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1AFEE000000000000000001 /* Capture.swift */; };
+		C1AFEE000000000000000007 /* CaptureFiler.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1AFEE000000000000000006 /* CaptureFiler.swift */; };
+		C1AFEE000000000000000008 /* CaptureFiler.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1AFEE000000000000000006 /* CaptureFiler.swift */; };
+		C1AFEE000000000000000009 /* CaptureFiler.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1AFEE000000000000000006 /* CaptureFiler.swift */; };
+		C1AFEE00000000000000000A /* CaptureFiler.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1AFEE000000000000000006 /* CaptureFiler.swift */; };
+		C1AFEE00000000000000000C /* Compose.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1AFEE00000000000000000B /* Compose.swift */; };
+		C1AFEE00000000000000000D /* Compose.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1AFEE00000000000000000B /* Compose.swift */; };
+		C1AFEE00000000000000000E /* Compose.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1AFEE00000000000000000B /* Compose.swift */; };
+		C1AFEE00000000000000000F /* Compose.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1AFEE00000000000000000B /* Compose.swift */; };
+		C1AFEE000000000000000011 /* Configuration.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1AFEE000000000000000010 /* Configuration.swift */; };
+		C1AFEE000000000000000012 /* Configuration.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1AFEE000000000000000010 /* Configuration.swift */; };
+		C1AFEE000000000000000013 /* Configuration.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1AFEE000000000000000010 /* Configuration.swift */; };
+		C1AFEE000000000000000014 /* Configuration.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1AFEE000000000000000010 /* Configuration.swift */; };
+		C1AFEE000000000000000016 /* Failure.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1AFEE000000000000000015 /* Failure.swift */; };
+		C1AFEE000000000000000017 /* Failure.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1AFEE000000000000000015 /* Failure.swift */; };
+		C1AFEE000000000000000018 /* Failure.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1AFEE000000000000000015 /* Failure.swift */; };
+		C1AFEE000000000000000019 /* Failure.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1AFEE000000000000000015 /* Failure.swift */; };
+		C1AFEE00000000000000001B /* GlassFrogClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1AFEE00000000000000001A /* GlassFrogClient.swift */; };
+		C1AFEE00000000000000001C /* GlassFrogClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1AFEE00000000000000001A /* GlassFrogClient.swift */; };
+		C1AFEE00000000000000001D /* GlassFrogClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1AFEE00000000000000001A /* GlassFrogClient.swift */; };
+		C1AFEE00000000000000001E /* GlassFrogClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1AFEE00000000000000001A /* GlassFrogClient.swift */; };
+		C1AFEE000000000000000020 /* Keychain.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1AFEE00000000000000001F /* Keychain.swift */; };
+		C1AFEE000000000000000021 /* Keychain.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1AFEE00000000000000001F /* Keychain.swift */; };
+		C1AFEE000000000000000022 /* Keychain.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1AFEE00000000000000001F /* Keychain.swift */; };
+		C1AFEE000000000000000023 /* Keychain.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1AFEE00000000000000001F /* Keychain.swift */; };
+		C1AFEE000000000000000025 /* NativeMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1AFEE000000000000000024 /* NativeMessage.swift */; };
+		C1AFEE000000000000000026 /* NativeMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1AFEE000000000000000024 /* NativeMessage.swift */; };
+		C1AFEE000000000000000027 /* NativeMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1AFEE000000000000000024 /* NativeMessage.swift */; };
+		C1AFEE000000000000000028 /* NativeMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1AFEE000000000000000024 /* NativeMessage.swift */; };
+		C1AFEE00000000000000002A /* Notifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1AFEE000000000000000029 /* Notifier.swift */; };
+		C1AFEE00000000000000002B /* Notifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1AFEE000000000000000029 /* Notifier.swift */; };
+		C1AFEE00000000000000002C /* Notifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1AFEE000000000000000029 /* Notifier.swift */; };
+		C1AFEE00000000000000002D /* Notifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1AFEE000000000000000029 /* Notifier.swift */; };
+		C1AFEE00000000000000002F /* SettingsModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1AFEE00000000000000002E /* SettingsModel.swift */; };
+		C1AFEE000000000000000030 /* SettingsModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1AFEE00000000000000002E /* SettingsModel.swift */; };
+		C1AFEE000000000000000032 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1AFEE000000000000000031 /* SettingsView.swift */; };
+		C1AFEE000000000000000033 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1AFEE000000000000000031 /* SettingsView.swift */; };
+		16D9BEF03045F72500F96D38 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16D9BEEF3045F72500F96D38 /* AppDelegate.swift */; };
+		16D9BEF23045F72500F96D38 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16D9BEF13045F72500F96D38 /* SceneDelegate.swift */; };
+		16D9BEF53045F72500F96D38 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 16D9BEF33045F72500F96D38 /* LaunchScreen.storyboard */; };
+		16D9BEF83045F72500F96D38 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 16D9BEF63045F72500F96D38 /* Main.storyboard */; };
+		16D9BF013045F72500F96D38 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16D9BF003045F72500F96D38 /* AppDelegate.swift */; };
+		16D9BF043045F72500F96D38 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 16D9BF023045F72500F96D38 /* Main.storyboard */; };
+		16D9BF0B3045F72500F96D38 /* GlassFrog Clipper Extension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 16D9BF0A3045F72500F96D38 /* GlassFrog Clipper Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		16D9BF153045F72500F96D38 /* GlassFrog Clipper Extension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 16D9BF143045F72500F96D38 /* GlassFrog Clipper Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		16D9BF1A3045F72600F96D38 /* Main.html in Resources */ = {isa = PBXBuildFile; fileRef = 16D9BEDF3045F72400F96D38 /* Main.html */; };
+		16D9BF1B3045F72600F96D38 /* Main.html in Resources */ = {isa = PBXBuildFile; fileRef = 16D9BEDF3045F72400F96D38 /* Main.html */; };
+		16D9BF1C3045F72600F96D38 /* Icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 16D9BEE13045F72400F96D38 /* Icon.png */; };
+		16D9BF1D3045F72600F96D38 /* Icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 16D9BEE13045F72400F96D38 /* Icon.png */; };
+		16D9BF1E3045F72600F96D38 /* Style.css in Resources */ = {isa = PBXBuildFile; fileRef = 16D9BEE23045F72400F96D38 /* Style.css */; };
+		16D9BF1F3045F72600F96D38 /* Style.css in Resources */ = {isa = PBXBuildFile; fileRef = 16D9BEE23045F72400F96D38 /* Style.css */; };
+		16D9BF203045F72600F96D38 /* Script.js in Resources */ = {isa = PBXBuildFile; fileRef = 16D9BEE33045F72400F96D38 /* Script.js */; };
+		16D9BF213045F72600F96D38 /* Script.js in Resources */ = {isa = PBXBuildFile; fileRef = 16D9BEE33045F72400F96D38 /* Script.js */; };
+		16D9BF223045F72600F96D38 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16D9BEE43045F72400F96D38 /* ViewController.swift */; };
+		16D9BF233045F72600F96D38 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16D9BEE43045F72400F96D38 /* ViewController.swift */; };
+		16D9BF243045F72600F96D38 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 16D9BEE53045F72500F96D38 /* Assets.xcassets */; };
+		16D9BF253045F72600F96D38 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 16D9BEE53045F72500F96D38 /* Assets.xcassets */; };
+		16D9BF263045F72600F96D38 /* SafariWebExtensionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16D9BEE73045F72500F96D38 /* SafariWebExtensionHandler.swift */; };
+		16D9BF273045F72600F96D38 /* SafariWebExtensionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16D9BEE73045F72500F96D38 /* SafariWebExtensionHandler.swift */; };
+		16D9BF403045F72600F96D38 /* popup.js in Resources */ = {isa = PBXBuildFile; fileRef = 16D9BF393045F72600F96D38 /* popup.js */; };
+		16D9BF413045F72600F96D38 /* background.js in Resources */ = {isa = PBXBuildFile; fileRef = 16D9BF3A3045F72600F96D38 /* background.js */; };
+		16D9BF423045F72600F96D38 /* popup.html in Resources */ = {isa = PBXBuildFile; fileRef = 16D9BF3B3045F72600F96D38 /* popup.html */; };
+		16D9BF433045F72600F96D38 /* options.js in Resources */ = {isa = PBXBuildFile; fileRef = 16D9BF3C3045F72600F96D38 /* options.js */; };
+		16D9BF443045F72600F96D38 /* icon128.png in Resources */ = {isa = PBXBuildFile; fileRef = 16D9BF3D3045F72600F96D38 /* icon128.png */; };
+		16D9BF453045F72600F96D38 /* manifest.json in Resources */ = {isa = PBXBuildFile; fileRef = 16D9BF3E3045F72600F96D38 /* manifest.json */; };
+		16D9BF463045F72600F96D38 /* options.html in Resources */ = {isa = PBXBuildFile; fileRef = 16D9BF3F3045F72600F96D38 /* options.html */; };
+		16D9BF473045F72600F96D38 /* popup.js in Resources */ = {isa = PBXBuildFile; fileRef = 16D9BF393045F72600F96D38 /* popup.js */; };
+		16D9BF483045F72600F96D38 /* background.js in Resources */ = {isa = PBXBuildFile; fileRef = 16D9BF3A3045F72600F96D38 /* background.js */; };
+		16D9BF493045F72600F96D38 /* popup.html in Resources */ = {isa = PBXBuildFile; fileRef = 16D9BF3B3045F72600F96D38 /* popup.html */; };
+		16D9BF4A3045F72600F96D38 /* options.js in Resources */ = {isa = PBXBuildFile; fileRef = 16D9BF3C3045F72600F96D38 /* options.js */; };
+		16D9BF4B3045F72600F96D38 /* icon128.png in Resources */ = {isa = PBXBuildFile; fileRef = 16D9BF3D3045F72600F96D38 /* icon128.png */; };
+		16D9BF4C3045F72600F96D38 /* manifest.json in Resources */ = {isa = PBXBuildFile; fileRef = 16D9BF3E3045F72600F96D38 /* manifest.json */; };
+		16D9BF4D3045F72600F96D38 /* options.html in Resources */ = {isa = PBXBuildFile; fileRef = 16D9BF3F3045F72600F96D38 /* options.html */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		C1AFEE00000000000000041A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 16D9BED93045F72300F96D38 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = C1AFEE000000000000000419;
+			remoteInfo = "GlassFrog Clipper Share Extension (macOS)";
+		};
+		C1AFEE000000000000000402 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 16D9BED93045F72300F96D38 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = C1AFEE000000000000000401;
+			remoteInfo = "GlassFrog Clipper Share Extension (iOS)";
+		};
+		16D9BF0C3045F72500F96D38 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 16D9BED93045F72300F96D38 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 16D9BF093045F72500F96D38;
+			remoteInfo = "GlassFrog Clipper Extension (iOS)";
+		};
+		16D9BF163045F72500F96D38 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 16D9BED93045F72300F96D38 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 16D9BF133045F72500F96D38;
+			remoteInfo = "GlassFrog Clipper Extension (macOS)";
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		16D9BF2D3045F72600F96D38 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				C1AFEE000000000000000404 /* GlassFrog Clipper Share.appex in Embed Foundation Extensions */,
+				16D9BF0B3045F72500F96D38 /* GlassFrog Clipper Extension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		16D9BF343045F72600F96D38 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				C1AFEE00000000000000041C /* GlassFrog Clipper Share.appex in Embed Foundation Extensions */,
+				16D9BF153045F72500F96D38 /* GlassFrog Clipper Extension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		C1AFEE000000000000000418 /* GlassFrog Clipper Share.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "GlassFrog Clipper Share.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
+		C1AFEE000000000000000400 /* GlassFrog Clipper Share.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "GlassFrog Clipper Share.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
+		C1AFEE0000000000000003EB /* SharedItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SharedItem.swift; path = "Shared (Share)/SharedItem.swift"; sourceTree = "<group>"; };
+		C1AFEE0000000000000003EA /* ShareCaptureModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ShareCaptureModel.swift; path = "Shared (Share)/ShareCaptureModel.swift"; sourceTree = "<group>"; };
+		C1AFEE0000000000000003E9 /* ShareCaptureView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ShareCaptureView.swift; path = "Shared (Share)/ShareCaptureView.swift"; sourceTree = "<group>"; };
+		C1AFEE0000000000000003E8 /* ShareViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ShareViewController.swift; path = "Shared (Share)/ShareViewController.swift"; sourceTree = "<group>"; };
+		C1AFEE000000000000000001 /* Capture.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = Capture.swift; path = "../GlassFrogClipperCore/Sources/GlassFrogClipperCore/Capture.swift"; sourceTree = "<group>"; };
+		C1AFEE000000000000000006 /* CaptureFiler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CaptureFiler.swift; path = "../GlassFrogClipperCore/Sources/GlassFrogClipperCore/CaptureFiler.swift"; sourceTree = "<group>"; };
+		C1AFEE00000000000000000B /* Compose.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = Compose.swift; path = "../GlassFrogClipperCore/Sources/GlassFrogClipperCore/Compose.swift"; sourceTree = "<group>"; };
+		C1AFEE000000000000000010 /* Configuration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = Configuration.swift; path = "../GlassFrogClipperCore/Sources/GlassFrogClipperCore/Configuration.swift"; sourceTree = "<group>"; };
+		C1AFEE000000000000000015 /* Failure.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = Failure.swift; path = "../GlassFrogClipperCore/Sources/GlassFrogClipperCore/Failure.swift"; sourceTree = "<group>"; };
+		C1AFEE00000000000000001A /* GlassFrogClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = GlassFrogClient.swift; path = "../GlassFrogClipperCore/Sources/GlassFrogClipperCore/GlassFrogClient.swift"; sourceTree = "<group>"; };
+		C1AFEE00000000000000001F /* Keychain.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = Keychain.swift; path = "../GlassFrogClipperCore/Sources/GlassFrogClipperCore/Keychain.swift"; sourceTree = "<group>"; };
+		C1AFEE000000000000000024 /* NativeMessage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NativeMessage.swift; path = "../GlassFrogClipperCore/Sources/GlassFrogClipperCore/NativeMessage.swift"; sourceTree = "<group>"; };
+		C1AFEE000000000000000029 /* Notifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = Notifier.swift; path = "../GlassFrogClipperCore/Sources/GlassFrogClipperCore/Notifier.swift"; sourceTree = "<group>"; };
+		C1AFEE00000000000000002E /* SettingsModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SettingsModel.swift; path = "SettingsModel.swift"; sourceTree = "<group>"; };
+		C1AFEE000000000000000031 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SettingsView.swift; path = "SettingsView.swift"; sourceTree = "<group>"; };
+		16D9BEE03045F72400F96D38 /* Base */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = Base; path = Base.lproj/Main.html; sourceTree = "<group>"; };
+		16D9BEE13045F72400F96D38 /* Icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Icon.png; sourceTree = "<group>"; };
+		16D9BEE23045F72400F96D38 /* Style.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = Style.css; sourceTree = "<group>"; };
+		16D9BEE33045F72400F96D38 /* Script.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = Script.js; sourceTree = "<group>"; };
+		16D9BEE43045F72400F96D38 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		16D9BEE53045F72500F96D38 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		16D9BEE73045F72500F96D38 /* SafariWebExtensionHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SafariWebExtensionHandler.swift; sourceTree = "<group>"; };
+		16D9BEEC3045F72500F96D38 /* GlassFrog Clipper.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "GlassFrog Clipper.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		16D9BEEF3045F72500F96D38 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		16D9BEF13045F72500F96D38 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
+		16D9BEF43045F72500F96D38 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		16D9BEF73045F72500F96D38 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		16D9BEF93045F72500F96D38 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		16D9BEFE3045F72500F96D38 /* GlassFrog Clipper.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "GlassFrog Clipper.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		16D9BF003045F72500F96D38 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		16D9BF033045F72500F96D38 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		16D9BF053045F72500F96D38 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		16D9BF0A3045F72500F96D38 /* GlassFrog Clipper Extension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "GlassFrog Clipper Extension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
+		16D9BF0F3045F72500F96D38 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		16D9BF143045F72500F96D38 /* GlassFrog Clipper Extension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "GlassFrog Clipper Extension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
+		16D9BF193045F72500F96D38 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		16D9BF393045F72600F96D38 /* popup.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = popup.js; path = Resources/popup.js; sourceTree = "<group>"; };
+		16D9BF3A3045F72600F96D38 /* background.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = background.js; path = Resources/background.js; sourceTree = "<group>"; };
+		16D9BF3B3045F72600F96D38 /* popup.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = popup.html; path = Resources/popup.html; sourceTree = "<group>"; };
+		16D9BF3C3045F72600F96D38 /* options.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = options.js; path = Resources/options.js; sourceTree = "<group>"; };
+		16D9BF3D3045F72600F96D38 /* icon128.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = icon128.png; path = Resources/icon128.png; sourceTree = "<group>"; };
+		16D9BF3E3045F72600F96D38 /* manifest.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = manifest.json; path = Resources/manifest.json; sourceTree = "<group>"; };
+		16D9BF3F3045F72600F96D38 /* options.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = options.html; path = Resources/options.html; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		C1AFEE000000000000000409 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C1AFEE0000000000000003F1 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		16D9BEE93045F72500F96D38 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		16D9BEFB3045F72500F96D38 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		16D9BF073045F72500F96D38 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		16D9BF113045F72500F96D38 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		C1AFEE0000000000000003EC /* Shared (Share) */ = {
+			isa = PBXGroup;
+			children = (
+				C1AFEE0000000000000003E8 /* ShareViewController.swift */,
+				C1AFEE0000000000000003E9 /* ShareCaptureView.swift */,
+				C1AFEE0000000000000003EA /* ShareCaptureModel.swift */,
+				C1AFEE0000000000000003EB /* SharedItem.swift */,
+			);
+			name = "Shared (Share)";
+			sourceTree = "<group>";
+		};
+		C1AFEE000000000000000034 /* Shared (Core) */ = {
+			isa = PBXGroup;
+			children = (
+				C1AFEE000000000000000001 /* Capture.swift */,
+				C1AFEE000000000000000006 /* CaptureFiler.swift */,
+				C1AFEE00000000000000000B /* Compose.swift */,
+				C1AFEE000000000000000010 /* Configuration.swift */,
+				C1AFEE000000000000000015 /* Failure.swift */,
+				C1AFEE00000000000000001A /* GlassFrogClient.swift */,
+				C1AFEE00000000000000001F /* Keychain.swift */,
+				C1AFEE000000000000000024 /* NativeMessage.swift */,
+				C1AFEE000000000000000029 /* Notifier.swift */,
+			);
+			name = "Shared (Core)";
+			sourceTree = "<group>";
+		};
+		16D9BED83045F72300F96D38 = {
+			isa = PBXGroup;
+			children = (
+				C1AFEE0000000000000003EC /* Shared (Share) */,
+				C1AFEE000000000000000034 /* Shared (Core) */,
+				16D9BEDD3045F72400F96D38 /* Shared (App) */,
+				16D9BEE63045F72500F96D38 /* Shared (Extension) */,
+				16D9BEEE3045F72500F96D38 /* iOS (App) */,
+				16D9BEFF3045F72500F96D38 /* macOS (App) */,
+				16D9BF0E3045F72500F96D38 /* iOS (Extension) */,
+				16D9BF183045F72500F96D38 /* macOS (Extension) */,
+				16D9BEED3045F72500F96D38 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		16D9BEDD3045F72400F96D38 /* Shared (App) */ = {
+			isa = PBXGroup;
+			children = (
+				C1AFEE000000000000000031 /* SettingsView.swift */,
+				C1AFEE00000000000000002E /* SettingsModel.swift */,
+				16D9BEE43045F72400F96D38 /* ViewController.swift */,
+				16D9BEE53045F72500F96D38 /* Assets.xcassets */,
+				16D9BEDE3045F72400F96D38 /* Resources */,
+			);
+			path = "Shared (App)";
+			sourceTree = "<group>";
+		};
+		16D9BEDE3045F72400F96D38 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				16D9BEDF3045F72400F96D38 /* Main.html */,
+				16D9BEE13045F72400F96D38 /* Icon.png */,
+				16D9BEE23045F72400F96D38 /* Style.css */,
+				16D9BEE33045F72400F96D38 /* Script.js */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		16D9BEE63045F72500F96D38 /* Shared (Extension) */ = {
+			isa = PBXGroup;
+			children = (
+				16D9BF383045F72600F96D38 /* Resources */,
+				16D9BEE73045F72500F96D38 /* SafariWebExtensionHandler.swift */,
+			);
+			path = "Shared (Extension)";
+			sourceTree = "<group>";
+		};
+		16D9BEED3045F72500F96D38 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				C1AFEE000000000000000418 /* GlassFrog Clipper Share.appex */,
+				C1AFEE000000000000000400 /* GlassFrog Clipper Share.appex */,
+				16D9BEEC3045F72500F96D38 /* GlassFrog Clipper.app */,
+				16D9BEFE3045F72500F96D38 /* GlassFrog Clipper.app */,
+				16D9BF0A3045F72500F96D38 /* GlassFrog Clipper Extension.appex */,
+				16D9BF143045F72500F96D38 /* GlassFrog Clipper Extension.appex */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		16D9BEEE3045F72500F96D38 /* iOS (App) */ = {
+			isa = PBXGroup;
+			children = (
+				16D9BEEF3045F72500F96D38 /* AppDelegate.swift */,
+				16D9BEF13045F72500F96D38 /* SceneDelegate.swift */,
+				16D9BEF33045F72500F96D38 /* LaunchScreen.storyboard */,
+				16D9BEF63045F72500F96D38 /* Main.storyboard */,
+				16D9BEF93045F72500F96D38 /* Info.plist */,
+			);
+			path = "iOS (App)";
+			sourceTree = "<group>";
+		};
+		16D9BEFF3045F72500F96D38 /* macOS (App) */ = {
+			isa = PBXGroup;
+			children = (
+				16D9BF003045F72500F96D38 /* AppDelegate.swift */,
+				16D9BF023045F72500F96D38 /* Main.storyboard */,
+				16D9BF053045F72500F96D38 /* Info.plist */,
+			);
+			path = "macOS (App)";
+			sourceTree = "<group>";
+		};
+		16D9BF0E3045F72500F96D38 /* iOS (Extension) */ = {
+			isa = PBXGroup;
+			children = (
+				16D9BF0F3045F72500F96D38 /* Info.plist */,
+			);
+			path = "iOS (Extension)";
+			sourceTree = "<group>";
+		};
+		16D9BF183045F72500F96D38 /* macOS (Extension) */ = {
+			isa = PBXGroup;
+			children = (
+				16D9BF193045F72500F96D38 /* Info.plist */,
+			);
+			path = "macOS (Extension)";
+			sourceTree = "<group>";
+		};
+		16D9BF383045F72600F96D38 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				16D9BF393045F72600F96D38 /* popup.js */,
+				16D9BF3A3045F72600F96D38 /* background.js */,
+				16D9BF3B3045F72600F96D38 /* popup.html */,
+				16D9BF3C3045F72600F96D38 /* options.js */,
+				16D9BF3D3045F72600F96D38 /* icon128.png */,
+				16D9BF3E3045F72600F96D38 /* manifest.json */,
+				16D9BF3F3045F72600F96D38 /* options.html */,
+			);
+			name = Resources;
+			path = "Shared (Extension)";
+			sourceTree = SOURCE_ROOT;
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		C1AFEE000000000000000419 /* GlassFrog Clipper Share Extension (macOS) */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C1AFEE000000000000000407 /* Build configuration list for PBXNativeTarget "GlassFrog Clipper Share Extension (macOS)" */;
+			buildPhases = (
+				C1AFEE000000000000000408 /* Sources */,
+				C1AFEE000000000000000409 /* Frameworks */,
+				C1AFEE00000000000000040A /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "GlassFrog Clipper Share Extension (macOS)";
+			packageProductDependencies = (
+			);
+			productName = "GlassFrog Clipper Share Extension (macOS)";
+			productReference = C1AFEE000000000000000418 /* GlassFrog Clipper Share.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+		C1AFEE000000000000000401 /* GlassFrog Clipper Share Extension (iOS) */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C1AFEE0000000000000003EF /* Build configuration list for PBXNativeTarget "GlassFrog Clipper Share Extension (iOS)" */;
+			buildPhases = (
+				C1AFEE0000000000000003F0 /* Sources */,
+				C1AFEE0000000000000003F1 /* Frameworks */,
+				C1AFEE0000000000000003F2 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "GlassFrog Clipper Share Extension (iOS)";
+			packageProductDependencies = (
+			);
+			productName = "GlassFrog Clipper Share Extension (iOS)";
+			productReference = C1AFEE000000000000000400 /* GlassFrog Clipper Share.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+		16D9BEEB3045F72500F96D38 /* GlassFrog Clipper (iOS) */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 16D9BF2E3045F72600F96D38 /* Build configuration list for PBXNativeTarget "GlassFrog Clipper (iOS)" */;
+			buildPhases = (
+				16D9BEE83045F72500F96D38 /* Sources */,
+				16D9BEE93045F72500F96D38 /* Frameworks */,
+				16D9BEEA3045F72500F96D38 /* Resources */,
+				16D9BF2D3045F72600F96D38 /* Embed Foundation Extensions */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				C1AFEE000000000000000403 /* PBXTargetDependency */,
+				16D9BF0D3045F72500F96D38 /* PBXTargetDependency */,
+			);
+			name = "GlassFrog Clipper (iOS)";
+			packageProductDependencies = (
+			);
+			productName = "GlassFrog Clipper (iOS)";
+			productReference = 16D9BEEC3045F72500F96D38 /* GlassFrog Clipper.app */;
+			productType = "com.apple.product-type.application";
+		};
+		16D9BEFD3045F72500F96D38 /* GlassFrog Clipper (macOS) */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 16D9BF353045F72600F96D38 /* Build configuration list for PBXNativeTarget "GlassFrog Clipper (macOS)" */;
+			buildPhases = (
+				16D9BEFA3045F72500F96D38 /* Sources */,
+				16D9BEFB3045F72500F96D38 /* Frameworks */,
+				16D9BEFC3045F72500F96D38 /* Resources */,
+				16D9BF343045F72600F96D38 /* Embed Foundation Extensions */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				C1AFEE00000000000000041B /* PBXTargetDependency */,
+				16D9BF173045F72500F96D38 /* PBXTargetDependency */,
+			);
+			name = "GlassFrog Clipper (macOS)";
+			packageProductDependencies = (
+			);
+			productName = "GlassFrog Clipper (macOS)";
+			productReference = 16D9BEFE3045F72500F96D38 /* GlassFrog Clipper.app */;
+			productType = "com.apple.product-type.application";
+		};
+		16D9BF093045F72500F96D38 /* GlassFrog Clipper Extension (iOS) */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 16D9BF2A3045F72600F96D38 /* Build configuration list for PBXNativeTarget "GlassFrog Clipper Extension (iOS)" */;
+			buildPhases = (
+				C1AFEE000000000000000BB8 /* Build web extension */,
+				16D9BF063045F72500F96D38 /* Sources */,
+				16D9BF073045F72500F96D38 /* Frameworks */,
+				16D9BF083045F72500F96D38 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "GlassFrog Clipper Extension (iOS)";
+			packageProductDependencies = (
+			);
+			productName = "GlassFrog Clipper Extension (iOS)";
+			productReference = 16D9BF0A3045F72500F96D38 /* GlassFrog Clipper Extension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+		16D9BF133045F72500F96D38 /* GlassFrog Clipper Extension (macOS) */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 16D9BF313045F72600F96D38 /* Build configuration list for PBXNativeTarget "GlassFrog Clipper Extension (macOS)" */;
+			buildPhases = (
+				C1AFEE000000000000000BB9 /* Build web extension */,
+				16D9BF103045F72500F96D38 /* Sources */,
+				16D9BF113045F72500F96D38 /* Frameworks */,
+				16D9BF123045F72500F96D38 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "GlassFrog Clipper Extension (macOS)";
+			packageProductDependencies = (
+			);
+			productName = "GlassFrog Clipper Extension (macOS)";
+			productReference = 16D9BF143045F72500F96D38 /* GlassFrog Clipper Extension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		16D9BED93045F72300F96D38 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 2660;
+				LastUpgradeCheck = 2660;
+				TargetAttributes = {
+					16D9BEEB3045F72500F96D38 = {
+						CreatedOnToolsVersion = 26.6;
+					};
+					16D9BEFD3045F72500F96D38 = {
+						CreatedOnToolsVersion = 26.6;
+					};
+					16D9BF093045F72500F96D38 = {
+						CreatedOnToolsVersion = 26.6;
+					};
+					16D9BF133045F72500F96D38 = {
+						CreatedOnToolsVersion = 26.6;
+					};
+				};
+			};
+			buildConfigurationList = 16D9BEDC3045F72300F96D38 /* Build configuration list for PBXProject "GlassFrog Clipper" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 16D9BED83045F72300F96D38;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 16D9BEED3045F72500F96D38 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				C1AFEE000000000000000419 /* GlassFrog Clipper Share Extension (macOS) */,
+				C1AFEE000000000000000401 /* GlassFrog Clipper Share Extension (iOS) */,
+				16D9BEEB3045F72500F96D38 /* GlassFrog Clipper (iOS) */,
+				16D9BEFD3045F72500F96D38 /* GlassFrog Clipper (macOS) */,
+				16D9BF093045F72500F96D38 /* GlassFrog Clipper Extension (iOS) */,
+				16D9BF133045F72500F96D38 /* GlassFrog Clipper Extension (macOS) */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		C1AFEE00000000000000040A /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C1AFEE0000000000000003F2 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		16D9BEEA3045F72500F96D38 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				16D9BF1C3045F72600F96D38 /* Icon.png in Resources */,
+				16D9BEF53045F72500F96D38 /* LaunchScreen.storyboard in Resources */,
+				16D9BF1A3045F72600F96D38 /* Main.html in Resources */,
+				16D9BF203045F72600F96D38 /* Script.js in Resources */,
+				16D9BF243045F72600F96D38 /* Assets.xcassets in Resources */,
+				16D9BEF83045F72500F96D38 /* Main.storyboard in Resources */,
+				16D9BF1E3045F72600F96D38 /* Style.css in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		16D9BEFC3045F72500F96D38 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				16D9BF1D3045F72600F96D38 /* Icon.png in Resources */,
+				16D9BF1F3045F72600F96D38 /* Style.css in Resources */,
+				16D9BF043045F72500F96D38 /* Main.storyboard in Resources */,
+				16D9BF213045F72600F96D38 /* Script.js in Resources */,
+				16D9BF253045F72600F96D38 /* Assets.xcassets in Resources */,
+				16D9BF1B3045F72600F96D38 /* Main.html in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		16D9BF083045F72500F96D38 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				16D9BF4D3045F72600F96D38 /* options.html in Resources */,
+				16D9BF483045F72600F96D38 /* background.js in Resources */,
+				16D9BF4A3045F72600F96D38 /* options.js in Resources */,
+				16D9BF493045F72600F96D38 /* popup.html in Resources */,
+				16D9BF4B3045F72600F96D38 /* icon128.png in Resources */,
+				16D9BF4C3045F72600F96D38 /* manifest.json in Resources */,
+				16D9BF473045F72600F96D38 /* popup.js in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		16D9BF123045F72500F96D38 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				16D9BF463045F72600F96D38 /* options.html in Resources */,
+				16D9BF413045F72600F96D38 /* background.js in Resources */,
+				16D9BF433045F72600F96D38 /* options.js in Resources */,
+				16D9BF423045F72600F96D38 /* popup.html in Resources */,
+				16D9BF443045F72600F96D38 /* icon128.png in Resources */,
+				16D9BF453045F72600F96D38 /* manifest.json in Resources */,
+				16D9BF403045F72600F96D38 /* popup.js in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		C1AFEE000000000000000BB9 /* Build web extension */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Build web extension";
+			outputPaths = (
+				"$(SRCROOT)/Shared (Extension)/Resources/background.js",
+				"$(SRCROOT)/Shared (Extension)/Resources/options.js",
+				"$(SRCROOT)/Shared (Extension)/Resources/popup.js",
+				"$(SRCROOT)/Shared (Extension)/Resources/manifest.json",
+				"$(SRCROOT)/Shared (Extension)/Resources/popup.html",
+				"$(SRCROOT)/Shared (Extension)/Resources/options.html",
+				"$(SRCROOT)/Shared (Extension)/Resources/icon128.png",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Builds the web extension from ../../src and syncs it into this target.\n#\n# The bundle is compiled from TypeScript, so it is build output and is not in\n# version control. Producing it here rather than committing it means it cannot\n# go stale: a Safari build always ships the capture path the sources describe.\nset -euo pipefail\ncd \"$SRCROOT/../..\"\n\n# Xcode's build environment does not inherit a login shell's PATH, so a node\n# installed by nvm, fnm or Homebrew is invisible here even though it works in a\n# terminal. Look in the usual places before giving up with something actionable.\nif ! command -v npm >/dev/null 2>&1; then\n  for candidate in \"$HOME/.nvm/versions/node/\"*/bin /opt/homebrew/bin /usr/local/bin; do\n    [ -d \"$candidate\" ] && PATH=\"$candidate:$PATH\"\n  done\n  export PATH\nfi\n\nif ! command -v npm >/dev/null 2>&1; then\n  echo \"error: npm not found. The Safari bundle is compiled from TypeScript and cannot be built without it.\" >&2\n  echo \"note: install Node 22.18+, then build again. See apple/README.md.\" >&2\n  exit 1\nfi\n\nnpm run --silent build:safari\n\nDEST=\"$SRCROOT/Shared (Extension)/Resources\"\nmkdir -p \"$DEST\"\n# cp rather than rsync: rsync writes through a temp file and then calls\n# utimensat, both of which Xcode's user-script sandbox refuses even for declared\n# outputs.\ncp -R dist-safari/. \"$DEST/\"\n";
+		};
+		C1AFEE000000000000000BB8 /* Build web extension */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Build web extension";
+			outputPaths = (
+				"$(SRCROOT)/Shared (Extension)/Resources/background.js",
+				"$(SRCROOT)/Shared (Extension)/Resources/options.js",
+				"$(SRCROOT)/Shared (Extension)/Resources/popup.js",
+				"$(SRCROOT)/Shared (Extension)/Resources/manifest.json",
+				"$(SRCROOT)/Shared (Extension)/Resources/popup.html",
+				"$(SRCROOT)/Shared (Extension)/Resources/options.html",
+				"$(SRCROOT)/Shared (Extension)/Resources/icon128.png",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Builds the web extension from ../../src and syncs it into this target.\n#\n# The bundle is compiled from TypeScript, so it is build output and is not in\n# version control. Producing it here rather than committing it means it cannot\n# go stale: a Safari build always ships the capture path the sources describe.\nset -euo pipefail\ncd \"$SRCROOT/../..\"\n\n# Xcode's build environment does not inherit a login shell's PATH, so a node\n# installed by nvm, fnm or Homebrew is invisible here even though it works in a\n# terminal. Look in the usual places before giving up with something actionable.\nif ! command -v npm >/dev/null 2>&1; then\n  for candidate in \"$HOME/.nvm/versions/node/\"*/bin /opt/homebrew/bin /usr/local/bin; do\n    [ -d \"$candidate\" ] && PATH=\"$candidate:$PATH\"\n  done\n  export PATH\nfi\n\nif ! command -v npm >/dev/null 2>&1; then\n  echo \"error: npm not found. The Safari bundle is compiled from TypeScript and cannot be built without it.\" >&2\n  echo \"note: install Node 22.18+, then build again. See apple/README.md.\" >&2\n  exit 1\nfi\n\nnpm run --silent build:safari\n\nDEST=\"$SRCROOT/Shared (Extension)/Resources\"\nmkdir -p \"$DEST\"\n# cp rather than rsync: rsync writes through a temp file and then calls\n# utimensat, both of which Xcode's user-script sandbox refuses even for declared\n# outputs.\ncp -R dist-safari/. \"$DEST/\"\n";
+		};
+		C1AFEE000000000000000408 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C1AFEE00000000000000040B /* ShareViewController.swift in Sources */,
+				C1AFEE00000000000000040C /* ShareCaptureView.swift in Sources */,
+				C1AFEE00000000000000040D /* ShareCaptureModel.swift in Sources */,
+				C1AFEE00000000000000040E /* SharedItem.swift in Sources */,
+				C1AFEE00000000000000040F /* Capture.swift in Sources */,
+				C1AFEE000000000000000410 /* CaptureFiler.swift in Sources */,
+				C1AFEE000000000000000411 /* Compose.swift in Sources */,
+				C1AFEE000000000000000412 /* Configuration.swift in Sources */,
+				C1AFEE000000000000000413 /* Failure.swift in Sources */,
+				C1AFEE000000000000000414 /* GlassFrogClient.swift in Sources */,
+				C1AFEE000000000000000415 /* Keychain.swift in Sources */,
+				C1AFEE000000000000000416 /* NativeMessage.swift in Sources */,
+				C1AFEE000000000000000417 /* Notifier.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C1AFEE0000000000000003F0 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C1AFEE0000000000000003F3 /* ShareViewController.swift in Sources */,
+				C1AFEE0000000000000003F4 /* ShareCaptureView.swift in Sources */,
+				C1AFEE0000000000000003F5 /* ShareCaptureModel.swift in Sources */,
+				C1AFEE0000000000000003F6 /* SharedItem.swift in Sources */,
+				C1AFEE0000000000000003F7 /* Capture.swift in Sources */,
+				C1AFEE0000000000000003F8 /* CaptureFiler.swift in Sources */,
+				C1AFEE0000000000000003F9 /* Compose.swift in Sources */,
+				C1AFEE0000000000000003FA /* Configuration.swift in Sources */,
+				C1AFEE0000000000000003FB /* Failure.swift in Sources */,
+				C1AFEE0000000000000003FC /* GlassFrogClient.swift in Sources */,
+				C1AFEE0000000000000003FD /* Keychain.swift in Sources */,
+				C1AFEE0000000000000003FE /* NativeMessage.swift in Sources */,
+				C1AFEE0000000000000003FF /* Notifier.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		16D9BEE83045F72500F96D38 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C1AFEE000000000000000032 /* SettingsView.swift in Sources */,
+				C1AFEE00000000000000002F /* SettingsModel.swift in Sources */,
+				C1AFEE00000000000000002A /* Notifier.swift in Sources */,
+				C1AFEE000000000000000025 /* NativeMessage.swift in Sources */,
+				C1AFEE000000000000000020 /* Keychain.swift in Sources */,
+				C1AFEE00000000000000001B /* GlassFrogClient.swift in Sources */,
+				C1AFEE000000000000000016 /* Failure.swift in Sources */,
+				C1AFEE000000000000000011 /* Configuration.swift in Sources */,
+				C1AFEE00000000000000000C /* Compose.swift in Sources */,
+				C1AFEE000000000000000007 /* CaptureFiler.swift in Sources */,
+				C1AFEE000000000000000002 /* Capture.swift in Sources */,
+				16D9BF223045F72600F96D38 /* ViewController.swift in Sources */,
+				16D9BEF03045F72500F96D38 /* AppDelegate.swift in Sources */,
+				16D9BEF23045F72500F96D38 /* SceneDelegate.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		16D9BEFA3045F72500F96D38 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C1AFEE000000000000000033 /* SettingsView.swift in Sources */,
+				C1AFEE000000000000000030 /* SettingsModel.swift in Sources */,
+				C1AFEE00000000000000002B /* Notifier.swift in Sources */,
+				C1AFEE000000000000000026 /* NativeMessage.swift in Sources */,
+				C1AFEE000000000000000021 /* Keychain.swift in Sources */,
+				C1AFEE00000000000000001C /* GlassFrogClient.swift in Sources */,
+				C1AFEE000000000000000017 /* Failure.swift in Sources */,
+				C1AFEE000000000000000012 /* Configuration.swift in Sources */,
+				C1AFEE00000000000000000D /* Compose.swift in Sources */,
+				C1AFEE000000000000000008 /* CaptureFiler.swift in Sources */,
+				C1AFEE000000000000000003 /* Capture.swift in Sources */,
+				16D9BF233045F72600F96D38 /* ViewController.swift in Sources */,
+				16D9BF013045F72500F96D38 /* AppDelegate.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		16D9BF063045F72500F96D38 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C1AFEE00000000000000002C /* Notifier.swift in Sources */,
+				C1AFEE000000000000000027 /* NativeMessage.swift in Sources */,
+				C1AFEE000000000000000022 /* Keychain.swift in Sources */,
+				C1AFEE00000000000000001D /* GlassFrogClient.swift in Sources */,
+				C1AFEE000000000000000018 /* Failure.swift in Sources */,
+				C1AFEE000000000000000013 /* Configuration.swift in Sources */,
+				C1AFEE00000000000000000E /* Compose.swift in Sources */,
+				C1AFEE000000000000000009 /* CaptureFiler.swift in Sources */,
+				C1AFEE000000000000000004 /* Capture.swift in Sources */,
+				16D9BF263045F72600F96D38 /* SafariWebExtensionHandler.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		16D9BF103045F72500F96D38 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C1AFEE00000000000000002D /* Notifier.swift in Sources */,
+				C1AFEE000000000000000028 /* NativeMessage.swift in Sources */,
+				C1AFEE000000000000000023 /* Keychain.swift in Sources */,
+				C1AFEE00000000000000001E /* GlassFrogClient.swift in Sources */,
+				C1AFEE000000000000000019 /* Failure.swift in Sources */,
+				C1AFEE000000000000000014 /* Configuration.swift in Sources */,
+				C1AFEE00000000000000000F /* Compose.swift in Sources */,
+				C1AFEE00000000000000000A /* CaptureFiler.swift in Sources */,
+				C1AFEE000000000000000005 /* Capture.swift in Sources */,
+				16D9BF273045F72600F96D38 /* SafariWebExtensionHandler.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		C1AFEE00000000000000041B /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = C1AFEE000000000000000419 /* GlassFrog Clipper Share Extension (macOS) */;
+			targetProxy = C1AFEE00000000000000041A /* PBXContainerItemProxy */;
+		};
+		C1AFEE000000000000000403 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = C1AFEE000000000000000401 /* GlassFrog Clipper Share Extension (iOS) */;
+			targetProxy = C1AFEE000000000000000402 /* PBXContainerItemProxy */;
+		};
+		16D9BF0D3045F72500F96D38 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 16D9BF093045F72500F96D38 /* GlassFrog Clipper Extension (iOS) */;
+			targetProxy = 16D9BF0C3045F72500F96D38 /* PBXContainerItemProxy */;
+		};
+		16D9BF173045F72500F96D38 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 16D9BF133045F72500F96D38 /* GlassFrog Clipper Extension (macOS) */;
+			targetProxy = 16D9BF163045F72500F96D38 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		16D9BEDF3045F72400F96D38 /* Main.html */ = {
+			isa = PBXVariantGroup;
+			children = (
+				16D9BEE03045F72400F96D38 /* Base */,
+			);
+			name = Main.html;
+			sourceTree = "<group>";
+		};
+		16D9BEF33045F72500F96D38 /* LaunchScreen.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				16D9BEF43045F72500F96D38 /* Base */,
+			);
+			name = LaunchScreen.storyboard;
+			sourceTree = "<group>";
+		};
+		16D9BEF63045F72500F96D38 /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				16D9BEF73045F72500F96D38 /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+		16D9BF023045F72500F96D38 /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				16D9BF033045F72500F96D38 /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+C1AFEE000000000000000406 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = "Entitlements/macOS.entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_USER_SELECTED_FILES = readonly;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "macOS (Share)/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "GlassFrog Clipper Extension";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.integralproductivity.GlassFrogClipper.Share;
+				PRODUCT_NAME = "GlassFrog Clipper Share";
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+C1AFEE000000000000000405 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = "Entitlements/macOS.entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_USER_SELECTED_FILES = readonly;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "macOS (Share)/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "GlassFrog Clipper Extension";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.integralproductivity.GlassFrogClipper.Share;
+				PRODUCT_NAME = "GlassFrog Clipper Share";
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+C1AFEE0000000000000003EE /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = "Entitlements/iOS.entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "iOS (Share)/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "GlassFrog Clipper Extension";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.integralproductivity.GlassFrogClipper.Share;
+				PRODUCT_NAME = "GlassFrog Clipper Share";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+C1AFEE0000000000000003ED /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = "Entitlements/iOS.entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "iOS (Share)/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "GlassFrog Clipper Extension";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.integralproductivity.GlassFrogClipper.Share;
+				PRODUCT_NAME = "GlassFrog Clipper Share";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		16D9BF283045F72600F96D38 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		16D9BF293045F72600F96D38 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SWIFT_COMPILATION_MODE = wholemodule;
+			};
+			name = Release;
+		};
+		16D9BF2B3045F72600F96D38 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				CODE_SIGN_ENTITLEMENTS = "Entitlements/iOS.entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "iOS (Extension)/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "GlassFrog Clipper Extension";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.integralproductivity.GlassFrogClipper.Extension;
+				PRODUCT_NAME = "GlassFrog Clipper Extension";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		16D9BF2C3045F72600F96D38 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				CODE_SIGN_ENTITLEMENTS = "Entitlements/iOS.entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "iOS (Extension)/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "GlassFrog Clipper Extension";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.integralproductivity.GlassFrogClipper.Extension;
+				PRODUCT_NAME = "GlassFrog Clipper Extension";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		16D9BF2F3045F72600F96D38 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "Entitlements/iOS.entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "iOS (App)/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "GlassFrog Clipper";
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
+				INFOPLIST_KEY_UIMainStoryboardFile = Main;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+					"-framework",
+					WebKit,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.integralproductivity.GlassFrogClipper;
+				PRODUCT_NAME = "GlassFrog Clipper";
+				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		16D9BF303045F72600F96D38 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "Entitlements/iOS.entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "iOS (App)/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "GlassFrog Clipper";
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
+				INFOPLIST_KEY_UIMainStoryboardFile = Main;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+					"-framework",
+					WebKit,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.integralproductivity.GlassFrogClipper;
+				PRODUCT_NAME = "GlassFrog Clipper";
+				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		16D9BF323045F72600F96D38 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				CODE_SIGN_ENTITLEMENTS = "Entitlements/macOS.entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_USER_SELECTED_FILES = readonly;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "macOS (Extension)/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "GlassFrog Clipper Extension";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.integralproductivity.GlassFrogClipper.Extension;
+				PRODUCT_NAME = "GlassFrog Clipper Extension";
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		16D9BF333045F72600F96D38 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				CODE_SIGN_ENTITLEMENTS = "Entitlements/macOS.entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_USER_SELECTED_FILES = readonly;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "macOS (Extension)/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "GlassFrog Clipper Extension";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.integralproductivity.GlassFrogClipper.Extension;
+				PRODUCT_NAME = "GlassFrog Clipper Extension";
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		16D9BF363045F72600F96D38 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "Entitlements/macOS.entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_OUTGOING_NETWORK_CONNECTIONS = YES;
+				ENABLE_USER_SELECTED_FILES = readonly;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "macOS (App)/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "GlassFrog Clipper";
+				INFOPLIST_KEY_NSMainStoryboardFile = Main;
+				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+					"-framework",
+					WebKit,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.integralproductivity.GlassFrogClipper;
+				PRODUCT_NAME = "GlassFrog Clipper";
+				REGISTER_APP_GROUPS = YES;
+				SDKROOT = macosx;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		16D9BF373045F72600F96D38 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "Entitlements/macOS.entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_OUTGOING_NETWORK_CONNECTIONS = YES;
+				ENABLE_USER_SELECTED_FILES = readonly;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "macOS (App)/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "GlassFrog Clipper";
+				INFOPLIST_KEY_NSMainStoryboardFile = Main;
+				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+					"-framework",
+					WebKit,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.integralproductivity.GlassFrogClipper;
+				PRODUCT_NAME = "GlassFrog Clipper";
+				REGISTER_APP_GROUPS = YES;
+				SDKROOT = macosx;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		C1AFEE000000000000000407 /* Build configuration list for PBXNativeTarget "GlassFrog Clipper Share Extension (macOS)" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C1AFEE000000000000000405 /* Debug */,
+				C1AFEE000000000000000406 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		C1AFEE0000000000000003EF /* Build configuration list for PBXNativeTarget "GlassFrog Clipper Share Extension (iOS)" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C1AFEE0000000000000003ED /* Debug */,
+				C1AFEE0000000000000003EE /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		16D9BEDC3045F72300F96D38 /* Build configuration list for PBXProject "GlassFrog Clipper" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				16D9BF283045F72600F96D38 /* Debug */,
+				16D9BF293045F72600F96D38 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		16D9BF2A3045F72600F96D38 /* Build configuration list for PBXNativeTarget "GlassFrog Clipper Extension (iOS)" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				16D9BF2B3045F72600F96D38 /* Debug */,
+				16D9BF2C3045F72600F96D38 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		16D9BF2E3045F72600F96D38 /* Build configuration list for PBXNativeTarget "GlassFrog Clipper (iOS)" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				16D9BF2F3045F72600F96D38 /* Debug */,
+				16D9BF303045F72600F96D38 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		16D9BF313045F72600F96D38 /* Build configuration list for PBXNativeTarget "GlassFrog Clipper Extension (macOS)" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				16D9BF323045F72600F96D38 /* Debug */,
+				16D9BF333045F72600F96D38 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		16D9BF353045F72600F96D38 /* Build configuration list for PBXNativeTarget "GlassFrog Clipper (macOS)" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				16D9BF363045F72600F96D38 /* Debug */,
+				16D9BF373045F72600F96D38 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 16D9BED93045F72300F96D38 /* Project object */;
+}

@@ -12,7 +12,7 @@
  * success while emitting a bundle no MV3 service worker could load. `npm run
  * build` exiting 0 does not catch that. Only looking at the artifact does.
  */
-import { readFile, stat } from 'node:fs/promises';
+import { readFile, readdir, stat } from 'node:fs/promises';
 
 import { type CheckResult, type Violation, fail, pass } from '../report.ts';
 import { fromRoot } from '../root.ts';
@@ -50,9 +50,40 @@ const DOM_ONLY_GLOBALS = ['document', 'localStorage', 'sessionStorage', 'XMLHttp
  */
 export const BUNDLE_BUDGET_BYTES = 256 * 1024;
 
+/**
+ * A build *input* that must never ship inside the Chrome bundle.
+ *
+ * `npm run build` copies the whole of `public/` into `dist/`, so the Safari
+ * manifest overlay rides along unless something removes it. Harmless to Chrome,
+ * which ignores files the manifest does not name — but it means the packaged
+ * extension carries a manifest describing a different platform, which is the
+ * kind of thing a store reviewer notices and a test does not.
+ *
+ * Arrived with the Apple targets (#66) as a rule inside `scripts/check-bundle.mjs`,
+ * and moved here when that script became a shim over this module. The `build`
+ * script deletes the file and this asserts it is gone: belt and suspenders, and
+ * the assertion is the half that survives someone editing the build script.
+ */
+const BUILD_INPUTS_THAT_MUST_NOT_SHIP = ['manifest.safari.json'];
+
 /** The pure rule, so it can be exercised against a fixture as well as the real bundle. */
-export function bundleViolations(source: string, sizeBytes: number): Violation[] {
+export function bundleViolations(
+  source: string,
+  sizeBytes: number,
+  shippedFiles: string[] = [],
+): Violation[] {
   const violations: Violation[] = [];
+
+  for (const input of BUILD_INPUTS_THAT_MUST_NOT_SHIP) {
+    if (shippedFiles.includes(input)) {
+      violations.push({
+        where: `dist/${input}`,
+        detail:
+          'is a build input for another platform, not part of the Chrome extension. ' +
+          'Check the `build` script in package.json.',
+      });
+    }
+  }
 
   const bare = new Set<string>();
   for (const match of source.matchAll(BARE_IMPORT)) {
@@ -94,10 +125,12 @@ export function bundleViolations(source: string, sizeBytes: number): Violation[]
 export async function runBundleShapeCheck(): Promise<CheckResult> {
   let source: string;
   let sizeBytes: number;
+  let shipped: string[];
 
   try {
     source = await readFile(fromRoot(BUNDLE), 'utf8');
     sizeBytes = (await stat(fromRoot(BUNDLE))).size;
+    shipped = await readdir(fromRoot('dist'));
   } catch {
     // A missing bundle is a failure, never a skip. "Nothing to check" is how a
     // gate quietly stops gating — and the reusable runs this after a build, so
@@ -107,7 +140,7 @@ export async function runBundleShapeCheck(): Promise<CheckResult> {
     ]);
   }
 
-  const violations = bundleViolations(source, sizeBytes);
+  const violations = bundleViolations(source, sizeBytes, shipped);
 
   return violations.length === 0
     ? pass(

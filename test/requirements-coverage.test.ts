@@ -45,7 +45,13 @@ test('every deferred requirement names the issue that carries it', () => {
 test('the deferral list has not quietly grown', () => {
   // A requirement moving from implemented to deferred is a scope change, and
   // scope changes belong in a conversation rather than in a diff.
-  assert.deepEqual(Object.keys(DEFERRED).map(Number), [13]);
+  assert.deepEqual(Object.keys(DEFERRED).map(Number), []);
+});
+
+test('every requirement is now implemented, none merely deferred', () => {
+  // The state issue #3 was filed to reach. Reverting it should cost a
+  // deliberate edit to this assertion, not a quiet re-entry in DEFERRED.
+  assert.equal(Object.keys(DEFERRED).length, 0);
 });
 
 test('the guard detects a requirement that has lost its last reference', () => {

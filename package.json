@@ -11,10 +11,12 @@
   },
   "type": "module",
   "scripts": {
-    "build": "tsup && cp -R public/. dist/",
+    "build": "tsup && cp -R public/. dist/ && rm -f dist/manifest.safari.json",
     "dev": "tsup --watch",
     "typecheck": "tsc --noEmit",
     "test": "node --test 'test/**/*.test.ts'",
+    "build:safari": "tsup && node scripts/build-safari.mjs",
+    "build:all": "npm run build && node scripts/build-safari.mjs",
     "bdd": "node node_modules/@cucumber/cucumber/bin/cucumber",
     "fitness:self": "node fitness/self/cli.ts"
   },

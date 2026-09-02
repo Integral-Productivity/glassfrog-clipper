@@ -9,15 +9,21 @@
  * Filing goes through the service worker (KTD1), which reacts to configuration
  * changing rather than being told.
  */
+import { publishConfiguration } from './bridge.ts';
 import { attemptConfiguration, describePending } from './config.ts';
-import { fetchRolesForKey } from './glassfrog.ts';
+import { fetchRolesForKey, getQueueReader } from './glassfrog.ts';
+import { captureMetrics } from './metrics.ts';
+import { takeUnseenNotice } from './notify.ts';
 import { discardPendingCapture } from './pending.ts';
+import { queueHealth, resolveQueueRoot } from './queue-health.ts';
+import { type ReportSection, formatCaptureMetrics, formatQueueHealth } from './report.ts';
 import { captureRoleCaveat, roleOptions } from './roles.ts';
 import {
   type DefaultStatus,
   type RoleSummary,
   getCaptureRoleId,
   getDefaultStatus,
+  getRoles,
   onPendingCaptureChanged,
   readPendingCapture,
   setApiKey,
@@ -25,6 +31,7 @@ import {
   setDefaultStatus,
   setRoles,
 } from './storage.ts';
+import { clearTelemetry, readTelemetry } from './telemetry.ts';
 
 /* ------------------------------------------------------------------- DOM -- */
 
@@ -38,6 +45,12 @@ interface Elements {
   pending: HTMLElement;
   pendingText: HTMLElement;
   discard: HTMLButtonElement;
+  captureMetrics: HTMLElement;
+  queueHealth: HTMLElement;
+  queueMessage: HTMLElement;
+  checkQueue: HTMLButtonElement;
+  copyTelemetry: HTMLButtonElement;
+  clearTelemetry: HTMLButtonElement;
 }
 
 function elements(): Elements | undefined {
@@ -52,8 +65,143 @@ function elements(): Elements | undefined {
   const pendingText = byId<HTMLElement>('pending-text');
   const discard = byId<HTMLButtonElement>('discard');
   if (!form || !apiKey || !role || !status || !save || !message || !pending) return undefined;
+  const captureMetrics = byId<HTMLElement>('capture-metrics');
+  const queueHealth = byId<HTMLElement>('queue-health');
+  const queueMessage = byId<HTMLElement>('queue-message');
+  const checkQueue = byId<HTMLButtonElement>('check-queue');
+  const copyTelemetry = byId<HTMLButtonElement>('copy-telemetry');
+  const clearTelemetry = byId<HTMLButtonElement>('clear-telemetry');
   if (!pendingText || !discard) return undefined;
-  return { form, apiKey, role, status, save, message, pending, pendingText, discard };
+  if (!captureMetrics || !queueHealth || !queueMessage || !checkQueue || !copyTelemetry || !clearTelemetry) {
+    return undefined;
+  }
+  return {
+    form,
+    apiKey,
+    role,
+    status,
+    save,
+    message,
+    pending,
+    pendingText,
+    discard,
+    captureMetrics,
+    queueHealth,
+    queueMessage,
+    checkQueue,
+    copyTelemetry,
+    clearTelemetry,
+  };
+}
+
+/* ----------------------------------------------------------- measurement -- */
+
+/**
+ * Renders a report section.
+ *
+ * textContent throughout. This page holds the API key, and a report that
+ * interpolated GlassFrog-derived text into innerHTML would be the one place in
+ * the extension where reading the queue could execute something (R7).
+ */
+function renderSection(host: HTMLElement, section: ReportSection): void {
+  host.replaceChildren();
+
+  const heading = document.createElement('h2');
+  heading.textContent = section.title;
+
+  const caption = document.createElement('p');
+  caption.className = 'caption';
+  caption.textContent = section.caption;
+
+  const list = document.createElement('ul');
+  for (const line of section.lines) {
+    const item = document.createElement('li');
+    if (line.verdict) item.dataset.verdict = line.verdict;
+
+    const row = document.createElement('div');
+    row.className = 'row';
+
+    const name = document.createElement('span');
+    name.className = 'name';
+    name.textContent = line.label;
+
+    const figure = document.createElement('span');
+    figure.className = 'figure';
+    figure.textContent = line.value;
+
+    row.append(name, figure);
+    item.append(row);
+
+    if (line.note) {
+      const note = document.createElement('span');
+      note.className = 'note';
+      note.textContent = line.note;
+      item.append(note);
+    }
+    list.append(item);
+  }
+
+  host.append(heading, caption, list);
+}
+
+/** The three telemetry metrics. A local read — this never touches the network. */
+async function showCaptureMetrics(el: Elements): Promise<void> {
+  renderSection(el.captureMetrics, formatCaptureMetrics(captureMetrics(await readTelemetry())));
+}
+
+/**
+ * The fourth metric, behind a button.
+ *
+ * Deliberately not run on page load. It is the only read in the extension that
+ * walks a circle tree, and a configuration page that fired a multi-page API
+ * sweep every time it opened would spend the practitioner's rate limit on a
+ * number they did not ask for.
+ */
+async function checkQueueHealth(el: Elements): Promise<void> {
+  el.checkQueue.disabled = true;
+  el.queueMessage.textContent = 'Reading the queue from GlassFrog…';
+
+  try {
+    const captureRoleId = await getCaptureRoleId();
+    if (!captureRoleId) {
+      el.queueMessage.textContent =
+        'Choose a capture role first — queue health is measured from the circle it sits in.';
+      return;
+    }
+
+    const rootRoleId = resolveQueueRoot(await getRoles(), captureRoleId);
+    const records = await (await getQueueReader()).listCircleTree(rootRoleId);
+
+    renderSection(el.queueHealth, formatQueueHealth(queueHealth(records, { rootRoleId })));
+    el.queueMessage.textContent = '';
+  } catch (error) {
+    // The message is written here rather than echoed from the SDK, so no
+    // redaction is needed for it to satisfy R12.
+    el.queueHealth.replaceChildren();
+    el.queueMessage.textContent =
+      error instanceof Error && error.message.includes('No GlassFrog API key')
+        ? 'Add an API key above, then check again.'
+        : 'Could not read the queue from GlassFrog. Try again in a moment.';
+  } finally {
+    el.checkQueue.disabled = false;
+  }
+}
+
+/**
+ * The whole of egress, and it is a button.
+ *
+ * STRATEGY.md's Distribution & trust track makes trust the adoption gate, so
+ * telemetry leaving the device is a deliberate act with a visible result, not a
+ * setting that could be on without anyone noticing.
+ */
+async function copyTelemetry(el: Elements): Promise<void> {
+  const log = await readTelemetry();
+  try {
+    await navigator.clipboard.writeText(JSON.stringify(log, null, 2));
+    el.queueMessage.textContent = `Copied ${log.length} telemetry records to the clipboard.`;
+  } catch {
+    el.queueMessage.textContent = 'Could not reach the clipboard. Nothing was copied and nothing was sent.';
+  }
 }
 
 function say(el: Elements, text: string, tone: 'error' | 'ok' | 'idle'): void {
@@ -105,8 +253,17 @@ export function init(): void {
   if (!el) return;
 
   void showPending(el);
+  void showCaptureMetrics(el);
   void getDefaultStatus().then((status) => {
     el.status.value = status;
+  });
+
+  // The options page is where R18's reconfigure path lands, so it is the most
+  // likely place a practitioner arrives after an undelivered failure notice —
+  // and on Safari with no containing app it is the only place that notice can
+  // be read at all.
+  void takeUnseenNotice().then((unseen) => {
+    if (unseen) say(el, `${unseen.title}: ${unseen.message}`, 'error');
   });
 
   // AE9: openOptionsPage() may only *focus* an already-open page, in which case
@@ -125,6 +282,12 @@ export function init(): void {
   el.discard.addEventListener('click', () => {
     el.discard.disabled = true;
     void discardPendingCapture().then(() => showPending(el));
+  });
+
+  el.checkQueue.addEventListener('click', () => void checkQueueHealth(el));
+  el.copyTelemetry.addEventListener('click', () => void copyTelemetry(el));
+  el.clearTelemetry.addEventListener('click', () => {
+    void clearTelemetry().then(() => showCaptureMetrics(el));
   });
 }
 
@@ -158,12 +321,19 @@ async function save(el: Elements): Promise<void> {
   }
 
   await setCaptureRoleId(chosen);
+  // On Safari this is what lets the share sheet file at all — the app and the
+  // Share Extension cannot read this page's storage. A no-op on Chrome, and a
+  // failure here is not a configuration failure: the extension is configured
+  // either way, and only the share-sheet path is affected.
+  const shared = await publishConfiguration();
+
   // Saving a circle here is legitimate — tensions file against circles as a
   // matter of course — but every action and project will then need a different
   // role picked in the popup, and finding that out at filing time is too late.
   say(
     el,
-    `Saved. Any capture waiting to be filed will go out now.${captureRoleCaveat(attempt.roles, chosen)}`,
+    `${shared ? 'Saved, and shared with the app.' : 'Saved.'} Any capture waiting to be filed`
+      + ` will go out now.${captureRoleCaveat(attempt.roles, chosen)}`,
     'ok',
   );
   el.save.disabled = false;
