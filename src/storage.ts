@@ -9,6 +9,7 @@
  * Implements KTD3 (single overwritten pending slot with a 7-day expiry).
  * Serves R8, R9, R15, R16, R20.
  */
+import type { CaptureRecord } from './telemetry.ts';
 import type { Capture, WorkType } from './types.ts';
 
 /**
@@ -23,6 +24,7 @@ export const STORAGE_KEYS = {
   pendingCapture: 'clipper.pendingCapture',
   popupDraft: 'clipper.popupDraft',
   lastNotice: 'clipper.lastNotice',
+  telemetry: 'clipper.telemetry',
 } as const;
 
 /**
@@ -268,6 +270,30 @@ export async function writeDraft(draft: PopupDraft): Promise<void> {
 
 export async function clearDraft(): Promise<void> {
   await area().remove(STORAGE_KEYS.popupDraft);
+}
+
+/* --------------------------------------------------------------- telemetry */
+
+/**
+ * The whole telemetry log, as one value.
+ *
+ * A single array rather than a key per record: the log is read in full every
+ * time it is aggregated, and `chrome.storage.local` has a per-item quota that a
+ * key-per-capture scheme would spend on nothing. src/telemetry.ts owns what may
+ * be in a record (R13) and how the log is bounded; this pair owns only where it
+ * lives.
+ */
+export async function readTelemetryLog(): Promise<CaptureRecord[]> {
+  const stored = await readKey<unknown>(STORAGE_KEYS.telemetry);
+  return Array.isArray(stored) ? (stored as CaptureRecord[]) : [];
+}
+
+export async function writeTelemetryLog(records: readonly CaptureRecord[]): Promise<void> {
+  await area().set({ [STORAGE_KEYS.telemetry]: records });
+}
+
+export async function clearTelemetryLog(): Promise<void> {
+  await area().remove(STORAGE_KEYS.telemetry);
 }
 
 /* -------------------------------------------------------------- listeners */

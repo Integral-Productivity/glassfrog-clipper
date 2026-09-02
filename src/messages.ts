@@ -9,15 +9,55 @@
  * U3 and U7 import these types rather than defining their own, so there is one
  * place the shape of a capture request changes.
  */
+import type { CaptureOutcome, CapturePath } from './telemetry.ts';
 import type { Capture } from './types.ts';
 
 export const FILE_CAPTURE = 'clipper/file-capture' as const;
+
+/**
+ * How an invocation began, carried so the worker can close the telemetry record
+ * the popup opened. `startedAt` comes from the popup because only the popup
+ * knows when it was opened, and time-to-capture is measured from there.
+ */
+export interface Invocation {
+  path: CapturePath;
+  startedAt: string;
+}
 
 export interface FileCaptureRequest {
   type: typeof FILE_CAPTURE;
   /** Generated at capture time; keys the in-flight marker (KTD7). */
   captureId: string;
   capture: Capture;
+  /** Absent from an older message; the worker then measures from its own clock. */
+  invocation?: Invocation;
+}
+
+/**
+ * The telemetry channel, and the reason it is a long-lived port rather than a
+ * message.
+ *
+ * Popup abandonment is measured by the popup *ceasing to exist*, and there is
+ * no event a dying popup can reliably send. A port, though, disconnects when
+ * its document is destroyed — so the worker learns of the closure from Chrome
+ * rather than from the popup, which is what makes the measurement possible at
+ * all. KTD1's reasoning again: the worker records, because the popup cannot.
+ *
+ * The protocol is deliberately declared here rather than in src/telemetry.ts.
+ * The popup must be able to speak it without importing the recorder, so that
+ * "only the service worker writes telemetry" is a property of the module graph
+ * and not of anyone's discipline.
+ */
+export const TELEMETRY_PORT = 'clipper/telemetry' as const;
+
+export type TelemetryMessage =
+  | { kind: 'started'; captureId: string; path: CapturePath; startedAt: string }
+  | { kind: 'outcome'; captureId: string; path: CapturePath; outcome: CaptureOutcome };
+
+export function isTelemetryMessage(value: unknown): value is TelemetryMessage {
+  if (typeof value !== 'object' || value === null) return false;
+  const { kind, captureId } = value as { kind?: unknown; captureId?: unknown };
+  return (kind === 'started' || kind === 'outcome') && typeof captureId === 'string';
 }
 
 /**
