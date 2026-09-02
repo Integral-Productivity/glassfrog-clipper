@@ -1,0 +1,23 @@
+docs/adr/0012-auto-merge-is-armed-by-requiring-exactly-one-check-on-main.md
+  s_414a186e9bd023::t_3b3e66d5060d30 57-96
+  s_414a186e9bd023::t_20965b11376478 1-56,97-104
+test/branch-protection.test.ts
+  s_414a186e9bd023::t_1ed7b573bce6c7 9,17,20,23-202,204,214,223,232,236,241,270
+  s_414a186e9bd023::t_f159cf3749cb20 1-8,10-16,18-19,21-22,203,205-213,215-222,224-231,233-235,237-240,242-269
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "f15d9cdfcce959a0e5e8b002eace361c7f568d43",
+  "prompts": {},
+  "sessions": {
+    "s_414a186e9bd023": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "b3744fea-92e3-4744-9482-63d8a751d38f",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Kraig Parkinson <kraig.parkinson@gmail.com>"
+    }
+  }
+}
