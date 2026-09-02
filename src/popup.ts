@@ -13,6 +13,7 @@
  */
 import { captureActiveTab } from './capture.ts';
 import { FILE_CAPTURE, type FileCaptureOutcome, type FileCaptureRequest } from './messages.ts';
+import { takeUnseenNotice } from './notify.ts';
 import { holdCapture } from './pending.ts';
 import { circleNotice, roleOptions } from './roles.ts';
 import {
@@ -145,11 +146,24 @@ async function start(): Promise<void> {
     return;
   }
 
-  const [draft, roles, configuredRole] = await Promise.all([
+  // Where a notice had nowhere else to go — Safari with no reachable containing
+  // app — this is where the practitioner finally learns a previous capture did
+  // not file. It is read alongside the draft rather than ahead of it: on Chrome
+  // it always resolves to nothing, because notices there go out through
+  // chrome.notifications and never reach the stored fallback, and awaiting it
+  // in its own turn would put that round trip on the popup's open path for a
+  // case that platform cannot produce.
+  const [unseen, draft, roles, configuredRole] = await Promise.all([
+    takeUnseenNotice(),
     readDraft(),
     getRoles(),
     getCaptureRoleId(),
   ]);
+
+  // Still rendered before the form is populated: R18 turns on the practitioner
+  // learning that an unusable role wants reconfiguring rather than a retry, and
+  // that may change what they type here.
+  if (unseen) el.message.textContent = `${unseen.title}: ${unseen.message}`;
   const fields = initialFields(draft, { roleId: configuredRole ?? undefined });
 
   el.workType.value = fields.workType;

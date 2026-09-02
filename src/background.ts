@@ -7,6 +7,7 @@
  * is. This file therefore does no asynchronous work before its last
  * addListener() call.
  */
+import { adoptConfigurationFromApp } from './bridge.ts';
 import { type CaptureWriter, captureActiveTab, fileCapture } from './capture.ts';
 import { classifyFailure } from './errors.ts';
 import { getWriter } from './glassfrog.ts';
@@ -168,7 +169,11 @@ export async function fileHeldCaptureIfPossible(
  * Safe to repeat because everything it surfaces, it also clears.
  */
 export async function onWake(): Promise<void> {
-  // Nothing in here files anything (KTD7).
+  // Nothing in here files anything directly (KTD7). Adopting configuration from
+  // the containing app can *cause* a held capture to file, but only through
+  // onConfigurationChanged — the same single path R18's reconfigure case uses,
+  // rather than a second one. A no-op anywhere there is no containing app.
+  await adoptConfigurationFromApp();
   await reviewOnStartup();
 }
 

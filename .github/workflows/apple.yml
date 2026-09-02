@@ -1,0 +1,96 @@
+name: Apple
+
+# Split from ci.yml rather than added to it. The Apple build needs a macOS
+# runner, which costs roughly ten times a Linux minute, and nothing here can
+# fail because of a change that does not touch it. The Node suite in ci.yml
+# still runs on every pull request and remains the gate for the shared capture
+# path.
+on:
+  push:
+    branches: [main]
+    paths: &apple-paths
+      - 'apple/**'
+      - 'src/**'
+      - 'public/**'
+      - 'scripts/build-safari.mjs'
+      - 'scripts/manifest-merge.mjs'
+      - 'scripts/xcode-*.py'
+      - 'tsup.config.ts'
+      - 'scripts/xcode-bootstrap.sh'
+      - 'scripts/verify-apple.sh'
+      - 'test/fixtures/compose-cases.json'
+      - '.github/workflows/apple.yml'
+  pull_request:
+    paths: *apple-paths
+
+permissions:
+  contents: read
+  packages: read
+
+concurrency:
+  group: apple-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # Deliberately its own job, and first. The cross-language compose contract is
+  # the highest-value check in this workflow and the only one that needs neither
+  # npm nor a full Xcode build — so it reports in under a minute rather than
+  # behind six target builds.
+  core:
+    name: Swift core
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Swift core tests
+        run: swift test --package-path apple/GlassFrogClipperCore
+
+      # `compose()` exists in TypeScript and in Swift, and the golden file is
+      # what keeps them identical. Regenerating it is a deliberate act; a
+      # regeneration that lands *with* the change it was meant to catch proves
+      # nothing, so CI regenerates it independently and fails on any difference.
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22.18'
+          registry-url: 'https://npm.pkg.github.com'
+          scope: '@integral-productivity'
+
+      - name: Check the compose fixture is current
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN || secrets.DEPENDABOT_PACKAGES_TOKEN || secrets.GITHUB_TOKEN }}
+        run: |
+          npm ci
+          node scripts/generate-compose-fixtures.mjs
+          if ! git diff --quiet test/fixtures/compose-cases.json; then
+            echo "::error::compose() changed but test/fixtures/compose-cases.json was not regenerated."
+            echo "::error::Run: node scripts/generate-compose-fixtures.mjs"
+            echo "::error::Then make BOTH suites pass — npm test, and swift test --package-path apple/GlassFrogClipperCore."
+            git diff test/fixtures/compose-cases.json
+            exit 1
+          fi
+          echo "Fixture is current."
+
+  targets:
+    name: Xcode targets
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22.18'
+          registry-url: 'https://npm.pkg.github.com'
+          scope: '@integral-productivity'
+          cache: npm
+
+      - name: Install
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN || secrets.DEPENDABOT_PACKAGES_TOKEN || secrets.GITHUB_TOKEN }}
+        run: npm ci
+
+      # No staleness check here, deliberately. The web bundle is produced by a
+      # Run Script build phase rather than committed, so a Safari build always
+      # ships the capture path the sources describe — there is no stale copy for
+      # a check to catch. See scripts/xcode-resource-phase.py.
+      - name: Build every target
+        run: ./scripts/verify-apple.sh

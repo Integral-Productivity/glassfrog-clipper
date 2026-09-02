@@ -30,6 +30,23 @@ const DOM_ONLY_GLOBALS = ['document', 'localStorage', 'sessionStorage', 'XMLHttp
 const problems = [];
 const source = await readFile(BUNDLE, 'utf8');
 
+/**
+ * The Safari manifest overlay is a build *input*, and `npm run build` copies the
+ * whole of `public/` into `dist/`. Without this it rides along into the Chrome
+ * bundle — harmless to Chrome, which ignores files the manifest does not name,
+ * but it means the packaged extension carries a manifest describing a different
+ * platform. `scripts/build-safari.mjs` already removes it from the Safari
+ * bundle for the same reason; this is the other half of that.
+ */
+const { readdir } = await import('node:fs/promises');
+const shipped = await readdir('dist');
+if (shipped.includes('manifest.safari.json')) {
+  problems.push(
+    'dist/ ships manifest.safari.json, which is a build input for the Safari ' +
+      'bundle and not part of the Chrome extension. Check the `build` script.',
+  );
+}
+
 const bare = new Set();
 for (const match of source.matchAll(BARE_IMPORT)) {
   bare.add(match[1] ?? match[2] ?? match[3]);

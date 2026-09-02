@@ -22,6 +22,7 @@ export const STORAGE_KEYS = {
   defaultStatus: 'glassfrog.defaultStatus',
   pendingCapture: 'clipper.pendingCapture',
   popupDraft: 'clipper.popupDraft',
+  lastNotice: 'clipper.lastNotice',
 } as const;
 
 /**
@@ -86,6 +87,29 @@ export interface InFlightMarker {
   id: string;
   capture: Capture;
   startedAt: string;
+}
+
+/**
+ * The last thing the extension tried to tell the practitioner, kept so a
+ * surface can render it later.
+ *
+ * This exists because KTD2's notification surface is not universal: Safari
+ * implements no `chrome.notifications`, so on a background quick-capture the
+ * notice has nowhere to go the moment the containing app is unreachable. A
+ * badge says *something happened* but cannot say which of KTD9's four failures
+ * it was, and R18 turns entirely on the practitioner learning that an unusable
+ * role wants reconfiguring rather than a retry.
+ *
+ * `deliveredBy` records which link in the chain actually took it, so a surface
+ * can avoid repeating a notice the practitioner has already seen as a system
+ * notification.
+ */
+export interface Notice {
+  id: string;
+  title: string;
+  message: string;
+  at: string;
+  deliveredBy: 'notifications' | 'native' | 'stored';
 }
 
 /** What the practitioner typed into the popup but has not filed (R20). */
@@ -211,6 +235,25 @@ export async function listInFlight(): Promise<InFlightMarker[]> {
   return Object.entries(all)
     .filter(([key]) => key.startsWith(IN_FLIGHT_KEY_PREFIX))
     .map(([, value]) => value as InFlightMarker);
+}
+
+/* ------------------------------------------------------------- last notice */
+
+export async function readNotice(): Promise<Notice | undefined> {
+  return readKey<Notice>(STORAGE_KEYS.lastNotice);
+}
+
+/**
+ * One slot, overwritten — the same shape as the pending capture and for the
+ * same reason (KTD3/KD1): a growing list of unread notices is an inbox, and
+ * this extension does not have one.
+ */
+export async function writeNotice(notice: Notice): Promise<void> {
+  await area().set({ [STORAGE_KEYS.lastNotice]: notice });
+}
+
+export async function clearNotice(): Promise<void> {
+  await area().remove(STORAGE_KEYS.lastNotice);
 }
 
 /* -------------------------------------------------------------- popup draft */

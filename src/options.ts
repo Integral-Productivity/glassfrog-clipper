@@ -9,8 +9,10 @@
  * Filing goes through the service worker (KTD1), which reacts to configuration
  * changing rather than being told.
  */
+import { publishConfiguration } from './bridge.ts';
 import { attemptConfiguration, describePending } from './config.ts';
 import { fetchRolesForKey } from './glassfrog.ts';
+import { takeUnseenNotice } from './notify.ts';
 import { discardPendingCapture } from './pending.ts';
 import { captureRoleCaveat, roleOptions } from './roles.ts';
 import {
@@ -109,6 +111,14 @@ export function init(): void {
     el.status.value = status;
   });
 
+  // The options page is where R18's reconfigure path lands, so it is the most
+  // likely place a practitioner arrives after an undelivered failure notice —
+  // and on Safari with no containing app it is the only place that notice can
+  // be read at all.
+  void takeUnseenNotice().then((unseen) => {
+    if (unseen) say(el, `${unseen.title}: ${unseen.message}`, 'error');
+  });
+
   // AE9: openOptionsPage() may only *focus* an already-open page, in which case
   // the load-time read above never runs again. Without this listener a capture
   // arriving now would never appear, and AE9 would fail silently.
@@ -158,12 +168,19 @@ async function save(el: Elements): Promise<void> {
   }
 
   await setCaptureRoleId(chosen);
+  // On Safari this is what lets the share sheet file at all — the app and the
+  // Share Extension cannot read this page's storage. A no-op on Chrome, and a
+  // failure here is not a configuration failure: the extension is configured
+  // either way, and only the share-sheet path is affected.
+  const shared = await publishConfiguration();
+
   // Saving a circle here is legitimate — tensions file against circles as a
   // matter of course — but every action and project will then need a different
   // role picked in the popup, and finding that out at filing time is too late.
   say(
     el,
-    `Saved. Any capture waiting to be filed will go out now.${captureRoleCaveat(attempt.roles, chosen)}`,
+    `${shared ? 'Saved, and shared with the app.' : 'Saved.'} Any capture waiting to be filed`
+      + ` will go out now.${captureRoleCaveat(attempt.roles, chosen)}`,
     'ok',
   );
   el.save.disabled = false;
