@@ -1,8 +1,12 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readdir, readFile } from 'node:fs/promises';
-import { fileURLToPath } from 'node:url';
-import { dirname, join } from 'node:path';
+
+import {
+  adrFilenames,
+  adrHeadings,
+  duplicateAdrNumbers,
+  headingNumberMismatches,
+} from '../fitness/checks/adr-numbering.ts';
 
 /**
  * A fitness function for ADR filename numbering.
@@ -18,41 +22,18 @@ import { dirname, join } from 'node:path';
  * No pre-claim search can close that window, because the collision does not
  * exist until both branches meet. A check that runs on the merged tree can:
  * the second PR goes red on `main`'s content, before the duplicate lands rather
- * than after. This is that check. CI already runs `npm test`, so this file is
- * the guard — there is deliberately no separate workflow step to drift from it.
- */
-
-const root = join(dirname(fileURLToPath(import.meta.url)), '..');
-
-/**
- * The collision rule, as a pure function over filenames so it can be exercised
- * against a fixture as well as against the real directory. A guard whose red
- * path is never taken is an assertion, not a test.
+ * than after.
  *
- * Returns each duplicated number with the files claiming it, sorted, so a
- * failure message names the files to fix rather than only the count.
+ * WHERE THE RULE LIVES. The rules themselves moved to
+ * `fitness/checks/adr-numbering.ts` (issue #69) so the `Software Fitness /
+ * Self-compliance` gate can report them. They did not move *out* of here: this
+ * file still asserts every one of them under `npm test`, including the two
+ * red-half fixtures that keep the guards from rotting into unconditional
+ * passes. One implementation, two reporting surfaces — which is what the
+ * original note in this header meant by "no separate workflow step to drift
+ * from it". A second *implementation* is the thing that drifts; a second
+ * reporter of the same function is not. See docs/adr/0010.
  */
-export function duplicateAdrNumbers(filenames: string[]): Array<{ number: string; files: string[] }> {
-  const byNumber = new Map<string, string[]>();
-
-  for (const filename of filenames) {
-    const number = /^(\d{4})-.+\.md$/.exec(filename)?.[1];
-    if (number === undefined) continue;
-    const claimed = byNumber.get(number) ?? [];
-    claimed.push(filename);
-    byNumber.set(number, claimed);
-  }
-
-  return [...byNumber.entries()]
-    .filter(([, files]) => files.length > 1)
-    .map(([number, files]) => ({ number, files: [...files].sort() }))
-    .sort((a, b) => a.number.localeCompare(b.number));
-}
-
-async function adrFilenames(): Promise<string[]> {
-  return (await readdir(join(root, 'docs', 'adr'))).filter((name) => name.endsWith('.md'));
-}
-
 test('no two ADRs claim the same number', async () => {
   const duplicates = duplicateAdrNumbers(await adrFilenames());
 
@@ -104,59 +85,6 @@ test('an unnumbered filename is not read as claiming a number', () => {
   // reported as one — a guard that cries wolf on `README.md` gets disabled.
   assert.deepEqual(duplicateAdrNumbers(['README.md', 'template.md', 'notes.md']), []);
 });
-
-/**
- * The second surface carrying the same number.
- *
- * #42 renumbered the queue-health ADR from `0005` to `0006` with a pure
- * `git mv` — 100% similarity, no content touched — so the filename moved and
- * the in-file `# 5.` heading stayed behind. The duplicate `0005` that rename
- * set out to remove was not removed; it relocated. The filename guard above
- * passes on that tree, correctly, because the filenames really are unique.
- *
- * A reader browsing rendered ADRs sees headings, not filenames. So does an
- * agent grepping `^# `. Numbering that is unique on one surface and duplicated
- * on the other is not numbered. This is the check for the other surface.
- */
-
-/**
- * Filenames zero-pad to four digits (`0006-`); headings do not (`# 6.`). The
- * comparison is therefore numeric, not textual — string equality would report
- * every correctly-numbered ADR in the repo as a mismatch.
- *
- * A file whose filename carries no number is skipped, matching
- * `duplicateAdrNumbers`. A file whose *heading* carries no number is reported:
- * a heading the parser cannot read is exactly the state this guard exists to
- * fail on, and silently skipping it is how a fitness function rots into a no-op.
- */
-export function headingNumberMismatches(
-  adrs: Array<{ filename: string; heading: string | undefined }>,
-): Array<{ filename: string; filenameNumber: number; heading: string | undefined }> {
-  const mismatches: Array<{ filename: string; filenameNumber: number; heading: string | undefined }> = [];
-
-  for (const { filename, heading } of adrs) {
-    const fromFilename = /^(\d{4})-.+\.md$/.exec(filename)?.[1];
-    if (fromFilename === undefined) continue;
-
-    const fromHeading = heading === undefined ? undefined : /^#\s+(\d+)\.\s/.exec(heading)?.[1];
-    if (fromHeading !== undefined && Number(fromHeading) === Number(fromFilename)) continue;
-
-    mismatches.push({ filename, filenameNumber: Number(fromFilename), heading });
-  }
-
-  return mismatches.sort((a, b) => a.filename.localeCompare(b.filename));
-}
-
-async function adrHeadings(): Promise<Array<{ filename: string; heading: string | undefined }>> {
-  const filenames = await adrFilenames();
-
-  return Promise.all(
-    filenames.map(async (filename) => {
-      const contents = await readFile(join(root, 'docs', 'adr', filename), 'utf8');
-      return { filename, heading: contents.split('\n').find((line) => line.startsWith('# ')) };
-    }),
-  );
-}
 
 test('every ADR heading carries its own filename number', async () => {
   const mismatches = headingNumberMismatches(await adrHeadings());

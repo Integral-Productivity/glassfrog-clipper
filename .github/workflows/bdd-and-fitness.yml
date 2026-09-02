@@ -1,0 +1,154 @@
+# The two tier-1 gates, run locally under npm.
+#
+# WHY THIS FILE EXISTS RATHER THAN A CALL TO THE ORG REUSABLES.
+#
+# `devops-excellence/rulesets/self-governance-adopted.json` makes
+# `BDD / Scenarios` and `Software Fitness / Self-compliance` required status
+# checks. A required check that never reports blocks every PR, so tier-1 cannot
+# be reached until something emits both contexts. Two things stand in the way of
+# emitting them the org-canonical way:
+#
+#   1. The reusables live in the private devops-excellence repo, which a public
+#      tier-3 caller cannot resolve — a compile-time startup_failure. Tracked as
+#      Integral-Productivity/devops-excellence#603.
+#   2. Both reusables are pnpm-hardcoded (`pnpm install --frozen-lockfile`, then
+#      `pnpm bdd` / `pnpm fitness:self`). This repo is npm-locked: ADR 0002 puts
+#      @integral-productivity/glassfrog on GitHub Packages, and devops-excellence
+#      ADR-016 requires npm for that. So even once (1) clears, the call fails at
+#      install. Tracked as Integral-Productivity/devops-excellence#617.
+#
+# This runs the same two package scripts the reusables would invoke, against the
+# same contract (`bdd`; `fitness:self --json-out=<path>` writing markdown to
+# stdout and exiting non-zero on violation). When #603 and #617 land, the swap is
+# replacing each job's `steps:` with a `uses:` — the contexts do not change.
+#
+# THE SLASH IN EACH JOB NAME IS LOAD-BEARING, NOT A TYPO.
+#
+# A caller of a reusable workflow emits `<caller job name> / <called job name>`,
+# which is how devops-excellence's own ci.yml produces these two contexts from
+# jobs named `BDD` and `Software Fitness` (its ADR-053). A plain job emits its
+# own name, so reproducing the exact required context means putting the whole
+# string in `name:`. `test/workflow-contexts.test.ts` pins both against being
+# tidied away — renaming either one silently un-gates the repo.
+
+name: BDD and Architecture Fitness
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+  # Same as ci.yml: GITHUB_TOKEN is pre-authorized for GitHub Packages within
+  # the owning org, so a same-org package needs no PAT in CI.
+  packages: read
+
+concurrency:
+  group: bdd-fitness-${{ github.ref }}
+  cancel-in-progress: true
+
+# ADR-043: GitHub's implicit `run:` shell is `bash -e {0}` — no pipefail — so
+# `cmd | tee log` ships green even when `cmd` fails. The fitness job pipes.
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  bdd:
+    # Emits the required context `BDD / Scenarios`. See the header.
+    name: BDD / Scenarios
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      # Must precede setup-node: `cache: npm` fails on a missing lockfile with
+      # "Dependencies lock file is not found", which names the symptom and not
+      # the cause. A guard placed after the step that fails is not a guard.
+      - name: Check the lockfile exists
+        run: |
+          if [ ! -f package-lock.json ]; then
+            echo "::error::package-lock.json is missing, so npm ci cannot run."
+            exit 1
+          fi
+
+      - uses: actions/setup-node@v7
+        with:
+          # Pinned, and pinned for a second reason here: 22.18 is the floor at
+          # which Node strips TypeScript types natively, which is what lets
+          # cucumber-js load .ts step definitions with no transpiler at all.
+          # Below it the suite does not run rather than running smaller.
+          node-version: '22.18'
+          registry-url: 'https://npm.pkg.github.com'
+          scope: '@integral-productivity'
+          cache: npm
+
+      - name: Install
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN || secrets.DEPENDABOT_PACKAGES_TOKEN || secrets.GITHUB_TOKEN }}
+        run: npm ci
+
+      - name: Run BDD scenarios
+        run: npm run bdd
+
+      # A suite that silently ran nothing is the failure mode a required check
+      # exists to prevent, and cucumber exits 0 on zero scenarios. `strict` in
+      # cucumber.cjs catches undefined steps; this catches an empty run.
+      - name: Check the suite was not empty
+        run: |
+          COUNT=$(grep -rhcE '^[[:space:]]*Scenario' features --include='*.feature' | awk '{s+=$1} END {print s+0}')
+          echo "Scenario lines found: ${COUNT}"
+          if [ "${COUNT}" -lt 10 ]; then
+            echo "::error::Only ${COUNT} scenarios found. A near-empty BDD gate reports green and protects nothing."
+            exit 1
+          fi
+
+  fitness-self:
+    # Emits the required context `Software Fitness / Self-compliance`.
+    name: Software Fitness / Self-compliance
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Check the lockfile exists
+        run: |
+          if [ ! -f package-lock.json ]; then
+            echo "::error::package-lock.json is missing, so npm ci cannot run."
+            exit 1
+          fi
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22.18'
+          registry-url: 'https://npm.pkg.github.com'
+          scope: '@integral-productivity'
+          cache: npm
+
+      - name: Install
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN || secrets.DEPENDABOT_PACKAGES_TOKEN || secrets.GITHUB_TOKEN }}
+        run: npm ci
+
+      # The bundle-shape check reads dist/background.js. Without this the check
+      # reports "not found" — deliberately a failure rather than a skip, but a
+      # confusing one to debug from the gate.
+      - name: Build
+        run: npm run build
+
+      - name: Run architecture fitness checks
+        run: |
+          npm run --silent fitness:self -- --json-out=fitness-self-report.json | tee fitness-self-report.md
+          {
+            echo '## Architecture Fitness (self) Report'
+            echo ''
+            cat fitness-self-report.md
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload architecture fitness report artifact
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: fitness-self-report
+          path: |
+            fitness-self-report.md
+            fitness-self-report.json

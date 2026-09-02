@@ -1,8 +1,14 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readdir, readFile } from 'node:fs/promises';
-import { fileURLToPath } from 'node:url';
-import { dirname, join } from 'node:path';
+
+import {
+  DEFERRED,
+  TOTAL_REQUIREMENTS,
+  TRACED_DIRECTORIES,
+  malformedDeferrals,
+  tracedCorpus,
+  unclaimedRequirements,
+} from '../fitness/checks/requirements-traceability.ts';
 
 /**
  * A fitness function for the Definition of Done's first global clause:
@@ -16,60 +22,24 @@ import { dirname, join } from 'node:path';
  *
  * This checks traceability, not correctness: the behavioural assertions live in
  * the other suites. What it prevents is a requirement going *unclaimed*.
- */
-
-const root = join(dirname(fileURLToPath(import.meta.url)), '..');
-
-const TOTAL_REQUIREMENTS = 22;
-
-/**
- * Requirements deliberately not implemented here, each with the issue that
- * carries it. The plan's Scope Boundaries defer these; this is that deferral
- * made executable, so "deferred" cannot silently become "forgotten".
  *
- * Empty since issue #3 landed telemetry: R13 was the only entry, and it is now
- * implemented in src/telemetry.ts and enforced by test/telemetry.test.ts and
- * test/telemetry-ownership.test.ts. The list stays because the mechanism is
- * what matters — the next deferral has somewhere to be written down.
+ * The rule moved to `fitness/checks/requirements-traceability.ts` (issue #69)
+ * so the fitness gate can report it too. It is still asserted here, on every
+ * PR, under `npm test` — one implementation, two reporting surfaces. The scanned
+ * corpus grew to include `features/` at the same time: a scenario naming R11 is
+ * traceability in exactly the sense this means. See docs/adr/0010.
  */
-const DEFERRED: Record<number, string> = {};
-
-async function filesUnder(dir: string): Promise<string[]> {
-  const out: string[] = [];
-  for (const entry of await readdir(join(root, dir), { withFileTypes: true })) {
-    if (entry.isDirectory()) out.push(...(await filesUnder(join(dir, entry.name))));
-    else if (entry.name.endsWith('.ts')) out.push(join(dir, entry.name));
-  }
-  return out;
-}
 
 test('every requirement is traceable to source, to a test, or to a written deferral', async () => {
-  const paths = [...(await filesUnder('src')), ...(await filesUnder('test'))];
-  const corpus = (await Promise.all(paths.map((p) => readFile(join(root, p), 'utf8')))).join('\n');
-
-  const referenced = new Set<number>();
-  for (const match of corpus.matchAll(/\bR(\d{1,2})\b/g)) {
-    const n = Number(match[1]);
-    if (n >= 1 && n <= TOTAL_REQUIREMENTS) referenced.add(n);
-  }
-
-  const unclaimed: string[] = [];
-  for (let n = 1; n <= TOTAL_REQUIREMENTS; n += 1) {
-    if (referenced.has(n) || n in DEFERRED) continue;
-    unclaimed.push(`R${n}`);
-  }
-
   assert.deepEqual(
-    unclaimed,
+    unclaimedRequirements(await tracedCorpus()),
     [],
     'each requirement must be cited where it is implemented or tested, or listed in DEFERRED with its issue',
   );
 });
 
 test('every deferred requirement names the issue that carries it', () => {
-  for (const [requirement, issue] of Object.entries(DEFERRED)) {
-    assert.match(issue, /^https:\/\/github\.com\/.+\/issues\/\d+$/, `R${requirement} needs a real issue link`);
-  }
+  assert.deepEqual(malformedDeferrals(), [], 'a deferral without a real issue link is not a deferral');
 });
 
 test('the deferral list has not quietly grown', () => {
@@ -82,4 +52,27 @@ test('every requirement is now implemented, none merely deferred', () => {
   // The state issue #3 was filed to reach. Reverting it should cost a
   // deliberate edit to this assertion, not a quiet re-entry in DEFERRED.
   assert.equal(Object.keys(DEFERRED).length, 0);
+});
+
+test('the guard detects a requirement that has lost its last reference', () => {
+  // The red half, kept in the suite rather than performed once by hand. Without
+  // it, `unclaimedRequirements` could return `[]` unconditionally and the test
+  // above would pass forever over a guard that had stopped guarding.
+  assert.deepEqual(unclaimedRequirements('R1 R2 R3', {}, 5), ['R4', 'R5']);
+  assert.deepEqual(unclaimedRequirements('R1 R2 R3', { 4: 'x', 5: 'y' }, 5), []);
+});
+
+test('the corpus it scans is real, and includes the scenarios', async () => {
+  // A path list that stopped resolving would read an empty corpus, find every
+  // requirement unclaimed, and go red — but a *filter* that stopped matching
+  // would read nothing and report green. This pins the corpus down.
+  const corpus = await tracedCorpus();
+
+  assert.ok(corpus.length > 10_000, `the traced corpus was only ${corpus.length} characters`);
+  assert.ok(
+    corpus.includes('Feature: Clipping a page into GlassFrog'),
+    'features/ must be in the corpus — a scenario citing a requirement is traceability',
+  );
+  assert.deepEqual([...TRACED_DIRECTORIES], ['src', 'test', 'features']);
+  assert.equal(TOTAL_REQUIREMENTS, 22);
 });

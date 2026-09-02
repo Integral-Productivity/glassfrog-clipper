@@ -2,7 +2,7 @@
   "name": "glassfrog-clipper",
   "version": "0.0.1",
   "private": true,
-  "description": "Clip the page you're on into GlassFrog as a tension, action, or project — without losing your train of thought.",
+  "description": "Clip the page you're on into GlassFrog as a tension, action, or project \u2014 without losing your train of thought.",
   "license": "GPL-3.0-or-later",
   "author": "Kraig Parkinson <kraigparkinson@integralproductivity.com>",
   "repository": {
@@ -16,12 +16,15 @@
     "typecheck": "tsc --noEmit",
     "test": "node --test 'test/**/*.test.ts'",
     "build:safari": "tsup && node scripts/build-safari.mjs",
-    "build:all": "npm run build && node scripts/build-safari.mjs"
+    "build:all": "npm run build && node scripts/build-safari.mjs",
+    "bdd": "node node_modules/@cucumber/cucumber/bin/cucumber",
+    "fitness:self": "node fitness/self/cli.ts"
   },
   "dependencies": {
     "@integral-productivity/glassfrog": "^0.6.0"
   },
   "devDependencies": {
+    "@cucumber/cucumber": "^13.2.1",
     "@types/chrome": "^0.0.270",
     "@types/node": "^20.0.0",
     "tsup": "^8.0.0",
