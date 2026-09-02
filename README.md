@@ -14,7 +14,11 @@ YAML frontmatter (`module`, `tags`, `problem_type`); relevant when implementing
 or debugging in documented areas.
 Triage labels: [docs/agents/triage-labels.md](docs/agents/triage-labels.md) —
 the six mutually exclusive issue states, the orthogonal markers, and the
-`track:*` set; relevant when triaging an issue or claiming one to work on.
+`track:*` set; relevant when triaging an issue or claiming one to work on. It
+explains [docs/agents/labels.json](docs/agents/labels.json), which is the source
+of truth for the label set: `npm test` holds the document to the manifest, and
+[.github/workflows/label-drift.yml](.github/workflows/label-drift.yml) holds the
+live GitHub labels to it.
 
 Apple platforms: [apple/README.md](apple/README.md) — the Safari extension, the
 iOS/iPadOS/macOS app, and the share sheet, sharing this capture path.

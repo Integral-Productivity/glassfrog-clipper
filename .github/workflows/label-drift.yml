@@ -1,0 +1,134 @@
+name: Label drift
+
+# The online half of the label guard. `docs/agents/labels.json` is the source of
+# truth for this repository's labels; the offline half (test/label-manifest.test.ts,
+# inside `npm test`) holds docs/agents/triage-labels.md to that manifest on every
+# pull request. This workflow holds the live GitHub labels to it.
+#
+# It is a separate workflow rather than a step in CI because reading labels needs
+# the GitHub API. In CI that check would fail red on a fork and on any clone
+# without a token — punishing a contributor for an account they do not have. A
+# scheduled workflow runs only on the default branch of this repository and never
+# on a fork, so it can use the API freely and never blocks a pull request.
+#
+# Drift is surfaced by reopening a single standing issue and rewriting its body
+# with the current difference. Agreement closes it again. One issue, always
+# reflecting the present state, rather than a new one filed every night.
+
+on:
+  schedule:
+    # 07:20 UTC — after Dependabot's usual window, so a label it adds to its own
+    # pull requests is seen the same morning rather than a day later.
+    - cron: '20 7 * * *'
+  push:
+    branches: [main]
+    # A merge that edits the manifest has, by definition, made GitHub stale.
+    # Checking immediately means the standing issue names the pending apply
+    # while the change is still fresh, instead of on tomorrow's schedule.
+    paths:
+      - 'docs/agents/labels.json'
+      - 'scripts/check-labels.mjs'
+      - '.github/workflows/label-drift.yml'
+  workflow_dispatch:
+    inputs:
+      apply:
+        description: 'Push the manifest to GitHub (create and edit labels to match)'
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+  # Labels are part of the Issues API, so this grants both the label writes that
+  # `apply` performs and the standing-issue maintenance below.
+  issues: write
+
+concurrency:
+  group: label-drift
+  cancel-in-progress: false
+
+env:
+  # Matched exactly when finding the standing issue, so changing it orphans the
+  # existing one. If you must change it, close the old issue by hand.
+  ISSUE_TITLE: 'Label drift: the live labels and the manifest disagree'
+
+jobs:
+  reconcile:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      # No `npm ci`: the script uses only node builtins and the preinstalled
+      # `gh`, so there is nothing to install and no registry token to resolve.
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22.18'
+
+      - name: Apply the manifest to GitHub
+        if: inputs.apply
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: node scripts/check-labels.mjs --apply
+
+      - name: Check the live labels against the manifest
+        id: check
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if node scripts/check-labels.mjs --report drift.md; then
+            echo "drifted=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "drifted=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      # Resolved before branching so both paths address the same issue, and so a
+      # lookup failure surfaces here rather than as a confusing create-vs-update.
+      - name: Find the standing issue
+        id: standing
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          number=$(gh issue list \
+            --repo "${{ github.repository }}" \
+            --state all \
+            --search "in:title \"$ISSUE_TITLE\"" \
+            --json number,title,state \
+            --jq "[.[] | select(.title == \"$ISSUE_TITLE\")] | sort_by(.number) | .[0].number // empty")
+          echo "number=$number" >> "$GITHUB_OUTPUT"
+          echo "Standing issue: ${number:-none yet}"
+
+      - name: Report the drift
+        if: steps.check.outputs.drifted == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          NUMBER: ${{ steps.standing.outputs.number }}
+        run: |
+          if [ -z "$NUMBER" ]; then
+            gh issue create \
+              --repo "${{ github.repository }}" \
+              --title "$ISSUE_TITLE" \
+              --label needs-triage \
+              --body-file drift.md
+          else
+            # Reopen before editing: a closed issue accepts a body edit silently,
+            # and the drift would sit in a closed issue nobody is looking at.
+            gh issue reopen --repo "${{ github.repository }}" "$NUMBER" 2>/dev/null || true
+            gh issue edit --repo "${{ github.repository }}" "$NUMBER" --body-file drift.md
+          fi
+          echo "::error::The live labels no longer match docs/agents/labels.json. See the standing issue."
+          exit 1
+
+      - name: Close the standing issue
+        if: steps.check.outputs.drifted == 'false' && steps.standing.outputs.number != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          state=$(gh issue view --repo "${{ github.repository }}" "${{ steps.standing.outputs.number }}" --json state --jq .state)
+          if [ "$state" = "OPEN" ]; then
+            gh issue close \
+              --repo "${{ github.repository }}" \
+              "${{ steps.standing.outputs.number }}" \
+              --reason completed \
+              --comment "The live labels and \`docs/agents/labels.json\` agree again. Closed by \`label-drift.yml\`."
+          else
+            echo "Already closed; nothing to do."
+          fi
