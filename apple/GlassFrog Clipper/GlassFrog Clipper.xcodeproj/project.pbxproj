@@ -174,7 +174,7 @@
 /* Begin PBXFileReference section */
 		C1AFEE000000000000000418 /* GlassFrog Clipper Share.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "GlassFrog Clipper Share.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
 		C1AFEE000000000000000400 /* GlassFrog Clipper Share.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "GlassFrog Clipper Share.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
-		C1AFEE0000000000000003EB /* SharedItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SharedItem.swift; path = "Shared (Share)/SharedItem.swift"; sourceTree = "<group>"; };
+		C1AFEE0000000000000003EB /* SharedItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SharedItem.swift; path = "../GlassFrogClipperCore/Sources/GlassFrogClipperCore/SharedItem.swift"; sourceTree = "<group>"; };
 		C1AFEE0000000000000003EA /* ShareCaptureModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ShareCaptureModel.swift; path = "Shared (Share)/ShareCaptureModel.swift"; sourceTree = "<group>"; };
 		C1AFEE0000000000000003E9 /* ShareCaptureView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ShareCaptureView.swift; path = "Shared (Share)/ShareCaptureView.swift"; sourceTree = "<group>"; };
 		C1AFEE0000000000000003E8 /* ShareViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ShareViewController.swift; path = "Shared (Share)/ShareViewController.swift"; sourceTree = "<group>"; };
@@ -271,7 +271,6 @@
 				C1AFEE0000000000000003E8 /* ShareViewController.swift */,
 				C1AFEE0000000000000003E9 /* ShareCaptureView.swift */,
 				C1AFEE0000000000000003EA /* ShareCaptureModel.swift */,
-				C1AFEE0000000000000003EB /* SharedItem.swift */,
 			);
 			name = "Shared (Share)";
 			sourceTree = "<group>";
@@ -288,6 +287,7 @@
 				C1AFEE00000000000000001F /* Keychain.swift */,
 				C1AFEE000000000000000024 /* NativeMessage.swift */,
 				C1AFEE000000000000000029 /* Notifier.swift */,
+				C1AFEE0000000000000003EB /* SharedItem.swift */,
 			);
 			name = "Shared (Core)";
 			sourceTree = "<group>";
@@ -700,7 +700,6 @@
 				C1AFEE00000000000000040B /* ShareViewController.swift in Sources */,
 				C1AFEE00000000000000040C /* ShareCaptureView.swift in Sources */,
 				C1AFEE00000000000000040D /* ShareCaptureModel.swift in Sources */,
-				C1AFEE00000000000000040E /* SharedItem.swift in Sources */,
 				C1AFEE00000000000000040F /* Capture.swift in Sources */,
 				C1AFEE000000000000000410 /* CaptureFiler.swift in Sources */,
 				C1AFEE000000000000000411 /* Compose.swift in Sources */,
@@ -710,6 +709,7 @@
 				C1AFEE000000000000000415 /* Keychain.swift in Sources */,
 				C1AFEE000000000000000416 /* NativeMessage.swift in Sources */,
 				C1AFEE000000000000000417 /* Notifier.swift in Sources */,
+				C1AFEE00000000000000040E /* SharedItem.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -720,7 +720,6 @@
 				C1AFEE0000000000000003F3 /* ShareViewController.swift in Sources */,
 				C1AFEE0000000000000003F4 /* ShareCaptureView.swift in Sources */,
 				C1AFEE0000000000000003F5 /* ShareCaptureModel.swift in Sources */,
-				C1AFEE0000000000000003F6 /* SharedItem.swift in Sources */,
 				C1AFEE0000000000000003F7 /* Capture.swift in Sources */,
 				C1AFEE0000000000000003F8 /* CaptureFiler.swift in Sources */,
 				C1AFEE0000000000000003F9 /* Compose.swift in Sources */,
@@ -730,6 +729,7 @@
 				C1AFEE0000000000000003FD /* Keychain.swift in Sources */,
 				C1AFEE0000000000000003FE /* NativeMessage.swift in Sources */,
 				C1AFEE0000000000000003FF /* Notifier.swift in Sources */,
+				C1AFEE0000000000000003F6 /* SharedItem.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -38,6 +38,8 @@ The path that surfaces the same capture with role, work type, and note editable 
 
 *Avoid: popup path.* The distinction that matters is what the practitioner is asked for, not which surface renders it.
 
+The share sheet is therefore structured capture too, not a third path — it asks for exactly these three. Deciding that was the substance of #85; see `docs/adr/0011`.
+
 ## Capture lifecycle
 
 ### Pending capture

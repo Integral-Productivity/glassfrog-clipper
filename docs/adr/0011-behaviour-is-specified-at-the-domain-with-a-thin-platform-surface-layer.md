@@ -4,7 +4,8 @@ Date: 2026-09-01
 
 ## Status
 
-Accepted
+Accepted. Amended 2026-09-02 to resolve the Safari deferral it created (#85) —
+see the first entry under Consequences.
 
 Paired with [10. Four architectural characteristics get fitness functions](0010-four-architectural-characteristics-get-fitness-functions.md),
 which covers the other half of the tier-1 gate content (#69).
@@ -97,10 +98,80 @@ before this ADR was written — inverting the provenance marker's position, lett
 the configured role override a named one, and moving the selection read after a
 network await each turn the suite red.
 
-**Safari gets a slot, not a driver.** `features/surface/` is where
-`safari.feature` goes, and the domain layer needs no restatement for it. Writing
-that file and its Swift driver belongs to PR #66's session, which owns `apple/`;
-this session deliberately did not touch it. Tracked as #85.
+**Safari's surface layer is Swift, not a second `.feature`** *(amended
+2026-09-02, resolving #85; this paragraph previously read "Safari gets a slot,
+not a driver" and deferred the question)*.
+
+Applying this ADR's own mechanical test to the share sheet answered most of it.
+Every share-sheet behaviour a step could write against `submit()` — a decided
+work type honoured, a named role used as given, the note leading the evidence —
+is already stated in the domain layer.
+
+The share sheet is also not a third capture path, which was the open question in
+#85. `CONCEPTS.md` already settles what separates the two: *what the
+practitioner is asked for, not which surface renders it*. `ShareCaptureModel`
+offers role, work type and note before filing, so the share sheet is **structured
+capture on a different surface**. No new vocabulary, and no domain restatement.
+
+What is left is genuinely platform-shaped and genuinely one function:
+`SharedItem.pageContext(from:)`, assembling one `PageContext` out of whatever
+`NSExtensionItem`s a source app handed over. It is the share sheet's analogue of
+`quickCapture()` — the thing that reads the page.
+
+A `.feature` file for one function would cost a Gherkin runner on the Swift side
+(Cucumberish is the only one, and it is unmaintained) or a Node driver shelling
+into Swift, plus a second required check — to produce a green light this ADR
+already says cannot prove Safari works. It would also mean a second fake of the
+same platform, which `features/support/world.ts` warns against by name. So the
+surface layer is stated where it can actually be executed:
+`ShareSheetSurfaceTests.swift` in the core package, in the same register as
+`chrome.feature`, carrying its own copy of the boundary note rather than a
+reference to it. `features/surface/` stays Chrome-only.
+
+**The two-layer split is unchanged; only the notation varies by platform.** The
+rule generalises: a platform's surface layer goes wherever its behaviour can be
+executed against that platform's own code. Gherkin is how the Node surface is
+written, not a requirement the split imposes.
+
+**Specifying it required moving `SharedItem.swift` into `GlassFrogClipperCore`,
+and the move paid for itself.** The Xcode targets carry no
+`packageProductDependencies` — they compile the core's sources directly, by
+path — so the move is a path change with no import churn, and `swift test` gains
+the file. It also put the file under the package's Swift 6 strict concurrency,
+which the Xcode targets were not applying. That surfaced two defects live since
+#66: a data race resuming a continuation with the non-`Sendable` `Any?` that
+`loadItem` returns, and a reader that decoded only the *object* representation of
+an attachment — so any source app serialising its `public.url` representation had
+its address dropped, which is the precise loss that file exists to prevent. Both
+are fixed here, and the second is now specified.
+
+Mutation-tested like the two original layers. Eight mutations each turn the
+suite red: stopping at the first attachment that yields something, letting a
+later item overwrite an earlier title or address, filing an echoed address as a
+selection, reading only the object representation, dropping the scheme check,
+filing a share that carried nothing, and decoding the address slot as ordinary
+text. A deliberate no-op edit was run alongside them and correctly stayed green,
+so the suite is not simply red to everything.
+
+**The last of those eight is the one worth recording, because the obvious fix
+for it does not work.** `loadItem(forTypeIdentifier: "public.url")` never hands
+back an object: measured on macOS 26, `NSItemProvider(item:typeIdentifier:)`,
+`(object:)` and `(contentsOf:)` all serialise, and the value arrives as `Data`.
+So `url(from:)` and `text(from:)` read an ordinary link identically, and a
+fixture built to vend an object — the natural way to tell the two decoders
+apart — vends `Data` like every other and passes whichever decoder is wired up.
+Such a test looks like coverage and is not. What actually separates the decoders
+is the scheme check, so the scenario that pins the address slot is one whose
+`public.url` attachment carries bytes that are *not* an address. That scenario
+kills the mutation, and it states the real consequence: `url` is the field
+GlassFrog renders a project as linked from, so arbitrary bytes must not reach it.
+
+**What the Swift half is gated by is convention, not mechanism.** The `Swift
+core` job that runs these tests is path-filtered and is not a required check —
+`verify` is the only one (ADR 0012) — so a red run here reports on a pull
+request touching `apple/` but cannot block a merge. That is the same division
+the boundary note already draws for Chrome, and it is stated in
+`SharedItem.swift`'s header so a reader does not mistake reachable for enforced.
 
 **A domain scenario that starts needing a browser is a signal, not a nuisance.**
 It means either the behaviour is genuinely platform-shaped and the scenario is in

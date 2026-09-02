@@ -14,6 +14,11 @@
 # perfectly well and breaks capture on every navigation.
 #
 # See docs/adr/0011 for the two-layer split and this boundary.
+#
+# This directory is Chrome-only by decision, not by omission. Safari's surface
+# layer is apple/GlassFrogClipperCore/Tests/.../ShareSheetSurfaceTests.swift,
+# written in this register and carrying its own copy of the note above — 0011's
+# Consequences records why it is Swift rather than a safari.feature here.
 
 Feature: Reading a page through Chrome's extension surface
 

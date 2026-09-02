@@ -11,8 +11,13 @@ import PackageDescription
 /// without Xcode, which is what lets the cross-language compose contract be a
 /// CI gate rather than something someone remembers to check.
 ///
-/// Foundation only. Nothing here imports UIKit, AppKit or SafariServices, so the
-/// same code serves an app, an app extension and a test process unchanged.
+/// No UIKit, AppKit or SafariServices, so the same code serves an app, an app
+/// extension and a test process unchanged. That is the invariant; it is not a
+/// claim that Foundation is the only import, because it is not — `Notifier`
+/// needs UserNotifications and `SharedItem` needs UniformTypeIdentifiers.
+/// `SharedItem` reads `NSExtensionItem`s and so needs the type identifiers, but
+/// not the share sheet that produced them — which is exactly why it can be
+/// specified under `swift test`.
 ///
 /// The compose golden file is deliberately *not* declared as a package resource.
 /// It lives with the TypeScript suite that generates it, and the test reads it
