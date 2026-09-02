@@ -6,3 +6,15 @@ dist/
 .env.local
 .context/compound-engineering/
 .claude/.reclaim-session.json
+dist-safari/
+
+# Xcode and SwiftPM build output. `apple/build/` is not enough: xcodebuild puts
+# its output beside the project, at `apple/GlassFrog Clipper/build/`, and
+# SwiftPM puts its own under the package. Both are large and neither is source.
+# The web extension bundled into the Xcode project is compiled from src/ by a
+# Run Script build phase, so it is build output like dist/ and is not committed.
+apple/**/Shared (Extension)/Resources/
+apple/**/build/
+apple/**/.build/
+apple/**/xcuserdata/
+*.xcuserstate

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!--
+	  Shared by the app, the Safari extension and the Share Extension.
+
+	  The App Group is what makes one configuration serve all three. Without it
+	  each process gets its own UserDefaults suite, and a practitioner who
+	  configured the app would find the share sheet still unconfigured — the
+	  exact "configure it twice" failure ConfigurationStore exists to avoid.
+	-->
+	<key>com.apple.security.application-groups</key>
+	<array>
+		<string>group.com.integralproductivity.GlassFrogClipper</string>
+	</array>
+
+	<!--
+	  The API key lives in the Keychain rather than in the shared container,
+	  because the container is readable by anything that can mount it and this
+	  is a long-lived credential (ADR 0002).
+
+	  $(AppIdentifierPrefix) resolves to the team identifier at build time, so
+	  this entry is inert until the project has a development team. Keychain.swift
+	  treats a missing access group as a working configuration — the item is then
+	  private to whichever process wrote it, which is correct for an unsigned
+	  build and wrong for a shipped one.
+	-->
+	<key>keychain-access-groups</key>
+	<array>
+		<string>$(AppIdentifierPrefix)com.integralproductivity.GlassFrogClipper</string>
+	</array>
+</dict>
+</plist>

@@ -1,0 +1,143 @@
+# Carries a git-ai authorship note from a merged pull request's commit onto the
+# squashed commit that actually lands on main.
+#
+# Why this exists: squash-merging builds a NEW commit server-side and leaves the
+# commit the note was attached to unreachable from main. The attribution does not
+# follow the change, so a clone resolves nothing for anything merged through a
+# pull request. Measured before this workflow existed: 12 of 74 notes resolved on
+# main, and all 12 were bootstrap commits predating the pull-request workflow.
+# See docs/adr/0009 and issue #71.
+#
+# Why only single-commit pull requests: a note records per-file LINE RANGES keyed
+# to one commit's diff. Squashing several commits collapses the intermediate
+# states, so ranges from several notes do not compose onto the squashed diff —
+# copying them would publish attribution that points at the wrong lines. On a
+# repository whose whole claim is a record you can check rather than trust, wrong
+# attribution is worse than absent attribution. So this copies only where the
+# transfer is provably sound, and records nothing otherwise.
+name: AI authorship notes
+
+on:
+  pull_request:
+    types: [closed]
+
+permissions:
+  contents: write
+
+# Notes live on a single ref, so two merges landing together would race to push
+# it. Serialize rather than cancel: a skipped run silently loses attribution,
+# which is the exact failure this workflow exists to prevent.
+concurrency:
+  group: ai-authorship-notes
+  cancel-in-progress: false
+
+jobs:
+  copy-note:
+    # A fork's notes live in the fork, never in this repository's refs/notes/ai,
+    # so there is nothing to copy and the token would be read-only anyway.
+    if: >-
+      github.event.pull_request.merged == true
+      && github.event.pull_request.commits == 1
+      && github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Copy the authorship note onto the squashed commit
+        env:
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          MERGE_SHA: ${{ github.event.pull_request.merge_commit_sha }}
+        run: |
+          set -euo pipefail
+
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          # The ref may not exist yet on a repository that has never pushed notes.
+          # That is a legitimate empty state, not a failure.
+          git fetch origin '+refs/notes/ai:refs/notes/ai' 2>/dev/null || {
+            echo "No refs/notes/ai on origin yet — nothing to copy."
+            exit 0
+          }
+
+          # The head commit is unreachable once the branch is auto-deleted on
+          # merge, so it must be fetched by explicit SHA. GitHub still serves it.
+          # No --depth here: this is a full clone, and a shallow fetch would cut
+          # off ${HEAD_SHA}^, which the diff guard below needs.
+          git fetch origin "$HEAD_SHA" 2>/dev/null || true
+
+          if ! git cat-file -e "${HEAD_SHA}^{commit}" 2>/dev/null; then
+            echo "::warning::Head commit $HEAD_SHA is no longer served by origin;"
+            echo "::warning::its authorship note cannot be carried onto $MERGE_SHA."
+            exit 0
+          fi
+
+          if ! git notes --ref=ai show "$HEAD_SHA" >/dev/null 2>&1; then
+            echo "No authorship note on $HEAD_SHA — nothing to copy."
+            exit 0
+          fi
+
+          if git notes --ref=ai show "$MERGE_SHA" >/dev/null 2>&1; then
+            echo "$MERGE_SHA already carries a note — leaving it alone."
+            exit 0
+          fi
+
+          # THE correctness guard. The note's line ranges are only valid for the
+          # squashed commit if the squashed commit introduces byte-identical
+          # changes. That holds for a one-commit pull request merged without
+          # conflict resolution, and fails quietly if anything reshaped the diff.
+          # Verify it rather than trusting the commit count.
+          if ! diff -q \
+              <(git diff "${HEAD_SHA}^" "$HEAD_SHA") \
+              <(git diff "${MERGE_SHA}^" "$MERGE_SHA") >/dev/null; then
+            echo "::warning::The squashed diff differs from the head commit's diff,"
+            echo "::warning::so the note's line ranges would not describe $MERGE_SHA."
+            echo "::warning::Skipping rather than publishing wrong attribution."
+            exit 0
+          fi
+
+          # base_commit_sha names the commit the note describes. Carrying it over
+          # verbatim would leave the note pointing at a commit that is not on main.
+          git notes --ref=ai show "$HEAD_SHA" > /tmp/note.txt
+          MERGE_SHA="$MERGE_SHA" python3 - <<'PY' > /tmp/note.new
+          import json, os, sys
+          raw = open("/tmp/note.txt").read()
+          marker = "---\n"
+          i = 0 if raw.startswith(marker) else raw.find("\n" + marker)
+          if i < 0:
+              sys.exit("Unrecognised note format: no '---' delimiter.")
+          head, body = (("", raw[len(marker):]) if i == 0
+                        else (raw[:i + 1], raw[i + 1 + len(marker):]))
+          note = json.loads(body)
+          note["base_commit_sha"] = os.environ["MERGE_SHA"]
+          sys.stdout.write(head + marker + json.dumps(note, indent=2) + "\n")
+          PY
+
+          git notes --ref=ai add -F /tmp/note.new "$MERGE_SHA"
+
+          # Another merge may have advanced the ref between our fetch and this
+          # push. Re-fetch and re-apply rather than clobbering their note.
+          for attempt in 1 2 3; do
+            if git push origin refs/notes/ai; then
+              echo "Carried the authorship note from $HEAD_SHA onto $MERGE_SHA."
+              exit 0
+            fi
+            echo "Notes ref moved under us; retrying ($attempt/3)."
+            git update-ref -d refs/notes/ai
+            git fetch origin '+refs/notes/ai:refs/notes/ai'
+            # Written as an if: `cmd && exit 0` would abort the whole script
+            # under `set -e` on the ordinary path where the note is still absent.
+            if git notes --ref=ai show "$MERGE_SHA" >/dev/null 2>&1; then
+              echo "Another run published the note for $MERGE_SHA."
+              exit 0
+            fi
+            git notes --ref=ai add -F /tmp/note.new "$MERGE_SHA"
+          done
+
+          echo "::error::Could not push refs/notes/ai after 3 attempts."
+          echo "::error::The note for $MERGE_SHA was not published. Re-run this job,"
+          echo "::error::or copy it locally with:"
+          echo "::error::  git notes --ref=ai copy $HEAD_SHA $MERGE_SHA && git push origin refs/notes/ai"
+          exit 1

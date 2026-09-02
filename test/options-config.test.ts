@@ -16,7 +16,9 @@ const ROLES: RoleSummary[] = [
   { id: 'role_fedcba9876543210fedcba9876543210', name: 'Coaching' },
 ];
 
-const KEY = 'gfk_live_9f2b71c4e85d43aa8127';
+// Deliberately unmistakable. A realistic-looking value here trips secret
+// scanners on a public repo; redaction only needs length >= 8 (src/errors.ts).
+const KEY = 'gfk_live_EXAMPLE_NOT_A_REAL_KEY';
 
 function rejecting(status: number): (key: string) => Promise<RoleSummary[]> {
   return async () => {

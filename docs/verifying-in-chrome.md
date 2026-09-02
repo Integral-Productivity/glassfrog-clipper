@@ -120,3 +120,55 @@ Those are two verified halves, not a verified whole. The defects this project
 actually hit — a rejected `label` field, and a `fetch` that threw only in
 browsers — both lived precisely in the seams between layers that each looked
 correct on their own.
+
+## Gate run — 2026-09-01, the Safari/Apple branch
+
+Run against `dist/` built from `claude/safari-extension-apple-apps-13cfca`, in
+Chrome for Testing 151 headless over CDP. The branch changes five files the
+Chrome path already runs, so the gates were re-run rather than assumed.
+
+**Capability detection, which had only ever been exercised against a fake:**
+
+| Observed | Consequence |
+|---|---|
+| `chrome.runtime.getURL('')` → `chrome-extension://…` | `browserKind()` reports `chrome`, not `unknown` |
+| `chrome.notifications.create` is a function | the notice chain takes its first branch |
+| `chrome.runtime.sendNativeMessage` is **undefined** | without the `nativeMessaging` permission the method is absent, so `hasNativeMessaging()` is false and the whole containing-app bridge is inert on Chrome |
+
+That last row is the one worth recording. `src/bridge.ts` and the second link of
+`src/notify.ts`'s chain both call `sendNative`, and the test suite can only show
+they behave correctly against a fake that omits the method. Chrome genuinely
+omits it.
+
+**Write path** — fake key, request intercepted, a `201` fulfilled so the success
+path runs for real. All twelve assertions held:
+
+```
+POST https://api.glassfrog.com/api/v5/roles/{role}/tensions
+{"tension":{"body":"[glassfrog-clipper] Write path gate\n\nhttps://example.org/gate\n\na selected passage"}}
+```
+
+Marker leads the body; no `label`; no `status`; exactly one request; outcome
+`{status:'filed', itemId}`; in-flight marker cleared only after the 201; pending
+slot empty; badge `✓`; **no notice stored** — success remains badge-only, so the
+new `clipper.lastNotice` slot does not accumulate on the happy path.
+
+**Failure path** — a `401`, which is R18's reconfigure case. All nine held:
+classified `unusable-role` with `reconfigure: true` and `mayHaveFiled: false`;
+exactly one request; the capture preserved in the pending slot (R10); the
+in-flight marker settled so startup will not claim it may have filed; the API key
+absent from both the surfaced message and the stored notice (R12); and the notice
+recorded as `deliveredBy: "notifications"` — Chrome takes the system-notification
+branch and never reaches the stored floor.
+
+**One defect found.** `npm run build` copies the whole of `public/` into `dist/`,
+so the Safari manifest overlay was shipping inside the Chrome bundle. Chrome
+ignores files the manifest does not name, so nothing broke — but the packaged
+extension carried a manifest describing a different platform.
+`scripts/build-safari.mjs` already removed it from the Safari bundle for the same
+reason; the Chrome half was missing. Fixed, and `scripts/check-bundle.mjs` now
+fails on it.
+
+_Still not covered here: a capture against a live organisation with a real key.
+That is the first-install checklist above, and on Safari it is
+[#64](https://github.com/Integral-Productivity/glassfrog-clipper-chrome-extension/issues/64)._

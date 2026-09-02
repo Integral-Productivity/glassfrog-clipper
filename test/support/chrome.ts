@@ -49,6 +49,9 @@ export interface FakeChrome {
     getManifest(): { commands?: Record<string, unknown> };
     getURL(path: string): string;
     openOptionsPage(): Promise<void>;
+    /** Present only when imitating Safari — Chrome extensions get this from a
+     * separately-installed host, which this extension never has. */
+    sendNativeMessage?(application: string, message: object): Promise<unknown>;
     lastError?: { message: string };
     // Registered by src/background.ts at module evaluation. Present so the
     // module can be imported at all; no test drives them through Chrome, since
@@ -84,6 +87,8 @@ export interface FakeChrome {
   /** True if anything took focus — nothing in the capture path may (R14). */
   __focusTaken: boolean;
   __optionsPageOpened: number;
+  /** Everything handed to the containing app, in order. */
+  __nativeMessages: Array<{ application: string; message: unknown }>;
 }
 
 type StorageListener = (
@@ -97,9 +102,26 @@ export interface FakeChromeOptions {
    * omit it on `local`, which is the case `enableTrustedContexts` guards for.
    */
   withSetAccessLevel?: boolean;
+
+  /**
+   * Which extension host to imitate. Safari serves resources from a different
+   * scheme, implements no `chrome.notifications`, and can reach a containing
+   * app — the three differences src/platform.ts detects.
+   */
+  host?: 'chrome' | 'safari';
+
+  /**
+   * How the containing app behaves. `absent` omits `sendNativeMessage`
+   * entirely, which is what Chrome looks like and what Safari looks like before
+   * the app has ever run.
+   */
+  nativeApp?: 'absent' | 'delivers' | 'declines' | 'throws';
 }
 
 export function createFakeChrome(options: FakeChromeOptions = {}): FakeChrome {
+  const host = options.host ?? 'chrome';
+  const nativeApp = options.nativeApp ?? 'absent';
+  const scheme = host === 'safari' ? 'safari-web-extension' : 'chrome-extension';
   const store = new Map<string, unknown>();
   const listeners = new Set<StorageListener>();
 
@@ -189,7 +211,7 @@ export function createFakeChrome(options: FakeChromeOptions = {}): FakeChrome {
     },
     runtime: {
       getManifest: () => ({ commands: fake.__manifestCommands }),
-      getURL: (path) => `chrome-extension://fake/${path}`,
+      getURL: (path) => `${scheme}://fake/${path}`,
       async openOptionsPage() {
         fake.__optionsPageOpened += 1;
       },
@@ -222,7 +244,24 @@ export function createFakeChrome(options: FakeChromeOptions = {}): FakeChrome {
     __selection: '',
     __focusTaken: false,
     __optionsPageOpened: 0,
+    __nativeMessages: [],
   };
+
+  // Safari implements no notifications API at all. Deleting it rather than
+  // stubbing it is the point: `hasNotifications()` must see genuine absence,
+  // because a stub that resolves would let the chain's first link pass on a
+  // platform where it cannot.
+  if (host === 'safari') {
+    delete (fake as { notifications?: unknown }).notifications;
+  }
+
+  if (nativeApp !== 'absent') {
+    fake.runtime.sendNativeMessage = async (application, message) => {
+      fake.__nativeMessages.push({ application, message });
+      if (nativeApp === 'throws') throw new Error('no containing app');
+      return { delivered: nativeApp === 'delivers' };
+    };
+  }
 
   return fake;
 }

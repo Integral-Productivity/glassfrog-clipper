@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!-- See Entitlements/iOS.entitlements for why each of these is here. -->
+	<key>com.apple.security.application-groups</key>
+	<array>
+		<string>group.com.integralproductivity.GlassFrogClipper</string>
+	</array>
+
+	<key>keychain-access-groups</key>
+	<array>
+		<string>$(AppIdentifierPrefix)com.integralproductivity.GlassFrogClipper</string>
+	</array>
+
+	<!--
+	  The sandbox keys the converter's build settings already imply
+	  (ENABLE_APP_SANDBOX, ENABLE_OUTGOING_NETWORK_CONNECTIONS), restated here
+	  because naming an entitlements file replaces the generated one rather than
+	  adding to it. Dropping either of these silently removes the sandbox or the
+	  ability to reach api.glassfrog.com.
+	-->
+	<key>com.apple.security.app-sandbox</key>
+	<true/>
+	<key>com.apple.security.network.client</key>
+	<true/>
+</dict>
+</plist>
