@@ -35,19 +35,26 @@ Three constraints shape everything below. All three are Google's, not ours.
 - **A developer account's email address is permanent.** Google's registration
   guidance is explicit that it cannot be changed after the account exists. The
   address is therefore an architectural choice, not an administrative one.
-- **An account gets one publisher, for the life of the account.** Deleting a
-  publisher does not restore the quota. There is no second attempt at the name
-  or the entity behind it.
+- **A deleted account's address is burnt with it.** Google's registration page
+  states that the email identity of a deleted developer account cannot be reused
+  to create a new one. Deleting is not a way back to the same address.
 - **Group publishing no longer exists.** It was replaced by adding *members* to
   a single publisher with roles — viewer, item manager, editor, admin. Members
   join free and do not repeat the registration flow. This, not a note in a wiki,
   is how a second person gets access.
 
+**What *is* reversible, despite an earlier reading of this page:** the publisher
+display name. It is an editable field on the Account page. The
+one-publisher-per-account-for-life quota was the *group publisher* rule, from
+the system the bullet above records as removed — see ADR
+[0017](../adr/0017-the-publisher-is-owned-by-an-identity-not-a-mailbox.md).
+Spend the caution on the account address, which really is permanent.
+
 ### Decisions
 
 | Decision | Value | Why |
 |---|---|---|
-| Owning account | A **new dedicated Workspace mailbox** on `integralproductivity.com` — `chrome-store@` or similar | Google's own registration guidance suggests a dedicated publishing account. Because the address is permanent, binding it to a role rather than a person is the only version of this choice that survives the person. A personal mailbox would have welded the listing to one inbox forever. |
+| Owning account | `chrome-store@integralproductivity.com`, as a **Cloud Identity Free user** in the existing Workspace organization — a sign-in identity, not a licensed mailbox | Google's own registration guidance suggests a dedicated publishing account. Because the address is permanent, binding it to a role rather than a person is the only version of this choice that survives the person. The requirement is an account that can *sign in*, which a licence does not add and an alias cannot supply — so the identity is free rather than ~$85–110/year. ADR [0017](../adr/0017-the-publisher-is-owned-by-an-identity-not-a-mailbox.md). |
 | Publisher display name | **Integral Productivity** | The brand as it reads everywhere else. Drops the entity suffix, which the verified trader block carries anyway. |
 | Trader declaration | **Trader**, with **organization verification** | Commercial licensing is the plan, so trader is the accurate declaration; the alternative would be a misdeclaration *and* would tell EU users their consumer-protection rights do not apply. Verification is also the only route to a verified publisher name and a publisher page. |
 | Published contact | **Business address** and a **Google Voice** number | Both are mandatory and both are public. Google's trader FAQ names Google Voice as an acceptable SMS-capable option, which keeps a personal mobile off a page anyone can scrape. |
@@ -91,9 +98,25 @@ Order matters in one place: **create the mailbox before touching the
 dashboard.** Registering first and fixing the address afterwards is the one
 mistake here with no remedy.
 
-1. **Create the mailbox.** In Google Workspace admin, add
-   `chrome-store@integralproductivity.com` as a user (not an alias — an alias
-   cannot own a Google account). Set a password and keep it in 1Password.
+1. **Create the identity.** In the Admin console, turn **off** automatic
+   licensing (Billing → License settings) *before* adding anyone, add the
+   **Cloud Identity Free** subscription, then add
+   `chrome-store@integralproductivity.com` as a **user** — not an alias, which
+   cannot sign in, and not a group. Confirm in Billing → Subscriptions that it
+   holds a Cloud Identity licence and not a Workspace one; the intent is not
+   visible from the user record. Password into 1Password.
+
+   Then two settings the identity needs and a mailbox would not: a Gmail
+   **Default routing** rule for that address (Apps → Google Workspace → Gmail →
+   Default routing), because mail to a user without Gmail bounces and this is
+   the address Google verifies and notifies; and **Chrome Web Store** turned on
+   for that user's organizational unit (Apps → Additional Google services),
+   because an administrator can have it off.
+
+   **Test the routing before step 4.** Send a message to the address from
+   outside and watch it arrive. This is the cheap moment to find it wrong. If an
+   already-committed but unassigned Workspace seat exists, using it instead is
+   equally free until renewal and skips both settings and this test.
 2. **Have a Google Voice number ready**, or note which existing business line
    can receive SMS. Trader verification will ask, and stalling mid-flow is
    avoidable.
@@ -105,8 +128,9 @@ mistake here with no remedy.
    non-refundable, and charged before the dashboard is usable. Gift cards are
    not accepted; if several payment methods are attached to the account, confirm
    which one is charged.
-5. **Create the publisher** with the display name `Integral Productivity`. This
-   is the one-per-lifetime action — read the field back before confirming.
+5. **Set the publisher display name** to `Integral Productivity` on the Account
+   page. This is an editable field, not a one-shot: the irreversible choice was
+   the account address, in step 1.
 6. **Verify the account email** from the message Google sends.
 7. **Declare trader status** and start organization verification. Supply the
    legal name, business address, and SMS-capable number from the table above.
