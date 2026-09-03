@@ -5,8 +5,11 @@
 # only while one party can license the whole work, so the agreement has to be
 # unbypassable rather than merely documented. See CLA.md.
 #
-# Signatures are stored in this repository at .github/cla-signatures.json —
-# no external service holds them.
+# Signatures are stored in this repository at .github/cla-signatures.json, on
+# the `cla-signatures` branch — no external service holds them. The branch is
+# deliberately not `main` and must stay outside every ruleset: the action
+# records a signature by pushing that file, and a push carrying no `verify`
+# check is rejected by a protected branch. See docs/adr/0019.
 name: CLA
 
 on:
@@ -44,7 +47,11 @@ jobs:
           # custom comment is the one contributors actually click, so it is the
           # only one worth maintaining. #62 and #177 both had to update two copies
           # of it; there is now one.
-          branch: 'main'
+          # NOT 'main'. ADR 0019: main's ruleset requires `verify`, and the
+          # action's signature push is not a pull request, so main rejects it
+          # and no signature can ever be recorded. This branch carries no
+          # ruleset by design; test/cla-signature-branch.test.ts guards it.
+          branch: 'cla-signatures'
           allowlist: kraigparkinson,dependabot[bot],bot*
           custom-notsigned-prcomment: >-
             Thanks for the pull request. Before it can be merged, please read
