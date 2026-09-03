@@ -30,9 +30,17 @@ test('an operational company address in the tree is a violation', () => {
     'Sign in as `chrome-store@integralproductivity.com` and pay the fee.',
   );
 
-  assert.equal(violations.length, 1);
-  assert.equal(violations[0].where, 'docs/store/example.md');
-  assert.match(violations[0].detail, /operational address on a company domain/);
+  // Asserted through map/some rather than violations[0]: `noUncheckedIndexedAccess`
+  // is on, so indexed access is `T | undefined` and reads only compile behind a
+  // narrowing dance that adds nothing to what is being asserted.
+  assert.deepEqual(
+    violations.map((violation) => violation.where),
+    ['docs/store/example.md'],
+  );
+  assert.ok(
+    violations.some((violation) => /operational address on a company domain/.test(violation.detail)),
+    'the violation should say what is wrong in terms a reader can act on',
+  );
 });
 
 test('a published contact address is not a violation', () => {
@@ -71,8 +79,6 @@ test('the tree itself is clean', async () => {
   // A rule that stopped matching would also report zero violations, so assert
   // the check actually read the tree rather than an empty list.
   assert.match(result.summary, /^\d+ text file\(s\)/);
-  assert.ok(
-    Number(result.summary.split(' ')[0]) > 50,
-    `the check scanned ${result.summary.split(' ')[0]} files — too few to have read this repo`,
-  );
+  const scanned = Number.parseInt(result.summary, 10);
+  assert.ok(scanned > 50, `the check scanned ${scanned} files — too few to have read this repo`);
 });

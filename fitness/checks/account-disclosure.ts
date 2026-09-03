@@ -49,7 +49,7 @@ const COMPANY_DOMAINS = ['integralproductivity.com'];
  * contact point rather than inventory. Adding a row is a deliberate act; that
  * is the whole mechanism.
  */
-export const PUBLISHED_CONTACTS: ReadonlyMap<string, string> = new Map([
+export const PUBLISHED_CONTACTS: ReadonlyMap<string, string> = new Map<string, string>([
   [
     'kraigparkinson@integralproductivity.com',
     'the maintainer contact published in CONTRIBUTING.md, PRIVACY.md and package.json',
