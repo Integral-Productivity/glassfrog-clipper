@@ -1,0 +1,19 @@
+test/surface-layer.test.ts
+  s_776bc391b6339f::t_c705111d221e33 120,125-127
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "4a0d25009d32b267f60ac5334299e77d4ab20495",
+  "prompts": {},
+  "sessions": {
+    "s_776bc391b6339f": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "01ec20b4-7091-4601-b2e0-ef43edae67b0",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Kraig Parkinson <kraig.parkinson@gmail.com>"
+    }
+  }
+}
