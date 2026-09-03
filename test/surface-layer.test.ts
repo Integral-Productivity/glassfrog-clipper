@@ -117,12 +117,14 @@ export function testCases(source: string): string[] {
 
 /** The declared Gherkin scenarios, by name. `Scenario Outline` counts as one. */
 export function scenarios(source: string): string[] {
-  return [...source.matchAll(/^[ \t]*Scenario(?: Outline)?:[ \t]*(.*)$/gm)].map((match) => match[1].trim());
+  return [...source.matchAll(/^[ \t]*Scenario(?: Outline)?:[ \t]*(.*)$/gm)].map((match) => (match[1] ?? '').trim());
 }
 
 /** The test targets `Package.swift` declares. */
 export function testTargets(manifest: string): string[] {
-  return [...manifest.matchAll(/\.testTarget\(\s*name:\s*"([^"]+)"/g)].map((match) => match[1]);
+  return [...manifest.matchAll(/\.testTarget\(\s*name:\s*"([^"]+)"/g)].flatMap((match) =>
+    match[1] === undefined ? [] : [match[1]],
+  );
 }
 
 /**
