@@ -1,0 +1,19 @@
+docs/solutions/workflow-issues/silence-as-success-cannot-gate-ci.md
+  s_c138acd9d266bc::t_4aa30f66e98627 1-156
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "be7faa9ba81b1604d795c41f6ca5b1a91bb6520e",
+  "prompts": {},
+  "sessions": {
+    "s_c138acd9d266bc": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "abd84d35-3190-4fc4-9572-8613b62e3981",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Kraig Parkinson <kraig.parkinson@gmail.com>"
+    }
+  }
+}
