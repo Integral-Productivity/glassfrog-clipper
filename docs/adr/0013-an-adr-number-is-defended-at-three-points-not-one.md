@@ -1,10 +1,12 @@
-# 13. An ADR number is defended at three points, not one
+# An ADR number is defended at three points, not one
 
 Date: 2026-09-02
 
 ## Status
 
 Accepted
+
+Amended by [An ADR number lives on one surface](0015-an-adr-number-lives-on-one-surface.md) — the belt and the suspenders below stand unchanged. The third layer, deferred to #115, was answered by taking the number off its second and third surfaces rather than by changing how it is allocated, so `scripts/adr-claims.ts` is kept rather than retired.
 
 Resolves the decision [#83](../../issues/83) was opened to force. Builds on
 [#42](../../pull/42) and [#54](../../pull/54) (the two earlier renumbers),

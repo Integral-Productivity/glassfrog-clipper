@@ -1,4 +1,4 @@
-# 9. AI authorship survives a squash only where the diff is unchanged
+# AI authorship survives a squash only where the diff is unchanged
 
 Date: 2026-09-01
 

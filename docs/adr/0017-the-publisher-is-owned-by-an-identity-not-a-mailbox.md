@@ -1,4 +1,4 @@
-# 17. The publisher is owned by an identity, not a mailbox
+# The publisher is owned by an identity, not a mailbox
 
 Date: 2026-09-03
 
