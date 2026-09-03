@@ -25,14 +25,23 @@ iOS/iPadOS/macOS app, and the share sheet, sharing this capture path.
 
 ## Status
 
-Pre-alpha. The capture path is implemented and under test — a keystroke files
-the current page as a tension against a configured capture role, and the popup
-exposes the same capture with role, work type, and note editable. Not yet
-exercised end-to-end against a live GlassFrog org.
+Pre-alpha. A keystroke files the current page as a tension against a configured
+capture role; the popup exposes the same capture with role, work type, and note
+editable.
 
-Chrome and Safari run the same compiled bundle. The Apple targets compile on
-both platforms but have not been run: App Groups and a shared Keychain both need
-an Apple Developer team, which is not set up yet — see
+The capture path has been run end to end against a live GlassFrog org — in
+Chrome, on 2026-08-30, with a real credential, filing a project that was read
+back afterwards and a tension that was not. Stated plainly so it is not read as
+more than it is: that is a single manual pass, by the author, against one
+organisation. It establishes that the path works, not that it is reliable. What
+the run covered, and what it did not, is in the
+[verification record](docs/plans/2026-08-28-capture-path-verification-record.md).
+
+Chrome and Safari run the same compiled bundle, but only the Chrome half has had
+a live-organisation run — the Safari and share-sheet gates are
+[#64](../../issues/64). The Apple targets compile on both platforms but have not
+been run: App Groups and a shared Keychain both need an Apple Developer team,
+which is not set up yet — see
 [apple/README.md](apple/README.md#before-this-can-actually-run).
 
 ## Install
@@ -71,6 +80,27 @@ npm test
 npm run build         # → dist/, load unpacked in chrome://extensions
 npm run build:safari  # → dist-safari/, the Safari bundle
 ```
+
+### If you cloned before 2026-09-02
+
+This repository was renamed from `glassfrog-clipper-chrome-extension` to
+`glassfrog-clipper` ([#62](../../issues/62)), because the old name described one
+of the three platforms it serves — see
+[ADR 0008](docs/adr/0008-the-apple-build-shares-this-repo-and-this-capture-path.md).
+GitHub redirects the old URL for both HTTP and git, so an existing clone keeps
+fetching and pushing with no change — but only while the old name stays
+unclaimed. Creating a repository named `glassfrog-clipper-chrome-extension`
+under this org retires the redirect, so repoint the remote rather than relying
+on it:
+
+```
+git remote set-url origin https://github.com/Integral-Productivity/glassfrog-clipper.git
+```
+
+Over SSH, use `git@github.com:Integral-Productivity/glassfrog-clipper.git`
+instead — the HTTPS URL above would silently convert an SSH clone.
+
+Worktrees share the parent clone's remote, so one `set-url` covers all of them.
 
 ## Contributing
 

@@ -1,5 +1,15 @@
 import Foundation
 
+/// Filing one capture, without saying what it files through.
+///
+/// The narrowest thing `ShareCaptureModel` needs. `CaptureFiler` is the only
+/// implementation that ships; the protocol exists so the phase machine can be
+/// driven under `swift test` against a real filer whose transport is stubbed,
+/// rather than against a stand-in that decides the outcome itself.
+public protocol CaptureFiling: Sendable {
+    func file(_ capture: Capture) async throws -> GlassFrogClient.CreatedItem
+}
+
 /// Files one capture natively, for the Share Extension.
 ///
 /// The Swift counterpart of `fileCapture()` in `src/capture.ts`, minus the
@@ -8,22 +18,32 @@ import Foundation
 /// leave a capture in an unknown state. A Share Extension is not killed that way
 /// — it is alive for as long as its own request, and the practitioner is looking
 /// at it. There is no window to recover from, so there is nothing to record.
-public struct CaptureFiler: Sendable {
+///
+/// It does not follow that a *failure* here has a known outcome — a 5xx or a
+/// lost connection is ambiguous whatever the process's lifetime, which is what
+/// `CaptureFailure.mayHaveFiled` records and #146 is open about.
+public struct CaptureFiler: CaptureFiling, Sendable {
 
     public enum FilingError: Error, Equatable {
         case notConfigured([Configuration.Gap])
     }
 
-    private let store: ConfigurationStore
+    private let store: any ConfigurationReading
+    /// Held rather than taken per call, so the one thing on this path that
+    /// leaves the process is injectable from as far out as the phase machine.
+    /// A `session:` parameter on `file` could not be reached from
+    /// `ShareCaptureModel`, which is where the states worth specifying live.
+    private let session: URLSession
 
-    public init(store: ConfigurationStore = ConfigurationStore()) {
+    public init(store: any ConfigurationReading = ConfigurationStore(), session: URLSession = .shared) {
         self.store = store
+        self.session = session
     }
 
     /// R3 / R5: a role the practitioner named is used as given and is never
     /// replaced by the configured one; a capture that names none falls back to
     /// the configured capture role.
-    public func file(_ capture: Capture, session: URLSession = .shared) async throws -> GlassFrogClient.CreatedItem {
+    public func file(_ capture: Capture) async throws -> GlassFrogClient.CreatedItem {
         let configuration = store.load()
         guard configuration.isConfigured, let apiKey = configuration.apiKey else {
             // R9's hold has no equivalent here. The share sheet is modal and the
@@ -50,7 +70,10 @@ public struct CaptureFiler: Sendable {
     public static func pageContext(url: String, title: String, selection: String? = nil) -> PageContext {
         let trimmedSelection = selection?.trimmingCharacters(in: .whitespacesAndNewlines)
         return PageContext(
-            url: Compose.truncate(url),
+            // R7: the credential strip runs here for the same reason it runs in
+            // `pageContextFromTab` on the extension side — this is where a share
+            // becomes a PageContext, and it must happen before truncation.
+            url: Compose.truncate(Compose.stripUrlCredentials(url)),
             title: Compose.truncate(title),
             selection: (trimmedSelection?.isEmpty ?? true) ? nil : Compose.truncate(trimmedSelection!),
             capturedAt: timestamp()

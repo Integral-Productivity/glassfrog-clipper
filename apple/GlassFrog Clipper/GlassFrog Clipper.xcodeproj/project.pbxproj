@@ -172,10 +172,11 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		C1AFEE000000000000000FA0 /* Signing.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Signing.xcconfig; sourceTree = "<group>"; };
 		C1AFEE000000000000000418 /* GlassFrog Clipper Share.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "GlassFrog Clipper Share.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
 		C1AFEE000000000000000400 /* GlassFrog Clipper Share.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "GlassFrog Clipper Share.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
 		C1AFEE0000000000000003EB /* SharedItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SharedItem.swift; path = "../GlassFrogClipperCore/Sources/GlassFrogClipperCore/SharedItem.swift"; sourceTree = "<group>"; };
-		C1AFEE0000000000000003EA /* ShareCaptureModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ShareCaptureModel.swift; path = "Shared (Share)/ShareCaptureModel.swift"; sourceTree = "<group>"; };
+		C1AFEE0000000000000003EA /* ShareCaptureModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ShareCaptureModel.swift; path = "../GlassFrogClipperCore/Sources/GlassFrogClipperCore/ShareCaptureModel.swift"; sourceTree = "<group>"; };
 		C1AFEE0000000000000003E9 /* ShareCaptureView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ShareCaptureView.swift; path = "Shared (Share)/ShareCaptureView.swift"; sourceTree = "<group>"; };
 		C1AFEE0000000000000003E8 /* ShareViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ShareViewController.swift; path = "Shared (Share)/ShareViewController.swift"; sourceTree = "<group>"; };
 		C1AFEE000000000000000001 /* Capture.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = Capture.swift; path = "../GlassFrogClipperCore/Sources/GlassFrogClipperCore/Capture.swift"; sourceTree = "<group>"; };
@@ -265,12 +266,19 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		C1AFEE000000000000000FA1 /* Configurations */ = {
+			isa = PBXGroup;
+			children = (
+				C1AFEE000000000000000FA0 /* Signing.xcconfig */,
+			);
+			path = Configurations;
+			sourceTree = "<group>";
+		};
 		C1AFEE0000000000000003EC /* Shared (Share) */ = {
 			isa = PBXGroup;
 			children = (
 				C1AFEE0000000000000003E8 /* ShareViewController.swift */,
 				C1AFEE0000000000000003E9 /* ShareCaptureView.swift */,
-				C1AFEE0000000000000003EA /* ShareCaptureModel.swift */,
 			);
 			name = "Shared (Share)";
 			sourceTree = "<group>";
@@ -287,6 +295,7 @@
 				C1AFEE00000000000000001F /* Keychain.swift */,
 				C1AFEE000000000000000024 /* NativeMessage.swift */,
 				C1AFEE000000000000000029 /* Notifier.swift */,
+				C1AFEE0000000000000003EA /* ShareCaptureModel.swift */,
 				C1AFEE0000000000000003EB /* SharedItem.swift */,
 			);
 			name = "Shared (Core)";
@@ -295,6 +304,7 @@
 		16D9BED83045F72300F96D38 = {
 			isa = PBXGroup;
 			children = (
+				C1AFEE000000000000000FA1 /* Configurations */,
 				C1AFEE0000000000000003EC /* Shared (Share) */,
 				C1AFEE000000000000000034 /* Shared (Core) */,
 				16D9BEDD3045F72400F96D38 /* Shared (App) */,
@@ -996,6 +1006,7 @@ C1AFEE0000000000000003ED /* Debug */ = {
 		};
 		16D9BF283045F72600F96D38 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = C1AFEE000000000000000FA0 /* Signing.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -1057,6 +1068,7 @@ C1AFEE0000000000000003ED /* Debug */ = {
 		};
 		16D9BF293045F72600F96D38 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = C1AFEE000000000000000FA0 /* Signing.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;

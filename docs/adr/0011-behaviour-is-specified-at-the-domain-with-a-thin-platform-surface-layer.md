@@ -1,13 +1,14 @@
-# 11. Behaviour is specified at the domain, with a thin platform surface layer
+# Behaviour is specified at the domain, with a thin platform surface layer
 
 Date: 2026-09-01
 
 ## Status
 
 Accepted. Amended 2026-09-02 to resolve the Safari deferral it created (#85) —
-see the first entry under Consequences.
+see the first entry under Consequences. Amended again 2026-09-02 (#94) to say
+where presentation state goes, which neither layer covers.
 
-Paired with [10. Four architectural characteristics get fitness functions](0010-four-architectural-characteristics-get-fitness-functions.md),
+Paired with [Four architectural characteristics get fitness functions](0010-four-architectural-characteristics-get-fitness-functions.md),
 which covers the other half of the tier-1 gate content (#69).
 
 Constrains, but does not decide, how the Apple targets in PR #66 are specified.
@@ -170,12 +171,80 @@ not an address. The scenario that pins the address slot is therefore one whose
 kills the mutation, and it states the real consequence: `url` is the field
 GlassFrog renders a project as linked from, so arbitrary bytes must not reach it.
 
-**What the Swift half is gated by is convention, not mechanism.** The `Swift
-core` job that runs these tests is path-filtered and is not a required check —
-`verify` is the only one (ADR 0012) — so a red run here reports on a pull
-request touching `apple/` but cannot block a merge. That is the same division
-the boundary note already draws for Chrome, and it is stated in
-`SharedItem.swift`'s header so a reader does not mistake reachable for enforced.
+**Presentation state is a third thing, and it is specified beside the surface
+layer rather than given a layer of its own** *(added 2026-09-02, #94)*.
+
+The two layers say what gets filed and how a share is read. Neither says what
+the practitioner is *told*. `ShareCaptureModel`'s seven phases decide that, and
+five of its transitions are decided nowhere else: `notConfigured` is checked
+before the share is read, a share that carries nothing is refused rather than
+filed empty, a configuration lost while the sheet is open routes to the
+reconfigure surface rather than to a generic failure, R18's `reconfigure` flag
+reaches the button that offers a retry, and the configured role seeds a picker
+it must never overwrite.
+
+Applying this ADR's mechanical test to those returns neither answer. A step
+cannot state them against `submit()` — they are not about what is filed — and
+they are not shaped by the platform's contract either; a share sheet hands over
+`NSExtensionItem`s, not phases. So the test is extended rather than stretched:
+**behaviour that is neither filed nor read from the platform is stated where it
+can be executed against the code that decides it.** For the share sheet that is
+`ShareCapturePhaseTests.swift`, next to the surface layer and carrying its own
+copy of the boundary note.
+
+The rest of the phase machine is deliberately *not* restated there, because it
+is already covered. `Compose` treats an absent work type and `.tension`
+identically and trims a note itself, so the model's `nil` conversions produce
+no observable difference — pinning them again would test the same decision in
+two places and make one of them the wrong one to change.
+
+Mutation-tested like the layers above. Seven mutations each turn the suite red:
+swapping the two guards in `load`, filing an empty share as ready, replacing a
+picked role with the configured one, dropping a chosen work type, never
+entering the in-flight phase, dropping R18's `reconfigure` flag, and turning a
+lost configuration into a generic failure. A deliberate no-op edit was run
+alongside them and correctly stayed green.
+
+**Moving the model paid for itself the same way `SharedItem` did.** Under the
+package's Swift 6 strict concurrency — which the Xcode targets do not apply —
+`load(items:)` was handing the main-actor-isolated `[NSExtensionItem]` to a
+nonisolated `SharedItem.pageContext`, while `ShareCaptureView` still held the
+same objects on the main actor. `pageContext` and `SharedItem.load` are
+`@MainActor` now. That is one more defect live since #66 that only the move
+could see, and it is the second time this has happened, which is the argument
+for moving the next one too.
+
+**Both surface layers are gated by mechanism up to a line, and by convention
+past it** *(amended 2026-09-02, resolving #98; this paragraph previously read
+"what the Swift half is gated by is convention, not mechanism", and framed the
+gap as Safari-only)*.
+
+The framing it replaces was wrong in a way worth recording, because it is the
+kind of wrong that survives review. It said the Chrome half was enforced and the
+Swift half was not. Measured on 2026-09-02: `npm run bdd` runs in
+`bdd-and-fitness.yml` as `BDD / Scenarios`, which is unfiltered and therefore
+*requirable*, but is not among what `main` requires — `verify` is the only one
+(ADR 0012), and #91 owns that divergence. Deleting
+`features/surface/chrome.feature` and running the required suite passed, 354 of
+354. The gap was symmetric; Safari was simply the half that got looked at.
+
+`test/surface-layer.test.ts` closes the presence half of it for both, inside
+`verify`, on every pull request. It fails if either specification is deleted or
+gutted below a floor, if `ShareSheetSurfaceTests.swift` is dropped from the
+SwiftPM test target that compiles it, or if nothing under `.github/workflows/`
+or `scripts/` still invokes `swift test` against the package or `npm run bdd`.
+That last one was in neither half's account of itself: delete `apple.yml` today
+and the Swift suite stops running entirely, with nothing to notice.
+
+Read the line precisely, because `SharedItem.swift`'s header once overclaimed in
+exactly this direction. **Presence and wiring are now mechanism. Passing is
+still convention.** A red `Swift core` reports on a pull request touching
+`apple/` and cannot block a merge; a red `BDD / Scenarios` reports on every pull
+request and cannot block one either. Closing that needs checks `main` actually
+requires — an aggregator for Safari, since ADR 0012 explains that requiring the
+path-filtered `Swift core` would pin every non-Apple pull request at "waiting for
+status to be reported" — which is [#133](../../issues/133), and for Chrome it is
+part of [#91](../../issues/91).
 
 **A domain scenario that starts needing a browser is a signal, not a nuisance.**
 It means either the behaviour is genuinely platform-shaped and the scenario is in

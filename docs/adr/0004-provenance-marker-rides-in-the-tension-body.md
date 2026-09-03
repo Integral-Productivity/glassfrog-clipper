@@ -1,4 +1,4 @@
-# 4. Provenance marker rides in the tension body
+# Provenance marker rides in the tension body
 
 Date: 2026-08-28
 
@@ -8,7 +8,7 @@ Accepted
 
 Revises the field choice in KTD5 of
 [the capture-path plan](../plans/2026-08-28-1123-feat-zero-decision-capture-path-plan.md).
-Builds on [3. GlassFrog v5 has no role-less write path](0003-glassfrog-v5-has-no-role-less-write-path.md).
+Builds on [GlassFrog v5 has no role-less write path](0003-glassfrog-v5-has-no-role-less-write-path.md).
 
 ## Context
 

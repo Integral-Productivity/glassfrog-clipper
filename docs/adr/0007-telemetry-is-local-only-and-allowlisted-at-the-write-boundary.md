@@ -1,4 +1,4 @@
-# 7. Telemetry is local-only and allowlisted at the write boundary
+# Telemetry is local-only and allowlisted at the write boundary
 
 Date: 2026-08-31
 
@@ -8,9 +8,9 @@ Accepted
 
 Implements R13 of [the capture-path plan](../plans/2026-08-28-1123-feat-zero-decision-capture-path-plan.md),
 which that plan deferred to issue #3. Reads the queue through
-[6. Queue health is measured from capture, not from last touch](0006-queue-health-is-measured-from-capture-not-from-last-touch.md)
+[Queue health is measured from capture, not from last touch](0006-queue-health-is-measured-from-capture-not-from-last-touch.md)
 and identifies clipped items by
-[4. Provenance marker rides in the tension body](0004-provenance-marker-rides-in-the-tension-body.md).
+[Provenance marker rides in the tension body](0004-provenance-marker-rides-in-the-tension-body.md).
 
 ## Context
 

@@ -32,6 +32,16 @@ tags:
 
 ## Context
 
+> **On the repository slug below.** The two command blocks in this document are
+> transcripts, pasted with the output they actually produced. The repository was
+> renamed to `glassfrog-clipper` on 2026-09-02
+> ([#62](https://github.com/Integral-Productivity/glassfrog-clipper/issues/62)) and
+> the slug was deliberately **not** rewritten here: editing a command so that it
+> no longer matches the output shown under it would fabricate the evidence, in
+> the one document arguing against exactly that. Both commands still run — the
+> REST API and GraphQL each resolve the old name through the rename redirect
+> (verified on 2026-09-02).
+
 Two claims were written into durable artifacts during this session — an ADR, a commit message, a PR body, a GitHub issue. Both were false. Both were reached by *valid* reasoning from a real artifact that was sitting right there locally. In neither case was the artifact an observation of the state being claimed.
 
 ### Instance 1 — a workflow file was read for its triggers, not its content

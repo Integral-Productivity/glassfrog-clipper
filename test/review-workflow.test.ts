@@ -1,0 +1,204 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
+
+import { fromRoot } from '../fitness/root.ts';
+
+/**
+ * Guards the three properties that make the Claude review check honest.
+ *
+ * Issue #108: this workflow ran on every pull request from PR #78 onward,
+ * concluded green every time, and posted nothing anywhere in the repo — about
+ * $4.30 of model spend against zero readable output, one run doing the full
+ * five-agent fan-out for four and a half minutes in silence.
+ *
+ * The cause was one absent flag. Upstream commit e4f68203 (2025-12-15) made
+ * no-comment the default for `/code-review`, and this workflow passed the bare
+ * command. Every run obeyed that instruction exactly. Nothing was broken — the
+ * reviewer was being told to keep its findings to itself.
+ *
+ * That is the same shape as the #115 masking incident guarded in
+ * `workflow-contexts.test.ts`: a gate reporting success for work it did not
+ * deliver. It is the harder version, though. #115 had a real exit code being
+ * thrown away by a missing `pipefail`. Here there is no signal to salvage —
+ * only the absence of an artifact — so the guard has to assert on the absence
+ * itself.
+ *
+ * Deliberately NOT asserted: the exact wording of upstream's clean-pass
+ * comment. That string lives in `anthropics/claude-code`, and pinning it would
+ * turn an upstream copy edit into a red suite here for no defect. These tests
+ * pin only what this repository controls.
+ */
+
+const WORKFLOW = '.github/workflows/claude-code-review.yml';
+
+const workflow = async (): Promise<string> => readFile(fromRoot(WORKFLOW), 'utf8');
+
+/**
+ * The `prompt:` block scalar's contents, and nothing else in the file.
+ *
+ * Scoping matters more here than it looks. The header comment quotes the same
+ * phrases these tests search for, so a whole-file `assert.match` would keep
+ * passing after someone deleted the prompt text it is meant to protect —
+ * a guard reporting success for work it did not check, which is the exact
+ * defect this PR exists to close. Read from the raw source rather than a YAML
+ * parse to stay dependency-free, matching `workflow-contexts.test.ts`.
+ */
+const promptBlock = (source: string): string => {
+  const lines = source.split('\n');
+  const start = lines.findIndex((line) => /^\s*prompt:\s*\|/.test(line));
+  const header = lines[start];
+  assert.ok(header !== undefined, `no \`prompt: |\` block in ${WORKFLOW} — the review is driven by that prompt, so its absence is not a test-fixture problem.`);
+
+  const indent = header.search(/\S/);
+  const body: string[] = [];
+  for (const line of lines.slice(start + 1)) {
+    if (line.trim() !== '' && line.search(/\S/) <= indent) break;
+    body.push(line);
+  }
+  return body.join('\n');
+};
+
+test('the review prompt passes --comment, or the reviewer posts nothing at all', async () => {
+  // `commands/code-review.md` step 7: "If `--comment` argument was NOT
+  // provided, stop here. Do not post any GitHub comments." Without the flag a
+  // complete, correct, expensive review reaches a terminal nobody reads.
+  //
+  // The reference between the command and the flag is matched loosely on
+  // purpose: it interpolates `${{ github.repository }}`, which contains
+  // spaces, so a `\S+` here silently never matches.
+  const prompt = promptBlock(await workflow());
+
+  assert.match(
+    prompt,
+    /\/code-review:code-review[^\n]*\s--comment(?:\s|$)/m,
+    'the prompt no longer passes --comment to /code-review:code-review. Upstream defaults to terminal-only output, so dropping the flag restores issue #108 exactly: the review runs, costs money, and posts nothing while the check reports green.',
+  );
+});
+
+test('the review prompt tells the eligibility agent not to skip Claude-authored PRs', async () => {
+  // Step 1 dispatches a Haiku agent that stops early on an "automated pull
+  // request". Every PR here is Claude-authored on a `claude/*` branch, which is
+  // the convention auto-merge keys on. Upstream opposes that bullet with only a
+  // bare note, and the run evidence in #114 shows the note winning about half
+  // the time — coverage as a coin flip. The prompt states the convention
+  // explicitly so the agent is not guessing from prose.
+  const prompt = promptBlock(await workflow());
+
+  assert.match(
+    prompt,
+    /automated pull request/i,
+    'the prompt no longer addresses the eligibility check. Without it the reviewer skips Claude-authored PRs non-deterministically — which, in this repo, is every PR (issue #114).',
+  );
+});
+
+test('a silent run always leaves a notice, even though it no longer fails red', async () => {
+  // The belt above makes the reviewer speak on the paths we know about. This is
+  // the suspenders: whatever the cause, a run that ends having left nothing
+  // readable on the PR must say so on the PR.
+  //
+  // It asserts "this PR carries a review", not "this run produced one" —
+  // step 1 also bails once Claude has already commented, so a per-run
+  // assertion would fail red on every synchronize push to a healthy PR.
+  //
+  // ADVISORY SINCE ADR 0021. The check no longer goes red on silence, because
+  // #186 showed the reviewer is silent on roughly seven pull requests out of
+  // eight for an unisolated upstream cause, and a blocking gate on that spends
+  // attention without adding information. What #108 actually required is that a
+  // clean pass and a no-op be distinguishable, and the NOTICE is what delivers
+  // that — not the exit code. So the guarantee this test defends moved: it is
+  // no longer "fails red", it is "never silent AND wordless".
+  const source = await workflow();
+
+  assert.match(
+    source,
+    /Assert the review left an artifact on this PR/,
+    'the emission assertion step is gone. Without it a reviewer that bails, breaks, or cannot post reports the same green check as one that reviewed the diff and found nothing — the defect issue #108 was opened about.',
+  );
+
+  assert.match(
+    source,
+    /claude-review-silence-notice/,
+    'the silence notice lost its HTML marker. The marker is what excludes this step’s own failure comments from the artifact count; without it the first silent run posts a notice as github-actions[bot] and the next run counts that notice as a review, passing green on the strength of its own error message.',
+  );
+
+  // The load-bearing assertion now that the exit code is advisory. A green
+  // check plus a notice is an honest "not reviewed"; a green check alone is
+  // issue #108 verbatim.
+  assert.match(
+    source,
+    /notify "### Claude Code Review left no review on this pull request/,
+    'the silent path no longer posts a notice. The check is advisory since ADR 0021, so the notice is the ONLY thing distinguishing “reviewed, found nothing” from “never reviewed”. Green and wordless is exactly the defect #108 was opened about — if this notice is being removed, restore the red exit with it.',
+  );
+
+  // Guards the contradiction the workflow's own comments warn about: a notice
+  // asserting the job failed, beside a check reporting success.
+  assert.doesNotMatch(
+    source,
+    /the job is failing red/,
+    'the silence notice still tells the reader the job failed red, but the step exits 0 since ADR 0021. A PR would carry a green check beside a comment insisting it went red, and resolving that contradiction is the work this notice exists to spare the reader.',
+  );
+});
+
+test('the structural-skip carve-out is scoped to this workflow file alone', async () => {
+  // `anthropics/claude-code-action` refuses to run when this file differs from
+  // the copy on the default branch, so a PR editing it gets no review however
+  // the job is configured. Failing red there would be a FALSE red — the exact
+  // mirror of the false green in #108 — so the assertion reports it green with
+  // an explanation on the PR instead.
+  //
+  // The danger is that the escape widens. An exemption keyed on anything
+  // broader than "this pull request edits this exact file" becomes a way for a
+  // silent reviewer to pass, which is the defect coming back through the door
+  // marked exit.
+  const source = await workflow();
+
+  assert.match(
+    source,
+    /SELF:\s*\.github\/workflows\/claude-code-review\.yml/,
+    'the carve-out no longer names this workflow file explicitly. It must key on this exact path — the action self-skips only when THIS file differs from the default branch, so any broader condition exempts runs that had no excuse to be silent.',
+  );
+
+  assert.match(
+    source,
+    /gh pr diff[^\n]*--name-only[^\n]*\n?[^\n]*grep -qxF "\$SELF"/,
+    'the carve-out no longer matches the changed-file list exactly (`grep -qxF`). A substring or pattern match would exempt any PR touching a path that merely contains this one, turning a narrow structural exemption into a general escape from the assertion.',
+  );
+});
+
+test('only the reviewer counts as a review artifact, never shared bot automation', async () => {
+  // The first live run after this workflow landed exposed the defect this
+  // guards. The artifact filter accepted any `github-actions[bot]` comment,
+  // hedging against the action falling back to GITHUB_TOKEN when no Claude App
+  // token is present. That premise was wrong — it posts as `claude[bot]` — and
+  // on PR #180 the hedge counted the CLA bot's comment as a review. A pull
+  // request carrying any github-actions[bot] comment would have gone green with
+  // the reviewer entirely silent: issue #108's defect, rebuilt inside its fix.
+  //
+  // Replayed against that PR's real data, the old filter counted 2 and the
+  // current one counts 1.
+  //
+  // The login selector is asserted, not merely the absence of the string:
+  // `github-actions[bot]` still appears in this file's prose, and the notice
+  // lookup still has to find notices posted under that identity. Only the
+  // ARTIFACT count must be narrow.
+  const source = await workflow();
+
+  const selector = source.match(/select\(\.user\.login \| ascii_downcase \| [^\n]+/);
+  assert.ok(
+    selector,
+    'no login selector found in the artifact count — the assertion cannot tell a review from any other bot comment without one.',
+  );
+
+  assert.match(
+    selector[0],
+    /startswith\(\\?"claude\\?"\)/,
+    `the artifact filter no longer restricts to the reviewer's own login. Found: ${selector[0]}. Widening it to a shared namespace such as github-actions lets unrelated automation — the CLA bot, a labeler, this workflow's own notices — satisfy the assertion, so the check goes green while the reviewer said nothing.`,
+  );
+
+  assert.doesNotMatch(
+    selector[0],
+    /github-actions/,
+    'the artifact filter accepts github-actions[bot] again. That namespace is shared with automation unrelated to reviewing, so any one of those comments passes the assertion on a PR the reviewer never spoke on.',
+  );
+});

@@ -1,10 +1,12 @@
-# 13. An ADR number is defended at three points, not one
+# An ADR number is defended at three points, not one
 
 Date: 2026-09-02
 
 ## Status
 
 Accepted
+
+Amended by [An ADR number lives on one surface](0015-an-adr-number-lives-on-one-surface.md) — the belt and the suspenders below stand unchanged. The third layer, deferred to #115, was answered by taking the number off its second and third surfaces rather than by changing how it is allocated, so `scripts/adr-claims.ts` is kept rather than retired.
 
 Resolves the decision [#83](../../issues/83) was opened to force. Builds on
 [#42](../../pull/42) and [#54](../../pull/54) (the two earlier renumbers),
@@ -57,8 +59,9 @@ tree to be rebuilt against a `main` that has moved, so a stale green cannot
 merge. `allow_update_branch` is paired with it because auto-merge (ADR 0012)
 needs a way to bring a stale branch forward without a human rebase. The number of
 required checks is unchanged, so 0012's reasoning is untouched: strictness is a
-property of *when* the one required check is evaluated, not of how many are
-required.
+property of *when* a required check is evaluated, not of how many are
+required. (`main` required one at the time and requires three now; that is the
+sentence demonstrating itself rather than contradicting itself.)
 
 Both are repository configuration rather than code, and **neither is applied
 yet** — changing what `main` accepts is an operator action taken deliberately,

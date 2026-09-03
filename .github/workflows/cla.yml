@@ -5,8 +5,11 @@
 # only while one party can license the whole work, so the agreement has to be
 # unbypassable rather than merely documented. See CLA.md.
 #
-# Signatures are stored in this repository at .github/cla-signatures.json —
-# no external service holds them.
+# Signatures are stored in this repository at .github/cla-signatures.json, on
+# the `cla-signatures` branch — no external service holds them. The branch is
+# deliberately not `main` and must stay outside every ruleset: the action
+# records a signature by pushing that file, and a push carrying no `verify`
+# check is rejected by a protected branch. See docs/adr/0019.
 name: CLA
 
 on:
@@ -37,12 +40,30 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           path-to-signatures: '.github/cla-signatures.json'
-          path-to-document: 'https://github.com/Integral-Productivity/glassfrog-clipper-chrome-extension/blob/main/CLA.md'
-          branch: 'main'
-          allowlist: kraigparkinson,dependabot[bot],bot*
+          # No `path-to-document:` here on purpose. The action renders it only
+          # inside its default not-signed comment, and `custom-notsigned-prcomment`
+          # below replaces that comment wholesale — so a URL here never reaches a
+          # contributor while still looking like the live link. The link in that
+          # custom comment is the one contributors actually click, so it is the
+          # only one worth maintaining. #62 and #177 both had to update two copies
+          # of it; there is now one.
+          # NOT 'main'. ADR 0019: main's ruleset requires `verify`, and the
+          # action's signature push is not a pull request, so main rejects it
+          # and no signature can ever be recorded. This branch carries no
+          # ruleset by design; test/cla-signature-branch.test.ts guards it.
+          branch: 'cla-signatures'
+          # Enumerated, never globbed. The action compiles a `*` pattern to an
+          # UNANCHORED regex (checkAllowList.ts: escapeRegExp -> split('\\*')
+          # -> join('.*') -> RegExp.test), so the old `bot*` matched any login
+          # merely *containing* "bot" — abbott, robotics-inc, sabotage-labs all
+          # exempted from the CLA, silently. `claude` is here because AI-authored
+          # commits carry that account as committer; see ADR 0020 for why an
+          # automation identity is exempt rather than asked to sign.
+          # test/cla-allowlist.test.ts refuses any glob here.
+          allowlist: kraigparkinson,claude,dependabot[bot]
           custom-notsigned-prcomment: >-
             Thanks for the pull request. Before it can be merged, please read
-            [the Contributor Licence Agreement](https://github.com/Integral-Productivity/glassfrog-clipper-chrome-extension/blob/main/CLA.md)
+            [the Contributor Licence Agreement](https://github.com/Integral-Productivity/glassfrog-clipper/blob/main/CLA.md)
             and accept it by posting the comment below. Its opening paragraphs
             explain why it is asked for — your contribution stays free software
             either way. You only do this once, ever.
