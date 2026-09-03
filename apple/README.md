@@ -77,10 +77,20 @@ app launches, but capture will not work end to end.**
 
    Set here rather than in Xcode's target editor because this project is
    generated: `xcode-bootstrap.sh` deletes and rebuilds it, and a value typed
-   into the editor is lost the next time anyone regenerates. `xcode-team.py`
-   reattaches the xcconfig on every bootstrap, the way `xcode-entitlements.py`
-   reattaches the entitlements. One value at the project level is inherited by
-   all six targets.
+   into the editor is lost the next time anyone regenerates. `xcode-team.py` is
+   wired into that chain to reattach the xcconfig, the way
+   `xcode-entitlements.py` reattaches the entitlements. One value at the project
+   level is inherited by all six targets.
+
+   `test/xcode-signing.test.ts` holds that arrangement in place: it asserts the
+   bootstrap still runs the generator in the right order and still stashes
+   `Configurations/`, that both project-level configurations point at
+   `Signing.xcconfig`, that no target shadows the inherited team, and that the
+   include stays optional. A full regeneration has **not** been run end to end —
+   that needs a Mac with `safari-web-extension-converter` and rewrites every
+   UUID in the project — so the chain is verified by assertion, not by
+   observation. Run `./scripts/xcode-bootstrap.sh` once when convenient and
+   confirm the test still passes afterwards.
 
 2. **Register the App Group** `group.com.integralproductivity.GlassFrogClipper`
    on the developer portal, and enable it for all six targets.

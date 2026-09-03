@@ -21,6 +21,9 @@ includes a gitignored Local.xcconfig. With none present nothing is set and the
 build is unsigned, which is what CI and ./scripts/verify-apple.sh want.
 
 Idempotent. Run after scripts/xcode-wire.py.
+
+test/xcode-signing.test.ts asserts this stayed wired. A full regeneration
+has not been exercised end to end -- the chain is verified by assertion.
 """
 import re
 import sys
@@ -28,10 +31,21 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 PROJECT = ROOT / "apple/GlassFrog Clipper/GlassFrog Clipper.xcodeproj/project.pbxproj"
+XCCONFIG = ROOT / "apple/GlassFrog Clipper/Configurations/Signing.xcconfig"
+
+# bootstrap's stash is conditional, so Configurations/ can go missing without
+# anyone noticing. A dangling base configuration only *warns* in xcodebuild, so
+# without this the project would build green pointing at a file that is not there.
+if not XCCONFIG.exists():
+    raise SystemExit(f"missing {XCCONFIG.relative_to(ROOT)} — nothing to attach")
 
 text = PROJECT.read_text()
 
-if "baseConfigurationReference" in text:
+# Guard on the string only this script writes, not on the generic Xcode key.
+# `baseConfigurationReference` is Xcode's own vocabulary: a stray one from any
+# other source would make this exit 0 having wired nothing, and the build would
+# go green unsigned — the exact silent regression this script exists to stop.
+if "Signing.xcconfig" in text:
     print("signing xcconfig already wired — nothing to do")
     sys.exit(0)
 
@@ -116,6 +130,12 @@ for config in project_configs:
         + f"\t\t\tbaseConfigurationReference = {file_ref} /* Signing.xcconfig */;\n"
         + text[match.end() :]
     )
+
+# Count before writing: a regex that silently matched nothing would otherwise
+# leave an unsigned project behind a success message.
+wired = text.count(f"baseConfigurationReference = {file_ref}")
+if wired != len(project_configs):
+    raise SystemExit(f"expected {len(project_configs)} attachments, wrote {wired} — refusing to save")
 
 PROJECT.write_text(text)
 print(f"signing xcconfig wired into {len(project_configs)} project-level configurations")

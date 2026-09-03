@@ -20,6 +20,9 @@ cd "$(dirname "$0")/.."
 
 PROJECT="apple/GlassFrog Clipper"
 STASH="$(mktemp -d)"
+# The stash now carries an untracked Local.xcconfig through the rm -rf below.
+# Dying in between would otherwise lose a team identifier with no trace of where.
+trap '[ -d "$STASH" ] && echo "bootstrap failed; stashed sources (including any Local.xcconfig) are at: $STASH" >&2' ERR
 
 # The web bundle has to exist first: the converter copies it into the project.
 npm run build:safari
