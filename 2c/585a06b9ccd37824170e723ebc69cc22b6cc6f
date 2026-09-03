@@ -1,0 +1,23 @@
+test/review-workflow.test.ts
+  s_1fd11f029a336f::t_fdf5ebb659c338 50-51,53
+  s_1fd11f029a336f::t_8786c70cc06c49 117-142
+.github/workflows/claude-code-review.yml
+  s_1fd11f029a336f::t_2d3838f45f3b85 260,290-293
+  s_1fd11f029a336f::t_718467354290d0 109-138,241,248-256,258-259,261,263-265,267,270-274,276-278,280,285-289,294-320,322-325,328-329,333
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "2c585a06b9ccd37824170e723ebc69cc22b6cc6f",
+  "prompts": {},
+  "sessions": {
+    "s_1fd11f029a336f": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "2a2bb55a-3053-4be1-9e05-847868107fef",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Kraig Parkinson <kraig.parkinson@gmail.com>"
+    }
+  }
+}
