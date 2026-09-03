@@ -8,6 +8,10 @@ dist/
 .claude/.reclaim-session.json
 dist-safari/
 
+# Store-upload zips built by `npm run package`. Reproducible from the tree at a
+# given commit, so committing them would only invite uploading a stale one.
+release/
+
 # Xcode and SwiftPM build output. `apple/build/` is not enough: xcodebuild puts
 # its output beside the project, at `apple/GlassFrog Clipper/build/`, and
 # SwiftPM puts its own under the package. Both are large and neither is source.

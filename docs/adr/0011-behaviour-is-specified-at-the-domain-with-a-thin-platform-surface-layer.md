@@ -155,13 +155,17 @@ so the suite is not simply red to everything.
 
 **The last of those eight is the one worth recording, because the obvious fix
 for it does not work.** `loadItem(forTypeIdentifier: "public.url")` never hands
-back an object: measured on macOS 26, `NSItemProvider(item:typeIdentifier:)`,
-`(object:)` and `(contentsOf:)` all serialise, and the value arrives as `Data`.
-So `url(from:)` and `text(from:)` read an ordinary link identically, and a
-fixture built to vend an object — the natural way to tell the two decoders
-apart — vends `Data` like every other and passes whichever decoder is wired up.
-Such a test looks like coverage and is not. What actually separates the decoders
-is the scheme check, so the scenario that pins the address slot is one whose
+back a URL object: measured on macOS 27.0 (build 26A5416b),
+`NSItemProvider(item:typeIdentifier:)`, `(object:)` and `(contentsOf:)` all
+serialise it to `Data`. So a fixture built to vend an object — the natural way
+to tell the two decoders apart — vends `Data` and passes whichever decoder is
+wired up.
+
+The container is a red herring either way. A `String` registered under
+`public.url` *does* arrive as a `String`, and `url(from:)` and `text(from:)`
+both read both shapes — so no container tells them apart on a well-formed link.
+What separates them is the scheme check, and it only bites when the bytes are
+not an address. The scenario that pins the address slot is therefore one whose
 `public.url` attachment carries bytes that are *not* an address. That scenario
 kills the mutation, and it states the real consequence: `url` is the field
 GlassFrog renders a project as linked from, so arbitrary bytes must not reach it.
