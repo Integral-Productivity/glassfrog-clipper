@@ -58,7 +58,7 @@ Two consequences worth stating plainly rather than leaving you to infer:
 - **A popup draft persists until you file or clear it.** If you open the popup
   on a sensitive page and close it without filing, the page's content stays in
   local storage until the next capture replaces it. Tracked as
-  [issue #7](https://github.com/Integral-Productivity/glassfrog-clipper-chrome-extension/issues/7).
+  [issue #7](https://github.com/Integral-Productivity/glassfrog-clipper/issues/7).
 
 The extension reads a page only at the moment you invoke it, on the tab you
 invoked it from. It does not run on pages in the background, does not observe
@@ -138,7 +138,7 @@ is whichever commit is current on `main`.
 ## Contact
 
 Open an issue at
-<https://github.com/Integral-Productivity/glassfrog-clipper-chrome-extension/issues>,
+<https://github.com/Integral-Productivity/glassfrog-clipper/issues>,
 or email <kraigparkinson@integralproductivity.com>.
 
 Integral Productivity LLC
