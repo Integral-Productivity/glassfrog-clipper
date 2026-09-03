@@ -111,15 +111,33 @@ The trader form then has no field that could correct it.
 
 **The correction, and it is available because nothing is published yet:**
 
-1. Create a **Business** payments profile for Integral Productivity LLC. A new
-   profile is required; the existing one cannot be converted.
+0. **Read the Dun & Bradstreet record first**, at
+   [service.dnb.com](https://service.dnb.com/home). Google verifies an
+   organization through D&B, and the payments profile must match that record
+   *exactly* — entity name, address, phone. D&B is the source of truth here, not
+   the profile.
+
+   This step is load-bearing for a reason that is easy to miss: **whatever
+   verifies becomes the public address on the listing.** A D&B record carrying a
+   home or stale address would publish that instead, undoing through the back
+   door the choice ADR 0016 made deliberately. Correcting a D&B record goes
+   through their review and takes days, so it is a prerequisite rather than a
+   cleanup. Checked on 2026-09-03: the record holds the business address, so no
+   correction was needed.
+1. Create a **Business** payments profile for Integral Productivity LLC — legal
+   name, address and phone exactly as D&B holds them, with the
+   [D-U-N-S number entered when prompted](https://support.google.com/paymentscenter/answer/13992651).
+   A new profile is required; the existing one cannot be converted.
 2. On the developer account, switch trader status to **non-trader**, then back to
    **trader**. This is the documented way to restart verification — it is what
-   forces the profile choice to be asked again.
+   forces the profile choice to be asked again. Submit nothing during that
+   interval.
 3. Choose the business profile, and verify as an organization. Organization
    verification accepts a D-U-N-S number or company documents such as a corporate
    registry extract, rather than the personal identification an individual
-   trader is asked for.
+   trader is asked for. Keep the SMS-capable number to hand: Google's trader FAQ
+   still requires one for corporations today, with a D-U-N-S-associated number
+   named only as a future option.
 
 No second developer account and no second $5 are involved; the fee is bound to
 the account, which is unchanged. **Do this before the first submission.** Once an
