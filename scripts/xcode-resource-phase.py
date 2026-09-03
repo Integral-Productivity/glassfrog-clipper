@@ -25,8 +25,22 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 PROJECT = ROOT / "apple/GlassFrog Clipper/GlassFrog Clipper.xcodeproj/project.pbxproj"
 
-# Everything tsup emits, plus the manifest and icon the build script copies.
-GENERATED = ["background.js", "options.js", "popup.js", "manifest.json", "popup.html", "options.html", "icon128.png"]
+# Everything tsup emits, plus the manifest and icons the build script copies.
+# The icon list must match `icons` in public/manifest.json: the Safari overlay
+# does not override that key, so a size declared there and missing here ships a
+# manifest pointing at a file the bundle does not contain.
+GENERATED = [
+    "background.js",
+    "options.js",
+    "popup.js",
+    "manifest.json",
+    "popup.html",
+    "options.html",
+    "icon16.png",
+    "icon32.png",
+    "icon48.png",
+    "icon128.png",
+]
 
 SCRIPT = r"""# Builds the web extension from ../../src and syncs it into this target.
 #

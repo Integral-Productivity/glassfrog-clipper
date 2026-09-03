@@ -35,6 +35,28 @@ both platforms but have not been run: App Groups and a shared Keychain both need
 an Apple Developer team, which is not set up yet — see
 [apple/README.md](apple/README.md#before-this-can-actually-run).
 
+## Install
+
+Not yet on the Chrome Web Store. The first submission is prepared and will be
+**unlisted** — installable by link, not surfaced in store search — while the
+extension is verified against live GlassFrog organisations.
+
+```
+npm run package   # → release/glassfrog-clipper-<version>.zip
+```
+
+That builds, validates the manifest against the store's rules, and writes a
+deterministic upload zip; it refuses to package anything that would fail review.
+Everything the submission itself needs — listing copy, permission
+justifications, data disclosures, and the human steps that remain — is in
+[docs/store/chrome-web-store-listing.md](docs/store/chrome-web-store-listing.md).
+Progress is tracked in [#101](../../issues/101).
+
+Until then, `npm run build` and load `dist/` unpacked at `chrome://extensions`.
+
+What the extension does with your data, and what never leaves your machine:
+[PRIVACY.md](PRIVACY.md).
+
 ## Develop
 
 Requires Node 22.18+ and an `NODE_AUTH_TOKEN` authorized for the

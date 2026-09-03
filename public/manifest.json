@@ -1,10 +1,13 @@
 {
   "manifest_version": 3,
   "name": "GlassFrog Clipper",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Clip the page you're on into GlassFrog as a tension, action, or project.",
   "minimum_chrome_version": "120",
   "icons": {
+    "16": "icon16.png",
+    "32": "icon32.png",
+    "48": "icon48.png",
     "128": "icon128.png"
   },
   "permissions": [
@@ -24,7 +27,12 @@
   "action": {
     "default_popup": "popup.html",
     "default_title": "Clip to GlassFrog",
-    "default_icon": "icon128.png"
+    "default_icon": {
+      "16": "icon16.png",
+      "32": "icon32.png",
+      "48": "icon48.png",
+      "128": "icon128.png"
+    }
   },
   "options_ui": {
     "page": "options.html",
