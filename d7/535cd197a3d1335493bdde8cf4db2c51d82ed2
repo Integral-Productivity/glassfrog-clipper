@@ -1,0 +1,28 @@
+AGENTS.md
+  s_5e0d38be0d08d5::t_aa20ac28997837 1-68,70-107,109-111,113-137
+  s_5e0d38be0d08d5::t_74ce3d8100cc94 112
+  s_5e0d38be0d08d5::t_d6fc2a61b34ce0 69,108
+test/agents-md.test.ts
+  s_5e0d38be0d08d5::t_abc2f973d78360 158-160
+  s_5e0d38be0d08d5::t_5ef74d5b5866c9 40-59
+  s_5e0d38be0d08d5::t_cc646a22d2a85e 1-39,60-107,109-118,141-157,161-234,240-245
+  s_5e0d38be0d08d5::t_2ba82df152f1bb 119-140
+  s_5e0d38be0d08d5::t_4bb15249f89963 108
+  s_5e0d38be0d08d5::t_b454c1de2826e3 235-239
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "d7535cd197a3d1335493bdde8cf4db2c51d82ed2",
+  "prompts": {},
+  "sessions": {
+    "s_5e0d38be0d08d5": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "b952182c-4d27-485a-9310-d94bac0b7514",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Kraig Parkinson <kraig.parkinson@gmail.com>"
+    }
+  }
+}
