@@ -56,6 +56,22 @@ A record written before a write goes out and cleared once it lands, so a capture
 
 A marker found at startup means the write may or may not have succeeded. It is surfaced for the practitioner to resolve and never re-sent automatically — GlassFrog has no idempotency key, so an automatic retry can silently duplicate.
 
+## Specification
+
+### Domain layer
+
+The statement of what a capture does, written in this glossary's vocabulary and naming no platform.
+
+A scenario belongs here when it can be stated without the platform handing you a page. That test is mechanical rather than a matter of taste, and it is the whole reason a second platform costs nothing to specify: the domain layer is not restated per platform. A domain scenario that starts needing a browser is a signal — either the behaviour is genuinely platform-shaped and is in the wrong place, or the capture path has grown a platform dependency it should not have.
+
+### Surface layer
+
+The statement of behaviour that one platform's contract genuinely shapes — what this extension assumes when it asks that platform for the page it is looking at.
+
+What it proves is narrower than a green run suggests, and the gap is the point. It runs offline against a fake this project wrote, so it can only show that the extension's *encoded assumptions* about the platform still hold in the code. It cannot observe the platform, and must never be read as evidence that capture works on a device; that is established by hand. What it does catch is those assumptions drifting silently, which is a failure no reader would spot and no unit test would fail on.
+
+Each platform's surface layer is written wherever it can be executed against that platform's own code, so the notation differs between them. That is a consequence of the split, not a second decision.
+
 ## Configuration and failure
 
 ### Capture role
