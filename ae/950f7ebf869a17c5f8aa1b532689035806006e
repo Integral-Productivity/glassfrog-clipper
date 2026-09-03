@@ -1,0 +1,77 @@
+docs/store/chrome-web-store-listing.md
+  s_c2a2dedbaa47b2::t_15115ae9ad8722 242-246
+  s_c2a2dedbaa47b2::t_2dc47bfeae7d9f 28-34
+  s_c2a2dedbaa47b2::t_c72821354126bf 35-53
+  s_c2a2dedbaa47b2::t_618d0d2427b4d1 25-27
+  s_c2a2dedbaa47b2::t_9bf02d6c91219a 54-56,239-241
+  s_c2a2dedbaa47b2::t_e6ea1ca287457d 247-249
+  s_c2a2dedbaa47b2::t_067fd387564b73 1-24,57-238,250-258
+.gitignore
+  s_c96adf67ca52d1::t_0fb8a4402db176 11-14
+PRIVACY.md
+  s_c96adf67ca52d1::t_fbabc4cb8b9e81 1-140
+README.md
+  s_a4638fb302fc64::t_e1d783cf876e66 38-59
+docs/store/icon.svg
+  s_c2a2dedbaa47b2::t_b6ec6565a9d5a0 1-9
+public/manifest.json
+  s_e1ba14da3f6ac0::t_ff41bccfa98ebf 4,8-10,30-35
+scripts/render-icons.py
+  s_e1ba14da3f6ac0::t_f2143b3e35950d 1-236
+scripts/xcode-resource-phase.py
+  s_26f656c97b8eae::t_1dfafa72263e18 28-43
+test/store-package.test.ts
+  s_c96adf67ca52d1::t_50751e5c6ef8f8 1-117
+package.json
+  s_c2a2dedbaa47b2::t_714cedfa721a80 3,20-21
+scripts/package-chrome.mjs
+  s_c2a2dedbaa47b2::t_22a1083a951377 1-259
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "ae950f7ebf869a17c5f8aa1b532689035806006e",
+  "prompts": {},
+  "sessions": {
+    "s_26f656c97b8eae": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "2171f4c6-7f94-4276-a409-2b0d21f8dd30",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Kraig Parkinson <kraig.parkinson@gmail.com>"
+    },
+    "s_a4638fb302fc64": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "0ca5164a-5a13-4bac-b144-21b32a6d285e",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Kraig Parkinson <kraig.parkinson@gmail.com>"
+    },
+    "s_c2a2dedbaa47b2": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "161f3f4f-c523-48a7-9b7d-6dc29f00d6dc",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Kraig Parkinson <kraig.parkinson@gmail.com>"
+    },
+    "s_c96adf67ca52d1": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "f7ed27cf-2476-4c3d-b28f-e81ebafb06a8",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Kraig Parkinson <kraig.parkinson@gmail.com>"
+    },
+    "s_e1ba14da3f6ac0": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "fff66259-fe97-4a13-88ee-cc2a59b0636a",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Kraig Parkinson <kraig.parkinson@gmail.com>"
+    }
+  }
+}
