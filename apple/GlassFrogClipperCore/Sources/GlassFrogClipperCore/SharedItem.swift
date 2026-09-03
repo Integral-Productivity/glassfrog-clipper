@@ -24,7 +24,10 @@
 //
 //  Moving the file here also put it under the package's Swift 6
 //  strict-concurrency checking, which the Xcode targets do not apply — they
-//  build at SWIFT_VERSION 5.0. `load` carries what that turned up.
+//  build at SWIFT_VERSION 5.0. `load` carries what that turned up, and
+//  `pageContext` carries a second finding from the same source: moving
+//  `ShareCaptureModel` in after it (#94) made the isolation of the share's own
+//  items checkable for the first time.
 //
 
 import Foundation
@@ -38,6 +41,16 @@ public enum SharedItem {
     /// that yields something. Share sheets routinely attach a URL and a text
     /// selection to the same item, and taking whichever arrives first throws
     /// away half of what the practitioner meant to capture.
+    ///
+    /// `@MainActor` because the share's items are the main actor's. They arrive
+    /// from `extensionContext.inputItems` on the main thread and are held there
+    /// for the sheet's lifetime by `ShareCaptureView`, so reading them off it
+    /// is a send the compiler rejects — which is how this was found, when
+    /// `ShareCaptureModel` moved into this package and its `@MainActor load`
+    /// started handing `items` to a nonisolated reader. Annotating rather than
+    /// suppressing, because the isolation claim is true: nothing else reads an
+    /// `NSItemProvider` here, and the awaits below suspend rather than block.
+    @MainActor
     public static func pageContext(from items: [NSExtensionItem]) async -> PageContext? {
         var url: String?
         var selection: String?
@@ -128,6 +141,7 @@ public enum SharedItem {
     /// another app with a modal sheet open, and filing what did arrive beats
     /// refusing the capture over one attachment. It is recorded here because
     /// silent degradation should be a decision someone made, not a gap.
+    @MainActor
     static func load(
         _ provider: NSItemProvider,
         as identifier: String,

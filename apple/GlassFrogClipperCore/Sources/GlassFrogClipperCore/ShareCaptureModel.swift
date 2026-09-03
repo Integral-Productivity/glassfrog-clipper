@@ -1,8 +1,31 @@
 //
 //  ShareCaptureModel.swift
-//  Shared (Share)
+//  GlassFrogClipperCore
 //
 //  What the share sheet's capture form is doing, separated from how it looks.
+//
+//  It lives in the core package rather than in `Shared (Share)/` so that
+//  `swift test` can reach it at all. `ShareCaptureView` does not follow it:
+//  the view imports SwiftUI, and `Package.swift` states the invariant that
+//  nothing here imports UIKit, AppKit or SafariServices. This file needs
+//  Foundation and Observation, and `NSExtensionItem` is Foundation's — the
+//  share sheet that produced one is not required to read it, which is exactly
+//  why the model can be specified under `swift test` and the view cannot.
+//
+//  See ShareCapturePhaseTests.swift, which states the phase machine below and
+//  carries the boundary note about what a green run there does and does not
+//  prove. Reachable is not the same as enforced: the `Swift core` job that
+//  runs it is path-filtered and is not a required check (`verify` is the only
+//  one, ADR 0012), so a red run reports on a pull request touching `apple/`
+//  but cannot block a merge. Treat it as a stop signal by convention.
+//
+//  Moving the file here also put it under the package's Swift 6
+//  strict-concurrency checking, which the Xcode targets do not apply — they
+//  build at SWIFT_VERSION 5.0. That turned up one defect live since #66:
+//  `load` handed the main-actor-isolated `[NSExtensionItem]` to a nonisolated
+//  reader, so `SharedItem.pageContext` walked objects the main actor still
+//  held. `pageContext` and `SharedItem.load` are `@MainActor` now; the share's
+//  items arrive from the OS on the main thread and are read there.
 //
 
 import Foundation
@@ -35,10 +58,16 @@ public final class ShareCaptureModel {
     public private(set) var pageTitle: String = ""
 
     private var page: PageContext?
-    private let store: ConfigurationStore
-    private let filer: CaptureFiler
+    private let store: any ConfigurationReading
+    private let filer: any CaptureFiling
 
-    public init(store: ConfigurationStore = ConfigurationStore(), filer: CaptureFiler = CaptureFiler()) {
+    /// Both dependencies are protocols rather than the concrete types, for one
+    /// reason: `ConfigurationStore` reads the Keychain and `CaptureFiler` files
+    /// through `URLSession`, and those two are the whole of what this path does
+    /// outside the process. Naming them as protocols is what lets
+    /// `ShareCapturePhaseTests` run every state below offline without the
+    /// composition between them being faked as well.
+    public init(store: any ConfigurationReading = ConfigurationStore(), filer: any CaptureFiling = CaptureFiler()) {
         self.store = store
         self.filer = filer
     }

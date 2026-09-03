@@ -5,7 +5,8 @@ Date: 2026-09-01
 ## Status
 
 Accepted. Amended 2026-09-02 to resolve the Safari deferral it created (#85) —
-see the first entry under Consequences.
+see the first entry under Consequences. Amended again 2026-09-02 (#94) to say
+where presentation state goes, which neither layer covers.
 
 Paired with [10. Four architectural characteristics get fitness functions](0010-four-architectural-characteristics-get-fitness-functions.md),
 which covers the other half of the tier-1 gate content (#69).
@@ -169,6 +170,49 @@ not an address. The scenario that pins the address slot is therefore one whose
 `public.url` attachment carries bytes that are *not* an address. That scenario
 kills the mutation, and it states the real consequence: `url` is the field
 GlassFrog renders a project as linked from, so arbitrary bytes must not reach it.
+
+**Presentation state is a third thing, and it is specified beside the surface
+layer rather than given a layer of its own** *(added 2026-09-02, #94)*.
+
+The two layers say what gets filed and how a share is read. Neither says what
+the practitioner is *told*. `ShareCaptureModel`'s seven phases decide that, and
+five of its transitions are decided nowhere else: `notConfigured` is checked
+before the share is read, a share that carries nothing is refused rather than
+filed empty, a configuration lost while the sheet is open routes to the
+reconfigure surface rather than to a generic failure, R18's `reconfigure` flag
+reaches the button that offers a retry, and the configured role seeds a picker
+it must never overwrite.
+
+Applying this ADR's mechanical test to those returns neither answer. A step
+cannot state them against `submit()` — they are not about what is filed — and
+they are not shaped by the platform's contract either; a share sheet hands over
+`NSExtensionItem`s, not phases. So the test is extended rather than stretched:
+**behaviour that is neither filed nor read from the platform is stated where it
+can be executed against the code that decides it.** For the share sheet that is
+`ShareCapturePhaseTests.swift`, next to the surface layer and carrying its own
+copy of the boundary note.
+
+The rest of the phase machine is deliberately *not* restated there, because it
+is already covered. `Compose` treats an absent work type and `.tension`
+identically and trims a note itself, so the model's `nil` conversions produce
+no observable difference — pinning them again would test the same decision in
+two places and make one of them the wrong one to change.
+
+Mutation-tested like the layers above. Seven mutations each turn the suite red:
+swapping the two guards in `load`, filing an empty share as ready, replacing a
+picked role with the configured one, dropping a chosen work type, never
+entering the in-flight phase, dropping R18's `reconfigure` flag, and turning a
+lost configuration into a generic failure. A deliberate no-op edit was run
+alongside them and correctly stayed green.
+
+**Moving the model paid for itself the same way `SharedItem` did.** Under the
+package's Swift 6 strict concurrency — which the Xcode targets do not apply —
+`load(items:)` was handing the main-actor-isolated `[NSExtensionItem]` to a
+nonisolated `SharedItem.pageContext`, while `ShareCaptureView` still held the
+same objects on the main actor. `pageContext` and `SharedItem.load` are
+`@MainActor` now. That is one more defect live since #66 that only the move
+could see, and it is the second time this has happened, which is the argument
+for moving the next one too.
 
 **What the Swift half is gated by is convention, not mechanism.** The `Swift
 core` job that runs these tests is path-filtered and is not a required check —

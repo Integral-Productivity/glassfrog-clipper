@@ -41,6 +41,18 @@ public struct Configuration: Sendable, Equatable {
     public var isConfigured: Bool { gaps.isEmpty }
 }
 
+/// Reading the configuration, without saying where it is read from.
+///
+/// The narrowest thing the capture path actually needs. `ConfigurationStore`
+/// is the only implementation that ships; the protocol exists so the phase
+/// machine can be driven without a Keychain, which is one of exactly two
+/// things on that path that leave the process. See
+/// `ShareCapturePhaseTests.swift` for why that boundary is drawn there and
+/// nowhere further in.
+public protocol ConfigurationReading: Sendable {
+    func load() -> Configuration
+}
+
 /// Reads and writes the configuration shared by the app, the Safari extension
 /// handler and the Share Extension.
 ///
@@ -58,7 +70,7 @@ public struct Configuration: Sendable, Equatable {
 /// `@unchecked Sendable` because `UserDefaults` is documented as thread-safe
 /// but is not annotated as `Sendable`. The two stored properties are otherwise
 /// immutable value types, so the only unchecked part is that annotation gap.
-public struct ConfigurationStore: @unchecked Sendable {
+public struct ConfigurationStore: ConfigurationReading, @unchecked Sendable {
 
     public static let defaultAppGroup = "group.com.integralproductivity.GlassFrogClipper"
 
