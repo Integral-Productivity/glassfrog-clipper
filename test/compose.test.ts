@@ -297,3 +297,36 @@ test('R7: a project link and the evidence block both carry the stripped URL', ()
   assert.equal(composed.link, 'https://example.test/spec');
   assert.doesNotMatch(composed.note, /hunter2/, 'no credential survives into the note either');
 });
+
+test('R7: a nested-scheme URL cannot smuggle userinfo past the check', () => {
+  // `new URL('view-source:https://u:p@host/')` parses with an EMPTY username and
+  // password, because the inner address is only path text at that level. The
+  // plain userinfo check waves it straight through — nothing fails, and the
+  // password is filed. That is the silent pass this guard exists to stop.
+  assert.equal(
+    stripUrlCredentials('view-source:https://alice:hunter2@example.test/'),
+    'view-source:https://example.test/',
+  );
+  assert.equal(
+    stripUrlCredentials('blob:https://alice:hunter2@example.test/x'),
+    'blob:https://example.test/x',
+  );
+  assert.equal(
+    stripUrlCredentials('filesystem:https://alice:hunter2@example.test/temporary/f'),
+    'filesystem:https://example.test/temporary/f',
+  );
+  assert.equal(
+    stripUrlCredentials('VIEW-SOURCE:https://alice:hunter2@example.test/'),
+    'VIEW-SOURCE:https://example.test/',
+    'the scheme is matched case-insensitively, and its original casing is kept',
+  );
+});
+
+test('R7: a query parameter that merely looks like userinfo is left alone', () => {
+  // The reason this recurses into nested schemes instead of doing a lexical
+  // `//...@` strip: a pattern loose enough to catch view-source: also matches
+  // this, and rewriting it would destroy evidence in a URL that never carried a
+  // credential at all.
+  const url = 'https://example.test/login?next=//user:pass@elsewhere.test/';
+  assert.equal(stripUrlCredentials(url), url);
+});

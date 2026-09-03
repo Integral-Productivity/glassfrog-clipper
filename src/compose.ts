@@ -57,9 +57,16 @@ export function truncate(text: string, limit: number = EVIDENCE_FIELD_LIMIT): st
  * A URL with no userinfo is returned byte-identical rather than round-tripped
  * through `URL`. Serialising every capture would lowercase hosts, add trailing
  * slashes, and re-encode paths — rewriting the evidence on the overwhelming
- * majority of captures that were never at risk. An unparseable string is
- * likewise returned unchanged: `chrome.tabs.Tab.url` is browser-normalised, so
- * a parse failure means there is no authority component to reason about.
+ * majority of captures that were never at risk.
+ *
+ * An unparseable string is returned unchanged, and that fallback is *unsafe in
+ * the abstract*: `new URL` throws on `https://alice:hunter2@example.test:99999/`
+ * and on `//alice:hunter2@example.test/`, each of which still spells out a
+ * password. It is safe here only because the input is `chrome.tabs.Tab.url` —
+ * Chrome's own parser rejects those same strings before a tab can commit to one,
+ * so no such value ever arrives. Reusing this function on a URL from anywhere
+ * else breaks that argument, which is why the Swift port for the share sheet
+ * does not inherit it.
  */
 export function stripUrlCredentials(url: string): string {
   let parsed: URL;
@@ -69,11 +76,38 @@ export function stripUrlCredentials(url: string): string {
     return url;
   }
 
-  if (!parsed.username && !parsed.password) return url;
+  if (!parsed.username && !parsed.password) return stripNestedUrlCredentials(url);
 
   parsed.username = '';
   parsed.password = '';
   return parsed.href;
+}
+
+/**
+ * The schemes that carry a whole URL inside their own path.
+ *
+ * `new URL('view-source:https://alice:hunter2@example.test/')` parses happily
+ * and reports an empty `username` and `password`, because the inner address is
+ * just path text to it — so the plain check above waves the credential straight
+ * through. That is the exact shape this guard exists to stop: nothing fails, and
+ * the password is filed.
+ *
+ * Recursing rather than reaching for a lexical `//...@` strip is deliberate. A
+ * pattern loose enough to catch these also matches a query string like
+ * `?next=//user:pass@host`, and rewriting that would destroy evidence in a URL
+ * that was never a credential. Recursion terminates because each level removes
+ * its scheme prefix, so the string is strictly shorter every time.
+ */
+const NESTED_SCHEME = /^(view-source|blob|filesystem):(.+)$/is;
+
+function stripNestedUrlCredentials(url: string): string {
+  const [, scheme, rest] = NESTED_SCHEME.exec(url) ?? [];
+  if (!scheme || !rest) return url;
+
+  const inner = stripUrlCredentials(rest);
+  // Byte-identical unless the inner URL actually changed, so a `blob:` URL that
+  // never held a credential is returned exactly as the browser reported it.
+  return inner === rest ? url : `${scheme}:${inner}`;
 }
 
 export type Composed =

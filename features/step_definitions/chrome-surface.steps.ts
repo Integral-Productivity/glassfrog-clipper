@@ -69,6 +69,10 @@ Given('the active tab cannot be read', function (this: ClipperWorld) {
   this.chrome.__tabs = [{ id: 1 } as chrome.tabs.Tab];
 });
 
+Given('the active tab address is {string}', function (this: ClipperWorld, url: string) {
+  this.chrome.__tabs = [{ ...readableTab(), url } as chrome.tabs.Tab];
+});
+
 When('the practitioner triggers a quick capture', async function (this: ClipperWorld) {
   await quickCapture(async () => this.writer());
 });
@@ -105,3 +109,14 @@ Then(
     }
   },
 );
+
+// Asserted over everything that left, not just the field the scenario names: a
+// credential surviving into a project's `link` or a note is the same leak as one
+// in the body, and naming a single field would let it through.
+Then('nothing filed contains {string}', function (this: ClipperWorld, forbidden: string) {
+  assert.ok(this.filed.length > 0, 'nothing was filed at all');
+  assert.ok(
+    !JSON.stringify(this.filed).includes(forbidden),
+    `"${forbidden}" reached GlassFrog: ${JSON.stringify(this.filed)}`,
+  );
+});

@@ -302,3 +302,32 @@ test('R7: userinfo credentials are stripped before the URL can reach storage', a
   await fileCapture(writer, { page }, 'cap-1');
   assert.doesNotMatch(String(calls[0]?.input.body), /hunter2/, 'nor the filed tension');
 });
+
+test('R7: a capture already holding userinfo is stripped again at filing', async (t) => {
+  const { restore } = installFakeChrome();
+  t.after(restore);
+  await setCaptureRoleId(ROLE);
+
+  // Simulates the one case the capture-time strip cannot reach: a capture that
+  // reached the pending slot before this guard existed, and is re-filed later by
+  // fileHeldCapture. Built by hand rather than through pageContextFromTab,
+  // because going through it would strip the URL and prove nothing.
+  const capture: Capture = {
+    workType: 'project',
+    page: {
+      url: 'https://alice:hunter2@example.test/spec',
+      title: 'A spec',
+      capturedAt: '2026-08-28T12:00:00.000Z',
+    },
+  };
+
+  const { writer, calls } = fakeWriter();
+  await fileCapture(writer, capture, 'cap-legacy');
+
+  assert.doesNotMatch(JSON.stringify(calls[0]?.input), /hunter2/, 'not in the body, note, or link');
+  assert.equal(calls[0]?.input.link, 'https://example.test/spec');
+
+  // The in-flight marker is written from the same capture, so it must be clean too.
+  const inFlight = await listInFlight();
+  assert.doesNotMatch(JSON.stringify(inFlight), /hunter2/);
+});

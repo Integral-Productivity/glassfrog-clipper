@@ -115,9 +115,18 @@ export async function fileCapture(
     throw new Error('No capture role configured. Open the extension options to choose one.');
   }
 
-  const composed = compose(capture);
+  // R7, second door. The strip at pageContextFromTab protects everything this
+  // version captures, but this is the one function every filing passes through,
+  // including `fileHeldCapture` re-filing a capture that has been sitting in the
+  // pending slot — possibly written by an older build that had no strip at all.
+  // Enforcing it at egress as well as at construction means "no credential
+  // leaves" stops being a property held by convention across call sites. It is a
+  // no-op on anything this version captured.
+  const safe: Capture = { ...capture, page: { ...capture.page, url: stripUrlCredentials(capture.page.url) } };
 
-  await markInFlight({ id: captureId, capture, startedAt: new Date().toISOString() });
+  const composed = compose(safe);
+
+  await markInFlight({ id: captureId, capture: safe, startedAt: new Date().toISOString() });
 
   const created = await write(writer, roleId, composed);
 
