@@ -60,6 +60,8 @@ This plan owns **Capture surface**, one of four tracks in [STRATEGY.md](STRATEGY
 ### Requirements
 
 > **Swept 2026-08-31.** R1–R9, R11, R12, R14, R15, R17, R19–R22 were checked against their unit and their behavioural tests and hold as written. R13 remains deferred. R7, R10, R16 and R18 carry notes below. Note that `test/requirements-coverage.test.ts` checks **traceability only** — its own docstring says so — so a bare `RN` in a comment satisfies it. It cannot detect a requirement that is cited but unimplemented, which is the class R10 and R18 fell into.
+>
+> **Updated 2026-09-02 ([#50](https://github.com/Integral-Productivity/glassfrog-clipper-chrome-extension/issues/50)).** R10 and R18 are implemented on the F1/F2 path as of [#41](https://github.com/Integral-Productivity/glassfrog-clipper-chrome-extension/issues/41); their notes below now record what shipped, with the old finding kept underneath because the shape of that defect is the reason `src/background.ts` has a test file at all. The state machine further down was redrawn against the same code.
 
 **Capture invocation**
 
@@ -87,13 +89,15 @@ This plan owns **Capture surface**, one of four tracks in [STRATEGY.md](STRATEGY
 - R8. Extension options accept a GlassFrog v5 API key, a capture role selected from the practitioner's own roles, and the default action/project status.
 - R9. A capture invoked while the extension is unconfigured opens the options page holding the pending capture in extension storage, and files it once a capture role and API key are saved.
 - R10. A capture that fails after configuration — a rejected request or a network failure — surfaces the failure and preserves the captured content rather than discarding it.
-  - **Unimplemented on the F1/F2 path — the plan is right and the code is wrong.** Tracked in [#41](https://github.com/Integral-Productivity/glassfrog-clipper-chrome-extension/issues/41). `submit()` (`src/background.ts:96-114`) writes the pending slot on exactly one branch, the unconfigured one; the `catch` surfaces the failure and holds nothing. The content survives only as an in-flight marker, which `reviewOnStartup` then surfaces with the wrong message and deletes. Every test that appears to cover this seeds the slot through `holdCapture` first and calls `fileHeldCapture`, never `submit` — and `src/background.ts` has no test file at all.
+  - **Implemented on the F1/F2 path by [#41](https://github.com/Integral-Productivity/glassfrog-clipper-chrome-extension/issues/41); the 2026-08-31 note below is what it was before.** `submit()` now preserves on both exits that leave a capture unfiled: the unconfigured branch calls `holdCapture` and the inner `catch` calls `preserveFailedCapture` (`src/background.ts:204`), which writes the same one slot through `occupySlot` (`src/pending.ts:56`, `:103`). `settleInFlight` (`src/pending.ts:130`) keeps the in-flight marker only for a failure that may have landed, so `reviewOnStartup` no longer tells the practitioner to go check GlassFrog for an item a 4xx says was never created.
+    - *What was wrong, kept because it names the shape of the defect.* `submit()` wrote the pending slot on exactly one branch, the unconfigured one; the `catch` surfaced the failure and held nothing. Every test that appeared to cover this seeded the slot through `holdCapture` first and called `fileHeldCapture`, never `submit` — and `src/background.ts` had no test file at all. It has one now (`test/background.test.ts`), whose own header forbids arranging a preserved capture through `holdCapture` for exactly that reason.
 - R12. A surfaced or logged failure never includes the GlassFrog API key or the request headers carrying it.
 - R15. At most one pending capture is held; a later unconfigured capture replaces it, and the replacement is surfaced to the practitioner rather than dropped silently.
 - R16. A pending capture is cleared when its item files, and is surfaced rather than retained indefinitely when the practitioner leaves the options page without saving.
   - *Swept: satisfied in substance, by a different trigger.* There is no unload handler on the options page. "Not retained indefinitely" is served by KTD3's 7-day expiry, surfaced on the next worker wake (`src/pending.ts:79`, `:131`). Leaving the page is not itself an event the extension observes.
 - R18. A failure caused by an unusable capture role is distinguished from a transient failure, directing the practitioner to reconfigure rather than retry.
-  - **The classification holds; the re-file promise does not.** Tracked in [#41](https://github.com/Integral-Productivity/glassfrog-clipper-chrome-extension/issues/41). `classifyFailure` correctly routes `TypeError`/401/403/404 to reconfigure. But because R10's preserve never happens on the F1/F2 path, fixing the role re-files nothing: `fileHeldCapture` reads an absent slot and returns. U6 approach 5 below promises exactly this and does not deliver it.
+  - **Both halves now hold on the F1/F2 path, since [#41](https://github.com/Integral-Productivity/glassfrog-clipper-chrome-extension/issues/41).** `classifyFailure` routes `TypeError`/401/403/404 to reconfigure (`src/errors.ts:69-90`) and `preserveFailedCapture` opens the options page for exactly those (`src/pending.ts:116`), so the reconfigure now has a preserved capture to find: saving a usable role fires `onConfigurationChanged` → `fileHeldCaptureIfPossible` → `fileHeldCapture`, and the capture goes out without being re-captured. What the classification still does not carry is a way forward for the failures it routes *away* from reconfigure — a rate limit or a dropped connection is preserved and told to retry with no retry control ([#109](https://github.com/Integral-Productivity/glassfrog-clipper-chrome-extension/issues/109)).
+    - *What was wrong.* Because R10's preserve never happened on the F1/F2 path, fixing the role re-filed nothing: `fileHeldCapture` read an absent slot and returned. U6 approach 5 below promised exactly this and did not deliver it.
 - R19. A capture is filed at most once, even when the extension loses the result of a request the server already accepted.
 - R20. Role, work type, and note entered in the popup survive the popup closing, and are restored when it reopens.
 - R21. A configuration attempt that cannot complete — a rejected API key, or an account with no roles to choose from — says so plainly instead of leaving the practitioner on an empty form.
@@ -240,19 +244,31 @@ The pending capture's lifecycle is what keeps KD4's promise without becoming a q
 stateDiagram-v2
     [*] --> None
     None --> Pending: capture while unconfigured (R9)
+    None --> InFlight: capture while configured, POST starts
     Pending --> Pending: later capture replaces + surfaces (R15)
     Pending --> InFlight: configuration saved, POST starts (R19)
-    InFlight --> None: 201 received, slot cleared
-    InFlight --> Surfaced: worker died mid-request
-    Surfaced --> None: practitioner resolves (never auto-refiled)
     Pending --> Surfaced: older than expiry (R16)
     Pending --> None: practitioner discards
+    InFlight --> Filed: 201 received
+    InFlight --> Preserved: write failed (R10)
+    InFlight --> Surfaced: worker died mid-request
+    Preserved --> Preserved: later capture replaces + surfaces (R15)
+    Preserved --> InFlight: configuration saved, re-file starts (R18)
+    Preserved --> Surfaced: older than expiry (R16)
+    Preserved --> None: practitioner discards
+    Filed --> None: in-flight marker cleared, then the slot
+    Surfaced --> None: practitioner resolves (never auto-refiled)
 ```
 
-**Two gaps found by the 2026-08-31 sweep, both tracked in [#41](https://github.com/Integral-Productivity/glassfrog-clipper-chrome-extension/issues/41).**
+**Redrawn 2026-09-02 against the shipped code ([#50](https://github.com/Integral-Productivity/glassfrog-clipper-chrome-extension/issues/50)).** [#41](https://github.com/Integral-Productivity/glassfrog-clipper-chrome-extension/issues/41) closed both gaps the 2026-08-31 sweep found, and closing them added a state and three edges the sweep's diagram did not carry.
 
-- `Pending --> None: practitioner discards` is **unimplemented**. `clearPendingCapture` has two callers, both automatic (`src/capture.ts:161` on a successful file, `src/pending.ts:137` on expiry). Neither page offers a discard control, so a held capture can only be dropped by waiting out the 7-day expiry.
-- **The machine has no state for a capture that fails *after* configuration.** Every edge into `Pending` starts from an unconfigured capture, and the code matches the diagram rather than R10 — which is exactly why the omission mattered. See R10 and R18 below.
+- **`Preserved` is R10's state**, written by `preserveFailedCapture` (`src/pending.ts:103`) from `submit()`'s inner `catch` (`src/background.ts:204`). It is the second door into the one slot, and it and `Pending` are **indistinguishable in storage**: both go through `occupySlot`, and a `PendingCapture` records `{ id, capture, capturedAt }` and nothing about why it is there. The difference is entirely in what happened on the way in — `holdCapture` confirms and opens the options page unconditionally; `preserveFailedCapture` surfaces the classified failure first and opens the options page only when `failure.reconfigure` is set, because a rate limit does not warrant sending a practitioner to change settings that are already correct. Every exit is then shared, which is why the two states carry the same four out-edges.
+- **The way out to `Filed` runs through `InFlight`, not straight from `Preserved`.** `onConfigurationChanged` (`src/storage.ts:308`) fires `fileHeldCaptureIfPossible` (`src/background.ts:114`), which calls `fileHeldCapture` (`src/pending.ts:145`), which calls `fileCapture` — and that writes the in-flight marker before the POST like any other filing. R18's reconfigure and KD4's first-run save are the same trigger on the same code path, which is the point of generalising it.
+- **That configuration write is the only re-file trigger; there is no retry control.** `chrome.storage.onChanged` fires per `set` rather than per changed value, so re-saving the options form with the key and role unchanged does re-fire it — an unlabelled retry the practitioner has to guess at. A rate-limited or offline capture is preserved and told to "try again" with nothing to press, and otherwise leaves the slot only by replacement, discard, or expiry. Tracked in [#109](https://github.com/Integral-Productivity/glassfrog-clipper-chrome-extension/issues/109).
+- **`None --> InFlight` was missing.** The configured F1/F2 path never touches the pending slot on the way out, so as drawn the machine could not reach a filing attempt at all without first passing through `Pending` — the same blind spot that let R10's absent branch go unnoticed.
+- **`Filed` is its own state** rather than a direct edge to `None`, because the item exists in GlassFrog before either clear lands: `fileCapture` clears the in-flight marker and then the slot as two separate writes after the 201 (`src/capture.ts:119-120`), and the slot is cleared only when its id matches the capture that just filed (`src/capture.ts:158`).
+- **An ambiguous failure occupies two places at once.** `settleInFlight` (`src/pending.ts:130`) clears the in-flight marker only for a failure that named itself as a rejection, so a `status: 0` or an unclassified failure leaves its marker standing *and* preserves the capture. `reviewOnStartup` surfaces that marker on the next worker wake while the slot still holds the content. The states above are the slot's; the marker's only appearance here is the `Surfaced` edge out of `InFlight`.
+- **`Pending --> None: practitioner discards` is implemented.** The options page carries a "Discard this capture" button (`public/options.html:45`) wired at `src/options.ts:282` to `discardPendingCapture` (`src/pending.ts:180`). One control, one slot: it discards a preserved capture exactly as it discards a held one.
 
 Failure classification drives whether the practitioner is told to retry or to reconfigure.
 
@@ -407,7 +423,7 @@ U1 first — the build is currently broken in a way that reports success, so eve
      - **Implemented as *browser* startup, not worker startup.** Tracked in [#41](https://github.com/Integral-Productivity/glassfrog-clipper-chrome-extension/issues/41). `onStartup`/`onInstalled` (`src/background.ts:53-54`) fire on profile start and on install, not when the MV3 worker is torn down for idleness and respawned — which is the normal lifecycle and the exact event KTD7 exists for.
   4. A pending capture past its expiry is surfaced, not silently deleted (R16).
   5. Generalize the auto-file trigger from "was unconfigured" to "a capture is held and configuration just became valid", so the R18 reconfigure path re-files too.
-     - **Unimplemented, and the plan is right.** Tracked in [#41](https://github.com/Integral-Productivity/glassfrog-clipper-chrome-extension/issues/41). The trigger *was* generalized (`src/pending.ts:63-70` says so), but nothing ever puts a post-configuration failure into the slot for it to find, so the reconfigure path re-files nothing. The test named below passes because it seeds the slot itself.
+     - **Implemented by [#41](https://github.com/Integral-Productivity/glassfrog-clipper-chrome-extension/issues/41).** The trigger was already generalized — `onConfigurationChanged` fires whenever the key or the role id is written (`src/storage.ts:308`), and `fileHeldCapture` files whatever is in the slot once configuration is valid (`src/pending.ts:145`). What was missing was anything putting a post-configuration failure *into* the slot; `preserveFailedCapture` (`src/pending.ts:103`) now does, so the reconfigure path re-files a real capture rather than reading an absent slot. The scenario named below no longer passes by seeding the slot itself: `test/background.test.ts` drives `submit()` with the extension configured and asserts against what storage holds afterwards.
 - **Test scenarios:**
   - A second unconfigured capture replaces the first and the replacement is surfaced.
   - An in-flight marker found at startup is surfaced and no request is issued.
