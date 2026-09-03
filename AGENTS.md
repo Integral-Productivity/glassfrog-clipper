@@ -100,7 +100,11 @@ background you can reach for when a design question comes up.
   `strict_required_status_checks_policy` on, so a branch that falls behind must
   be brought current before it can merge. Bringing it current with a merge
   commit turns a compliant one-commit pull request into a two-commit one, which
-  is ADR 0009's silent loss arriving with no author involved.
+  is ADR 0009's silent loss arriving with no author involved. `gh pr
+  update-branch --rebase` is the way out — it reconciles by rebasing rather than
+  merging, so the branch comes current *and* stays at one commit. The bare form
+  of that command is the trap, not the remedy; see
+  [#130](https://github.com/Integral-Productivity/glassfrog-clipper/issues/130).
 - **[ADR 0013](docs/adr/0013-an-adr-number-is-defended-at-three-points-not-one.md)
   — an ADR number is shared mutable state claimed on a private branch.** The
   next free number is not what `ls docs/adr/` says; open pull requests hold
