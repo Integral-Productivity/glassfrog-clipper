@@ -4,6 +4,8 @@ import { readdir, readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 
+import { repoSlug } from '../scripts/repo-slug.ts';
+
 /**
  * A fitness function for what `main` is allowed to require.
  *
@@ -47,6 +49,36 @@ const root = join(dirname(fileURLToPath(import.meta.url)), '..');
  * ruleset — or the reverse — is what the live check below catches.
  */
 export const REQUIRED_CHECKS = ['verify'];
+
+/**
+ * Whether `main` requires a pull request to be up to date with it before merging
+ * — GitHub's `strict_required_status_checks_policy`.
+ *
+ * This is the half of the collision defence that #83 exposed, and it is worth
+ * being precise about what was actually wrong, because the obvious diagnosis is
+ * not it. `test/adr-numbering.test.ts` was never the gap: it runs on the *merged*
+ * tree GitHub builds from head plus base, so it does see `main`'s ADRs, exactly
+ * as its own header claims.
+ *
+ * The gap was that a green it produced could go stale and still merge. Checks
+ * are recorded against a head SHA, and a base-branch move is not a
+ * `synchronize` event, so nothing re-runs when `main` gains an ADR underneath an
+ * open pull request. With this policy off, that stale pass stays mergeable:
+ *
+ *   1. #66 merges `docs/adr/0007-*.md`.
+ *   2. #61's `verify` is already green — against a tree where 0007 was free.
+ *   3. Nothing re-runs. #61 merges. `main` now holds two `0007-*.md`.
+ *
+ * Turning it on does not make the guard smarter; it makes the guard *binding*,
+ * by forcing the merge tree to be rebuilt against a `main` that has moved. It is
+ * also why `allow_update_branch` belongs on with it — auto-merge (ADR 0012)
+ * needs a way to bring a stale branch forward without a human rebase.
+ *
+ * Requiring exactly one check keeps ADR 0012's reasoning intact: strictness is a
+ * property of *when* the required check is evaluated, not of how many are
+ * required.
+ */
+export const REQUIRE_UP_TO_DATE_BRANCHES = true;
 
 /**
  * Which workflow each required check reports from. Declared rather than
@@ -243,7 +275,15 @@ test('an unmapped check is a failure, not a skip', () => {
  */
 const LIVE = process.env.CHECK_LIVE_BRANCH_PROTECTION === '1';
 const TOKEN = process.env.GITHUB_TOKEN ?? process.env.GH_TOKEN;
-const SLUG = 'Integral-Productivity/glassfrog-clipper-chrome-extension';
+/**
+ * Which repository the live check reads. Derived from `package.json` rather
+ * than written out again: this test is skipped in every ordinary run, so a
+ * literal here would be a copy of the repository's name that nothing reads
+ * until someone runs the opt-in check by hand — exactly how #62's rename could
+ * have left it stale and green. `repo-identity.test.ts` holds the two copies
+ * that genuinely must exist separately against each other.
+ */
+const SLUG = repoSlug();
 
 test('main actually requires the checks REQUIRED_CHECKS names', { skip: !LIVE || !TOKEN }, async () => {
   const response = await fetch(`https://api.github.com/repos/${SLUG}/rules/branches/main`, {
@@ -253,7 +293,10 @@ test('main actually requires the checks REQUIRED_CHECKS names', { skip: !LIVE ||
 
   const rules = (await response.json()) as Array<{
     type: string;
-    parameters?: { required_status_checks?: Array<{ context: string }> };
+    parameters?: {
+      required_status_checks?: Array<{ context: string }>;
+      strict_required_status_checks_policy?: boolean;
+    };
   }>;
 
   const live = rules
@@ -266,5 +309,15 @@ test('main actually requires the checks REQUIRED_CHECKS names', { skip: !LIVE ||
     live,
     [...REQUIRED_CHECKS].sort(),
     'main’s ruleset and REQUIRED_CHECKS disagree — one of them was changed without the other',
+  );
+
+  const strict = rules
+    .filter((rule) => rule.type === 'required_status_checks')
+    .map((rule) => rule.parameters?.strict_required_status_checks_policy === true);
+
+  assert.deepEqual(
+    strict,
+    [REQUIRE_UP_TO_DATE_BRANCHES],
+    'main’s up-to-date-branch policy and REQUIRE_UP_TO_DATE_BRANCHES disagree — with it off, a check that passed against an older main stays green and can merge a duplicate anyway; see #83',
   );
 });

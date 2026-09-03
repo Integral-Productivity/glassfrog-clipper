@@ -1,4 +1,4 @@
-# 12. Auto-merge is armed by requiring exactly one check on main
+# Auto-merge is armed by requiring exactly one check on main
 
 Date: 2026-09-02
 

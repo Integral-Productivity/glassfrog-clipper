@@ -11,6 +11,10 @@ permissions:
   # a same-org package needs no PAT in CI. This is what makes the token fallback
   # below resolve on ordinary runs.
   packages: read
+  # Reads the file paths of *other* open pull requests, so a second branch
+  # claiming the same ADR number is reported while both are still cheap to move.
+  # Read-only, and the scan fails open without it — see scripts/check-adr-claims.ts.
+  pull-requests: read
 
 concurrency:
   group: ci-${{ github.ref }}
@@ -76,6 +80,16 @@ jobs:
       - name: Test
         run: npm test
 
+      # A step inside `verify` rather than a job of its own: ADR 0012 requires
+      # exactly one check on `main`, and a second required context is what that
+      # decision warns against. This one catches the collision #83 recorded,
+      # while both branches are still open — the merged-tree guard in
+      # test/adr-numbering.test.ts catches it only once they have met.
+      - name: Check no other open PR claims the same ADR number
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: node scripts/check-adr-claims.ts
+
       - name: Build
         run: npm run build
 
@@ -83,3 +97,26 @@ jobs:
       # service worker. Only an artifact check does — see scripts/check-bundle.mjs.
       - name: Check the service worker bundle
         run: node scripts/check-bundle.mjs
+
+      # And a bundle that loads is not the same as a package the store accepts.
+      # This applies the store's own rules to the real build output — icon
+      # dimensions, description length, manifest/package.json version agreement,
+      # files that must never ship — so a rejection surfaces here rather than
+      # from a reviewer several days after the change that caused it.
+      #
+      # test/store-package.test.ts runs the same exported rules against the
+      # repository's manifest with no build in the way, which catches most drift
+      # in the unit suite. This is the half that needs compiled output: only here
+      # can a file tsup started emitting be caught before it reaches the zip.
+      #
+      # Invoked directly rather than via `npm run package`, which would rebuild
+      # what the Build step above already produced.
+      - name: Check the extension still packages for the Chrome Web Store
+        run: node scripts/package-chrome.mjs
+
+      # Recorded so the log identifies the exact artifact. The zip is
+      # deterministic, so this digest is reproducible from the commit — which is
+      # what makes "is the uploaded package the one that was reviewed?" a
+      # question with an answer.
+      - name: Record the package digest
+        run: sha256sum release/*.zip
