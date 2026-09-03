@@ -1,0 +1,20 @@
+docs/store/chrome-web-store-listing.md
+  s_c65680669e1bad::t_1f7adb8d34ace8 27,80,117,349-350
+  s_c65680669e1bad::t_33f0256f766ee4 24-26,28-79,81-116,118-124,129-130,132-136
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "bd76704ee53a4b7bf710c9fa7232e3377391fa45",
+  "prompts": {},
+  "sessions": {
+    "s_c65680669e1bad": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "4d0a576b-e6e5-470f-9759-5baafe8accca",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Kraig Parkinson <kraig.parkinson@gmail.com>"
+    }
+  }
+}
