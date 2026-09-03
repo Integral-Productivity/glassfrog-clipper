@@ -8,49 +8,154 @@ This exists for the same reason [`docs/verifying-in-chrome.md`](../verifying-in-
 exists: the parts of shipping that the test suite cannot reach still need to be
 written down, or they get improvised differently every time.
 
-**Tracking:** [#101](https://github.com/Integral-Productivity/glassfrog-clipper-chrome-extension/issues/101).
-The Apple counterpart is [#65](https://github.com/Integral-Productivity/glassfrog-clipper-chrome-extension/issues/65).
+**Tracking:** [#101](https://github.com/Integral-Productivity/glassfrog-clipper/issues/101).
+The Apple counterpart is [#65](https://github.com/Integral-Productivity/glassfrog-clipper/issues/65).
 
 ## Decisions taken
 
 | Decision | Value | Why |
 |---|---|---|
-| Visibility | **Unlisted** | Exercises the full review path without a public debut while live-org verification ([#60](https://github.com/Integral-Productivity/glassfrog-clipper-chrome-extension/issues/60), [#64](https://github.com/Integral-Productivity/glassfrog-clipper-chrome-extension/issues/64)) is open. Anyone with the link can install; it does not appear in search. |
+| Visibility | **Unlisted** | Exercises the full review path without a public debut while live-org verification ([#60](https://github.com/Integral-Productivity/glassfrog-clipper/issues/60), [#64](https://github.com/Integral-Productivity/glassfrog-clipper/issues/64)) is open. Anyone with the link can install; it does not appear in search. |
 | Version | **0.1.0** | Honest pre-1.0. `0.0.1` reads on a public page as an accidental first commit. 1.0.0 is reserved for the release verified against a live GlassFrog org. |
 | Privacy policy | [`PRIVACY.md`](../../PRIVACY.md) in this repo | Version-controlled beside the code that implements the posture, and reviewable in a PR. |
 | Category | **Workflow & Planning** | Where GlassFrog-adjacent tooling is looked for. |
 | Payments | None | Free. Commercial licensing is handled out of band — see the README's Licence section. |
 
+## Publisher identity
+
+Who the store thinks we are. Settled in
+[#105](https://github.com/Integral-Productivity/glassfrog-clipper/issues/105)
+on 2026-09-02, and written down here because two of these choices cannot be
+undone and the third is printed on a public page.
+
+### What cannot be changed later
+
+Three constraints shape everything below. All three are Google's, not ours.
+
+- **A developer account's email address is permanent.** Google's registration
+  guidance is explicit that it cannot be changed after the account exists. The
+  address is therefore an architectural choice, not an administrative one.
+- **An account gets one publisher, for the life of the account.** Deleting a
+  publisher does not restore the quota. There is no second attempt at the name
+  or the entity behind it.
+- **Group publishing no longer exists.** It was replaced by adding *members* to
+  a single publisher with roles — viewer, item manager, editor, admin. Members
+  join free and do not repeat the registration flow. This, not a note in a wiki,
+  is how a second person gets access.
+
+### Decisions
+
+| Decision | Value | Why |
+|---|---|---|
+| Owning account | A **new dedicated Workspace mailbox** on `integralproductivity.com` — `chrome-store@` or similar | Google's own registration guidance suggests a dedicated publishing account. Because the address is permanent, binding it to a role rather than a person is the only version of this choice that survives the person. A personal mailbox would have welded the listing to one inbox forever. |
+| Publisher display name | **Integral Productivity** | The brand as it reads everywhere else. Drops the entity suffix, which the verified trader block carries anyway. |
+| Trader declaration | **Trader**, with **organization verification** | Commercial licensing is the plan, so trader is the accurate declaration; the alternative would be a misdeclaration *and* would tell EU users their consumer-protection rights do not apply. Verification is also the only route to a verified publisher name and a publisher page. |
+| Published contact | **Business address** and a **Google Voice** number | Both are mandatory and both are public. Google's trader FAQ names Google Voice as an acceptable SMS-capable option, which keeps a personal mobile off a page anyone can scrape. |
+| Human access | Kraig as **Admin** member of the publisher | Satisfies "recorded somewhere durable" as a membership row in the dashboard rather than a fact someone has to remember. |
+
+**The display name and the verified name will differ, and that is expected.**
+The free-text publisher name is "Integral Productivity"; trader verification
+publishes the *legal* entity, so the verified block will read "Integral
+Productivity LLC". Seeing two names in the dashboard is not a misconfiguration.
+
+### The trader disclosure
+
+The EU Digital Services Act requires every Chrome Web Store developer to declare
+trader or non-trader status. This is an account-level setting, separate from the
+per-item [Privacy practices tab](#privacy-practices-tab), and it is easy to miss
+because nothing in the item submission flow asks for it.
+
+Declaring trader means Google collects and then **publishes, at the bottom of
+the item listing**: legal name, physical address, phone number, and contact
+email. Google's guidance is to use an address you are comfortable having shared
+publicly, because it will be. The phone must be able to receive SMS.
+
+Verification is what turns this from an obligation into an asset: a verified
+organization gets a verified publisher name and a
+[publisher page](https://developer.chrome.com/blog/cws-publisher-pages) — the
+concrete form of the trust argument this listing is built on. Unverified, the
+publisher name is free text with nothing standing behind it.
+
+> **Unconfirmed, and owned by
+> [#105](https://github.com/Integral-Productivity/glassfrog-clipper/issues/105):**
+> Google's public FAQ does not say what happens to a live item if trader
+> verification is started and never completed, nor whether a registered-agent
+> address is acceptable in place of a business address. Neither blocks
+> registration, so neither is a reason to wait. Read both off the dashboard's own
+> copy at step 7 below and record the answers on #105 rather than assuming them
+> here.
+
+### Registering, in order
+
+Order matters in one place: **create the mailbox before touching the
+dashboard.** Registering first and fixing the address afterwards is the one
+mistake here with no remedy.
+
+1. **Create the mailbox.** In Google Workspace admin, add
+   `chrome-store@integralproductivity.com` as a user (not an alias — an alias
+   cannot own a Google account). Set a password and keep it in 1Password.
+2. **Have a Google Voice number ready**, or note which existing business line
+   can receive SMS. Trader verification will ask, and stalling mid-flow is
+   avoidable.
+3. **Sign in to the [Developer Dashboard](https://chrome.google.com/webstore/devconsole)
+   as that mailbox**, in a clean profile or incognito window. Signing in as the
+   wrong Google account and paying is the expensive slip, and the dashboard does
+   not make the active account obvious.
+4. **Accept the developer agreement, then pay the $5.** One-time, per account,
+   non-refundable, and charged before the dashboard is usable. Gift cards are
+   not accepted; if several payment methods are attached to the account, confirm
+   which one is charged.
+5. **Create the publisher** with the display name `Integral Productivity`. This
+   is the one-per-lifetime action — read the field back before confirming.
+6. **Verify the account email** from the message Google sends.
+7. **Declare trader status** and start organization verification. Supply the
+   legal name, business address, and SMS-capable number from the table above.
+   Expect a code by SMS and a wait for Google's side.
+8. **Add Kraig as an Admin member** so access does not depend on one mailbox's
+   password.
+9. **Record the outcome on
+   [#105](https://github.com/Integral-Productivity/glassfrog-clipper/issues/105)** —
+   which mailbox owns it, and whether verification came back approved. Do not
+   put the password in the issue.
+
+Steps 1 through 8 are all human. Registering an account, entering payment
+details, and accepting the developer agreement are not actions an agent should
+perform on someone's behalf, so this section is a runbook rather than a script.
+
 ## Before a submission is possible
 
 These are human steps. None can be done from a terminal.
 
-- [ ] **A Chrome Web Store developer account** and **publisher display name** —
-      [#105](https://github.com/Integral-Productivity/glassfrog-clipper-chrome-extension/issues/105).
-      One-time $5 fee, paid once per Google account. Use an Integral Productivity
-      account rather than a personal one: the account owns the listing and
-      transferring it later is painful. The display name appears as the author,
-      and a bare Gmail address is a trust cost on a listing whose whole pitch is
-      trustworthiness.
+- [ ] **A Chrome Web Store developer account**, **publisher**, and **trader
+      declaration** —
+      [#105](https://github.com/Integral-Productivity/glassfrog-clipper/issues/105).
+      One-time $5 fee, paid once per Google account, and payable before the
+      dashboard opens at all. The identity decisions are settled — see
+      [Publisher identity](#publisher-identity) for who owns it, what it is
+      called, and what gets published — but the registration itself is a
+      card-and-clicks errand that only a human can run.
 - [ ] **A reachable privacy policy URL** —
-      [#107](https://github.com/Integral-Productivity/glassfrog-clipper-chrome-extension/issues/107),
-      blocked by [#72](https://github.com/Integral-Productivity/glassfrog-clipper-chrome-extension/issues/72)
-      / [#80](https://github.com/Integral-Productivity/glassfrog-clipper-chrome-extension/issues/80).
+      [#107](https://github.com/Integral-Productivity/glassfrog-clipper/issues/107),
+      blocked by [#72](https://github.com/Integral-Productivity/glassfrog-clipper/issues/72)
+      / [#80](https://github.com/Integral-Productivity/glassfrog-clipper/issues/80).
       `PRIVACY.md` is written, but the repository is still private. **The
       submission cannot be completed until the flip lands**, because the store
       validates the URL anonymously. Once public it is
-      `https://github.com/Integral-Productivity/glassfrog-clipper-chrome-extension/blob/main/PRIVACY.md`
-      — and a rename ([#62](https://github.com/Integral-Productivity/glassfrog-clipper-chrome-extension/issues/62))
-      changes it, so sequence the rename **before** the submission, not after.
+      `https://github.com/Integral-Productivity/glassfrog-clipper/blob/main/PRIVACY.md`.
+
+      The rename to `glassfrog-clipper` has **already happened**, which is the
+      order this document previously asked for. Every URL here is written against
+      the new name deliberately: the old one resolves only through GitHub's
+      redirect, and that redirect disappears the moment anybody creates a
+      repository under the old name. A privacy-policy URL the store has recorded
+      is not somewhere to rely on a redirect.
+      [#62](https://github.com/Integral-Productivity/glassfrog-clipper/issues/62)
+      stays open for the references still carrying the old name elsewhere in the
+      tree.
 - [ ] **Screenshots** —
-      [#104](https://github.com/Integral-Productivity/glassfrog-clipper-chrome-extension/issues/104).
+      [#104](https://github.com/Integral-Productivity/glassfrog-clipper/issues/104).
       See [Graphic assets](#graphic-assets); they need a real browser and a real
       GlassFrog org, so they cannot be generated from the source tree.
-- [ ] **A packaging run against the real bundle** —
-      [#103](https://github.com/Integral-Productivity/glassfrog-clipper-chrome-extension/issues/103).
-      `npm run package` has only ever been exercised against a synthesised
-      `dist/`, because `npm install` needs a `read:packages` token. Low risk, but
-      it is the last untested step before an upload.
 
 ## Building the upload
 
@@ -62,12 +167,14 @@ Builds `dist/`, validates the manifest against the store's rules, and writes
 `release/glassfrog-clipper-<version>.zip`. It refuses to write a package that
 would fail review — wrong icon dimensions, an over-long description, a version
 that disagrees with `package.json`, a stray source map, the Safari manifest
-leaking into the Chrome build. The same rules run on every PR via
-[`test/store-package.test.ts`](../../test/store-package.test.ts).
+leaking into the Chrome build. The same rules run on every PR two ways:
+[`test/store-package.test.ts`](../../test/store-package.test.ts) applies them to
+the repository's manifest with no build, and `ci.yml`'s `verify` job runs the
+packaging itself against the real compiled output and records the digest.
 
 The zip is deterministic: entries sorted, timestamps pinned. Two runs from the
 same commit produce identical bytes, so "is this the package I reviewed?" is a
-checksum comparison.
+checksum comparison — which is why CI logs the digest rather than just exiting 0.
 
 ## Store listing
 
@@ -129,7 +236,7 @@ A GlassFrog account and an API key, which you generate in GlassFrog itself. Chro
 
 | Field | Value | Note |
 |---|---|---|
-| Homepage URL | repository URL | Blocked on the public flip ([#72](https://github.com/Integral-Productivity/glassfrog-clipper-chrome-extension/issues/72)). Deliberately **not** added to `manifest.json` as `homepage_url` yet — a private repo would render a dead "Website" link in `chrome://extensions`. Add it in the same change as the flip. |
+| Homepage URL | repository URL | Blocked on the public flip ([#72](https://github.com/Integral-Productivity/glassfrog-clipper/issues/72)). Deliberately **not** added to `manifest.json` as `homepage_url` yet — a private repo would render a dead "Website" link in `chrome://extensions`. Add it in the same change as the flip. |
 | Support URL | repository `/issues` | Same dependency. |
 | Privacy policy URL | `PRIVACY.md` on `main` | Same dependency. Mandatory — see below. |
 
@@ -239,15 +346,17 @@ Source, including the architecture decisions behind the permission set, is publi
 
 ## Submission checklist
 
-- [ ] Developer account registered and publisher display name set ([#105](https://github.com/Integral-Productivity/glassfrog-clipper-chrome-extension/issues/105))
-- [ ] Repository public ([#72](https://github.com/Integral-Productivity/glassfrog-clipper-chrome-extension/issues/72)), and renamed first if [#62](https://github.com/Integral-Productivity/glassfrog-clipper-chrome-extension/issues/62) is going to happen
-- [ ] URLs filled in and loading for a signed-out visitor ([#107](https://github.com/Integral-Productivity/glassfrog-clipper-chrome-extension/issues/107))
-- [ ] `npm run package` clean against the real bundle ([#103](https://github.com/Integral-Productivity/glassfrog-clipper-chrome-extension/issues/103)); note the zip's SHA-256
-- [ ] Screenshots taken at 1280×800 against a demonstration org ([#104](https://github.com/Integral-Productivity/glassfrog-clipper-chrome-extension/issues/104))
+- [ ] Developer account registered, publisher created as **Integral Productivity**, and the $5 paid ([#105](https://github.com/Integral-Productivity/glassfrog-clipper/issues/105))
+- [ ] Trader status declared and organization verification submitted ([#105](https://github.com/Integral-Productivity/glassfrog-clipper/issues/105)) — account-level, and nothing in the item submission flow prompts for it
+- [x] Repository renamed to `glassfrog-clipper` — done; every URL here is written against the new name rather than the redirect
+- [ ] Repository public ([#72](https://github.com/Integral-Productivity/glassfrog-clipper/issues/72))
+- [ ] URLs filled in and loading for a signed-out visitor ([#107](https://github.com/Integral-Productivity/glassfrog-clipper/issues/107))
+- [x] `npm run package` clean against the real bundle — `verify` does this on every PR ([#103](https://github.com/Integral-Productivity/glassfrog-clipper/issues/103)); take the SHA-256 from that run's log
+- [ ] Screenshots taken at 1280×800 against a demonstration org ([#104](https://github.com/Integral-Productivity/glassfrog-clipper/issues/104))
 - [ ] Listing fields pasted from this document
 - [ ] Privacy tab completed from this document
 - [ ] Visibility set to **Unlisted**
-- [ ] Submitted, and the review outcome recorded back on [#101](https://github.com/Integral-Productivity/glassfrog-clipper-chrome-extension/issues/101)
+- [ ] Submitted, and the review outcome recorded back on [#101](https://github.com/Integral-Productivity/glassfrog-clipper/issues/101)
 
 ## After a version is published
 
