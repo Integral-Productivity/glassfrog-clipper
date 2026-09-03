@@ -1,0 +1,40 @@
+test/branch-protection.test.ts
+  s_1e9b0af783847f::t_ce067452c4f632 286-289
+  s_1e9b0af783847f::t_4e0e926c42064d 52-80,303-311
+  s_1e9b0af783847f::t_e54ad1fc665a57 51,312
+test/adr-claims.test.ts
+  s_1e9b0af783847f::t_a1ec6fce586c06 1-8,10-12,14-68,87-168
+  s_1e9b0af783847f::t_a2e4a811a8b66b 69-86
+  s_1e9b0af783847f::t_3b40da693aa355 9,13
+scripts/adr-claims.ts
+  s_1e9b0af783847f::t_a2e4a811a8b66b 58,60-85,87,93
+  s_1e9b0af783847f::t_3b40da693aa355 1-57,59,86,88-92,94-146
+.github/workflows/ci.yml
+  s_1e9b0af783847f::t_550fc99139930f 14-17,83-91
+  s_1e9b0af783847f::t_1c98c181d58c7b 92
+scripts/check-adr-claims.ts
+  s_1e9b0af783847f::t_83c3718c553f9e 1-20,22-111
+  s_1e9b0af783847f::t_3b40da693aa355 21
+docs/adr/0013-an-adr-number-is-defended-at-three-points-not-one.md
+  s_1e9b0af783847f::t_81a1d4bd8bcd88 63-69
+  s_1e9b0af783847f::t_1dc4532e0418a1 1-62,70-93,95-130
+  s_1e9b0af783847f::t_b9ded362d8d073 94,131-132
+tsconfig.json
+  s_1e9b0af783847f::t_550fc99139930f 25-26
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "9bcf03320ab2df73e654869fb77954afd98d991b",
+  "prompts": {},
+  "sessions": {
+    "s_1e9b0af783847f": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "977faadc-cae3-410f-a643-adad03f17f53",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Kraig Parkinson <kraig.parkinson@gmail.com>"
+    }
+  }
+}
