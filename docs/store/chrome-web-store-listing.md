@@ -8,14 +8,14 @@ This exists for the same reason [`docs/verifying-in-chrome.md`](../verifying-in-
 exists: the parts of shipping that the test suite cannot reach still need to be
 written down, or they get improvised differently every time.
 
-**Tracking:** [#101](https://github.com/Integral-Productivity/glassfrog-clipper-chrome-extension/issues/101).
-The Apple counterpart is [#65](https://github.com/Integral-Productivity/glassfrog-clipper-chrome-extension/issues/65).
+**Tracking:** [#101](https://github.com/Integral-Productivity/glassfrog-clipper/issues/101).
+The Apple counterpart is [#65](https://github.com/Integral-Productivity/glassfrog-clipper/issues/65).
 
 ## Decisions taken
 
 | Decision | Value | Why |
 |---|---|---|
-| Visibility | **Unlisted** | Exercises the full review path without a public debut while live-org verification ([#60](https://github.com/Integral-Productivity/glassfrog-clipper-chrome-extension/issues/60), [#64](https://github.com/Integral-Productivity/glassfrog-clipper-chrome-extension/issues/64)) is open. Anyone with the link can install; it does not appear in search. |
+| Visibility | **Unlisted** | Exercises the full review path without a public debut while live-org verification ([#60](https://github.com/Integral-Productivity/glassfrog-clipper/issues/60), [#64](https://github.com/Integral-Productivity/glassfrog-clipper/issues/64)) is open. Anyone with the link can install; it does not appear in search. |
 | Version | **0.1.0** | Honest pre-1.0. `0.0.1` reads on a public page as an accidental first commit. 1.0.0 is reserved for the release verified against a live GlassFrog org. |
 | Privacy policy | [`PRIVACY.md`](../../PRIVACY.md) in this repo | Version-controlled beside the code that implements the posture, and reviewable in a PR. |
 | Category | **Workflow & Planning** | Where GlassFrog-adjacent tooling is looked for. |
@@ -26,31 +26,34 @@ The Apple counterpart is [#65](https://github.com/Integral-Productivity/glassfro
 These are human steps. None can be done from a terminal.
 
 - [ ] **A Chrome Web Store developer account** and **publisher display name** —
-      [#105](https://github.com/Integral-Productivity/glassfrog-clipper-chrome-extension/issues/105).
+      [#105](https://github.com/Integral-Productivity/glassfrog-clipper/issues/105).
       One-time $5 fee, paid once per Google account. Use an Integral Productivity
       account rather than a personal one: the account owns the listing and
       transferring it later is painful. The display name appears as the author,
       and a bare Gmail address is a trust cost on a listing whose whole pitch is
       trustworthiness.
 - [ ] **A reachable privacy policy URL** —
-      [#107](https://github.com/Integral-Productivity/glassfrog-clipper-chrome-extension/issues/107),
-      blocked by [#72](https://github.com/Integral-Productivity/glassfrog-clipper-chrome-extension/issues/72)
-      / [#80](https://github.com/Integral-Productivity/glassfrog-clipper-chrome-extension/issues/80).
+      [#107](https://github.com/Integral-Productivity/glassfrog-clipper/issues/107),
+      blocked by [#72](https://github.com/Integral-Productivity/glassfrog-clipper/issues/72)
+      / [#80](https://github.com/Integral-Productivity/glassfrog-clipper/issues/80).
       `PRIVACY.md` is written, but the repository is still private. **The
       submission cannot be completed until the flip lands**, because the store
       validates the URL anonymously. Once public it is
-      `https://github.com/Integral-Productivity/glassfrog-clipper-chrome-extension/blob/main/PRIVACY.md`
-      — and a rename ([#62](https://github.com/Integral-Productivity/glassfrog-clipper-chrome-extension/issues/62))
-      changes it, so sequence the rename **before** the submission, not after.
+      `https://github.com/Integral-Productivity/glassfrog-clipper/blob/main/PRIVACY.md`.
+
+      The rename to `glassfrog-clipper` has **already happened**, which is the
+      order this document previously asked for. Every URL here is written against
+      the new name deliberately: the old one resolves only through GitHub's
+      redirect, and that redirect disappears the moment anybody creates a
+      repository under the old name. A privacy-policy URL the store has recorded
+      is not somewhere to rely on a redirect.
+      [#62](https://github.com/Integral-Productivity/glassfrog-clipper/issues/62)
+      stays open for the references still carrying the old name elsewhere in the
+      tree.
 - [ ] **Screenshots** —
-      [#104](https://github.com/Integral-Productivity/glassfrog-clipper-chrome-extension/issues/104).
+      [#104](https://github.com/Integral-Productivity/glassfrog-clipper/issues/104).
       See [Graphic assets](#graphic-assets); they need a real browser and a real
       GlassFrog org, so they cannot be generated from the source tree.
-- [ ] **A packaging run against the real bundle** —
-      [#103](https://github.com/Integral-Productivity/glassfrog-clipper-chrome-extension/issues/103).
-      `npm run package` has only ever been exercised against a synthesised
-      `dist/`, because `npm install` needs a `read:packages` token. Low risk, but
-      it is the last untested step before an upload.
 
 ## Building the upload
 
@@ -62,12 +65,14 @@ Builds `dist/`, validates the manifest against the store's rules, and writes
 `release/glassfrog-clipper-<version>.zip`. It refuses to write a package that
 would fail review — wrong icon dimensions, an over-long description, a version
 that disagrees with `package.json`, a stray source map, the Safari manifest
-leaking into the Chrome build. The same rules run on every PR via
-[`test/store-package.test.ts`](../../test/store-package.test.ts).
+leaking into the Chrome build. The same rules run on every PR two ways:
+[`test/store-package.test.ts`](../../test/store-package.test.ts) applies them to
+the repository's manifest with no build, and `ci.yml`'s `verify` job runs the
+packaging itself against the real compiled output and records the digest.
 
 The zip is deterministic: entries sorted, timestamps pinned. Two runs from the
 same commit produce identical bytes, so "is this the package I reviewed?" is a
-checksum comparison.
+checksum comparison — which is why CI logs the digest rather than just exiting 0.
 
 ## Store listing
 
@@ -129,7 +134,7 @@ A GlassFrog account and an API key, which you generate in GlassFrog itself. Chro
 
 | Field | Value | Note |
 |---|---|---|
-| Homepage URL | repository URL | Blocked on the public flip ([#72](https://github.com/Integral-Productivity/glassfrog-clipper-chrome-extension/issues/72)). Deliberately **not** added to `manifest.json` as `homepage_url` yet — a private repo would render a dead "Website" link in `chrome://extensions`. Add it in the same change as the flip. |
+| Homepage URL | repository URL | Blocked on the public flip ([#72](https://github.com/Integral-Productivity/glassfrog-clipper/issues/72)). Deliberately **not** added to `manifest.json` as `homepage_url` yet — a private repo would render a dead "Website" link in `chrome://extensions`. Add it in the same change as the flip. |
 | Support URL | repository `/issues` | Same dependency. |
 | Privacy policy URL | `PRIVACY.md` on `main` | Same dependency. Mandatory — see below. |
 
@@ -239,15 +244,16 @@ Source, including the architecture decisions behind the permission set, is publi
 
 ## Submission checklist
 
-- [ ] Developer account registered and publisher display name set ([#105](https://github.com/Integral-Productivity/glassfrog-clipper-chrome-extension/issues/105))
-- [ ] Repository public ([#72](https://github.com/Integral-Productivity/glassfrog-clipper-chrome-extension/issues/72)), and renamed first if [#62](https://github.com/Integral-Productivity/glassfrog-clipper-chrome-extension/issues/62) is going to happen
-- [ ] URLs filled in and loading for a signed-out visitor ([#107](https://github.com/Integral-Productivity/glassfrog-clipper-chrome-extension/issues/107))
-- [ ] `npm run package` clean against the real bundle ([#103](https://github.com/Integral-Productivity/glassfrog-clipper-chrome-extension/issues/103)); note the zip's SHA-256
-- [ ] Screenshots taken at 1280×800 against a demonstration org ([#104](https://github.com/Integral-Productivity/glassfrog-clipper-chrome-extension/issues/104))
+- [ ] Developer account registered and publisher display name set ([#105](https://github.com/Integral-Productivity/glassfrog-clipper/issues/105))
+- [x] Repository renamed to `glassfrog-clipper` — done; every URL here is written against the new name rather than the redirect
+- [ ] Repository public ([#72](https://github.com/Integral-Productivity/glassfrog-clipper/issues/72))
+- [ ] URLs filled in and loading for a signed-out visitor ([#107](https://github.com/Integral-Productivity/glassfrog-clipper/issues/107))
+- [x] `npm run package` clean against the real bundle — `verify` does this on every PR ([#103](https://github.com/Integral-Productivity/glassfrog-clipper/issues/103)); take the SHA-256 from that run's log
+- [ ] Screenshots taken at 1280×800 against a demonstration org ([#104](https://github.com/Integral-Productivity/glassfrog-clipper/issues/104))
 - [ ] Listing fields pasted from this document
 - [ ] Privacy tab completed from this document
 - [ ] Visibility set to **Unlisted**
-- [ ] Submitted, and the review outcome recorded back on [#101](https://github.com/Integral-Productivity/glassfrog-clipper-chrome-extension/issues/101)
+- [ ] Submitted, and the review outcome recorded back on [#101](https://github.com/Integral-Productivity/glassfrog-clipper/issues/101)
 
 ## After a version is published
 
