@@ -60,10 +60,11 @@ among acceptable SMS-capable options.
 ## Decision
 
 **The owning account is a Cloud Identity Free identity with a routing rule, not
-a licensed mailbox.** `chrome-store@integralproductivity.com` is created as a
-user in the existing Workspace organization, holding a Cloud Identity Free
-licence rather than a Workspace one, with mail for that address routed to a
-mailbox a human reads.
+a licensed mailbox.** A `chrome-store`-style role address on the company domain
+is created as a user in the existing Workspace organization, holding a Cloud
+Identity Free licence rather than a Workspace one, with mail for that address
+routed to a mailbox a human reads. The address itself is deliberately not
+recorded here — see the note on the public record at the end of this ADR.
 
 Four steps carry the decision, and the order of the first two is the whole
 saving:
@@ -115,8 +116,8 @@ that signs in, and an address that receives mail. When this was written that was
 a reasoned position rather than an observed one.
 
 **Half of it is now observed.** On 2026-09-03 the operator built the account this
-way: `chrome-store@integralproductivity.com` as a Cloud Identity Free user, and
-all four checks passed — it signs in independently in a clean profile, mail sent
+way — the role address as a Cloud Identity Free user — and all four checks
+passed — it signs in independently in a clean profile, mail sent
 from outside arrives through the routing rule, Billing reports a Cloud Identity
 licence rather than a consumed Workspace seat, and Chrome Web Store is on for its
 organizational unit. So the identity half of the reasoning is no longer an
@@ -161,3 +162,20 @@ $5 is what the tracking issue named, and it is the smaller number by an order of
 magnitude. Any future account this project needs on the domain — an agent
 identity, a second store — inherits the same question, and the answer is the
 same: an identity is free, a mailbox is a subscription.
+
+**A note on the public record.** This repository is public, so what is written
+here about the account is read by anyone. The decision, the mechanism and the
+cost all belong in the open — they are the reasoning a reader needs. The
+*inventory* does not: the exact address, the licence it holds, the unit it sits
+in, where its mail lands, and where its password is kept together describe a
+single credential-bearing account whose email can never be changed, which is a
+phishing target rather than an architectural argument. So this ADR names the
+shape and omits the specifics, and
+[`fitness/checks/account-disclosure.ts`](../../fitness/checks/account-disclosure.ts)
+fails the build if an operational address returns to the tree.
+
+Stated rather than implied: this is a forward-looking control, not an erasure.
+The address appears in this branch's earlier commits and in the issues that
+tracked the work, both public and both beyond editing away. What the redaction
+buys is that the durable record — what `main` carries and what a reader browses —
+stops repeating it.

@@ -54,7 +54,7 @@ Spend the caution on the account address, which really is permanent.
 
 | Decision | Value | Why |
 |---|---|---|
-| Owning account | `chrome-store@integralproductivity.com`, as a **Cloud Identity Free user** in the existing Workspace organization — a sign-in identity, not a licensed mailbox | Google's own registration guidance suggests a dedicated publishing account. Because the address is permanent, binding it to a role rather than a person is the only version of this choice that survives the person. The requirement is an account that can *sign in*, which a licence does not add and an alias cannot supply — so the identity is free rather than ~$85–110/year. ADR [0017](../adr/0017-the-publisher-is-owned-by-an-identity-not-a-mailbox.md). |
+| Owning account | A `chrome-store`-style role address on the company domain, as a **Cloud Identity Free user** in the existing Workspace organization — a sign-in identity, not a licensed mailbox | Google's own registration guidance suggests a dedicated publishing account. Because the address is permanent, binding it to a role rather than a person is the only version of this choice that survives the person. The requirement is an account that can *sign in*, which a licence does not add and an alias cannot supply — so the identity is free rather than ~$85–110/year. ADR [0017](../adr/0017-the-publisher-is-owned-by-an-identity-not-a-mailbox.md). |
 | Publisher display name | **Integral Productivity** | The brand as it reads everywhere else. Drops the entity suffix, which the verified trader block carries anyway. |
 | Trader declaration | **Trader**, with **organization verification** — *declared; verification currently approved against an individual, see [the entity correction](#the-entity-is-decided-by-the-payments-profile-not-by-the-trader-form)* | Commercial licensing is the plan, so trader is the accurate declaration; the alternative would be a misdeclaration *and* would tell EU users their consumer-protection rights do not apply. Verification is also the only route to a verified publisher name and a publisher page. |
 | Published contact | **Business address** and a **Google Voice** number — as published | Both are mandatory and both are public. Google's trader FAQ names Google Voice as an acceptable SMS-capable option, which keeps a personal mobile off a page anyone can scrape. |
@@ -153,11 +153,11 @@ mistake here with no remedy.
 
 1. **Create the identity.** In the Admin console, turn **off** automatic
    licensing (Billing → License settings) *before* adding anyone, add the
-   **Cloud Identity Free** subscription, then add
-   `chrome-store@integralproductivity.com` as a **user** — not an alias, which
-   cannot sign in, and not a group. Confirm in Billing → Subscriptions that it
+   **Cloud Identity Free** subscription, then add the role address as a
+   **user** — not an alias, which cannot sign in, and not a group. Confirm in Billing → Subscriptions that it
    holds a Cloud Identity licence and not a Workspace one; the intent is not
-   visible from the user record. Password into 1Password.
+   visible from the user record. Password into the team's password manager, in
+   a vault that outlives whoever set it up.
 
    Then two settings the identity needs and a mailbox would not: a Gmail
    **Default routing** rule for that address (Apps → Google Workspace → Gmail →
@@ -171,8 +171,8 @@ mistake here with no remedy.
    already-committed but unassigned Workspace seat exists, using it instead is
    equally free until renewal and skips both settings and this test.
 
-   **Done on 2026-09-03.** `chrome-store@integralproductivity.com` exists as a
-   Cloud Identity Free user; it signs in independently, mail reaches it through
+   **Done on 2026-09-03.** The role address exists as a Cloud Identity Free
+   user; it signs in independently, mail reaches it through
    the routing rule, Billing shows a Cloud Identity licence rather than a
    consumed seat, and Chrome Web Store is on for its organizational unit. Step 3
    then showed the developer dashboard presenting its ordinary registration
