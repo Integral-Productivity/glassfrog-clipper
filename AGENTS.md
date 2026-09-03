@@ -96,7 +96,9 @@ background you can reach for when a design question comes up.
   fails — that is the point. The loss is silent.
 - **[ADR 0012](docs/adr/0012-auto-merge-is-armed-by-requiring-exactly-one-check-on-main.md)
   and [ADR 0013](docs/adr/0013-an-adr-number-is-defended-at-three-points-not-one.md)
-  — exactly one required check, and it must be up to date.** `main` runs with
+  — three required checks, and the branch must be up to date.** `verify`,
+  `BDD / Scenarios` and `Software Fitness / Self-compliance` all gate `main`
+  (the latter two since #88). `main` runs with
   `strict_required_status_checks_policy` on, so a branch that falls behind must
   be brought current before it can merge. Bringing it current with a merge
   commit turns a compliant one-commit pull request into a two-commit one, which

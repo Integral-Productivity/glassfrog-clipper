@@ -5,7 +5,12 @@
 # `devops-excellence/rulesets/self-governance-adopted.json` makes
 # `BDD / Scenarios` and `Software Fitness / Self-compliance` required status
 # checks. A required check that never reports blocks every PR, so tier-1 cannot
-# be reached until something emits both contexts. Two things stand in the way of
+# be reached until something emits both contexts.
+#
+# That org ruleset is not applied to this repository, so until #88 these two
+# contexts reported on every PR and gated none of them. `main`'s own ruleset now
+# requires both alongside `verify` (ADR 0012); `test/branch-protection.test.ts`
+# holds the declared list against the live one. Two things stand in the way of
 # emitting them the org-canonical way:
 #
 #   1. The reusables live in the private devops-excellence repo, which a public

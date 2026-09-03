@@ -4,9 +4,12 @@
  * cost on the capture path.
  *
  * This is the graduation of `scripts/check-bundle.mjs`, which #69 flagged as an
- * ad-hoc check worth promoting rather than duplicating. That script is now a
- * three-line shim over this module, so `ci.yml`'s existing step keeps working
- * unchanged and there is exactly one implementation of the rule.
+ * ad-hoc check worth promoting rather than duplicating. That script survived
+ * briefly as a shim over this module, so `ci.yml` needed no edit while sibling
+ * sessions were changing it. #88 removed both the shim and ci.yml's duplicate
+ * step once that had settled, leaving `npm run fitness:self` the only caller —
+ * after first making that caller's check required, so this rule still blocks a
+ * merge rather than merely reporting one (ADR 0012).
  *
  * U1's failure mode is the reason any of this exists: a build that reported
  * success while emitting a bundle no MV3 service worker could load. `npm run

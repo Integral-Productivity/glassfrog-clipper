@@ -48,7 +48,7 @@ const root = join(dirname(fileURLToPath(import.meta.url)), '..');
  * What `main`'s ruleset requires. Changing this line without changing the
  * ruleset — or the reverse — is what the live check below catches.
  */
-export const REQUIRED_CHECKS = ['verify'];
+export const REQUIRED_CHECKS = ['verify', 'BDD / Scenarios', 'Software Fitness / Self-compliance'];
 
 /**
  * Whether `main` requires a pull request to be up to date with it before merging
@@ -74,9 +74,9 @@ export const REQUIRED_CHECKS = ['verify'];
  * also why `allow_update_branch` belongs on with it — auto-merge (ADR 0012)
  * needs a way to bring a stale branch forward without a human rebase.
  *
- * Requiring exactly one check keeps ADR 0012's reasoning intact: strictness is a
- * property of *when* the required check is evaluated, not of how many are
- * required.
+ * Strictness is a property of *when* a required check is evaluated, not of how
+ * many are required, so ADR 0012's reasoning is untouched by the two contexts
+ * that joined `verify` in #88.
  */
 export const REQUIRE_UP_TO_DATE_BRANCHES = true;
 
@@ -88,6 +88,8 @@ export const REQUIRE_UP_TO_DATE_BRANCHES = true;
  */
 export const CHECK_SOURCES: Record<string, string> = {
   verify: 'ci.yml',
+  'BDD / Scenarios': 'bdd-and-fitness.yml',
+  'Software Fitness / Self-compliance': 'bdd-and-fitness.yml',
 };
 
 export interface PullRequestTrigger {

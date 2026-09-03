@@ -4,7 +4,9 @@ Date: 2026-09-01
 
 ## Status
 
-Accepted
+Accepted. Amended 2026-09-03 (#88) — the shim half of "reported from two" has
+been retired now that the concurrency it existed to avoid has cleared. The
+decision below stands; see the note at the end of the Decision section.
 
 Makes enforceable the permission stop-condition in the Definition of Done, the
 SDK boundary chosen in [GlassFrog authentication and write path](0002-glassfrog-authentication-and-write-path-for-the-browser-extension.md),
@@ -33,7 +35,7 @@ that the repo has none is off by two. What was missing was not the checks but a
 suite the gate could address.
 
 **The ad-hoc bundle check had already earned its place.** `scripts/check-bundle.mjs`
-exists because U1 shipped a build that exited 0 and emitted a bundle no MV3
+existed because U1 shipped a build that exited 0 and emitted a bundle no MV3
 service worker could load. That is a fitness function in everything but filing.
 
 **Not every candidate is worth the same.** #69 listed four candidates and said
@@ -57,7 +59,7 @@ Two further decisions about *how*, which matter as much as the set:
 
 **The rule lives in one place and is reported from two.** `scripts/check-bundle.mjs`
 became a shim over `fitness/checks/bundle-shape.ts`, so `ci.yml`'s existing step
-keeps working with no edit to a file sibling sessions were concurrently
+kept working with no edit to a file sibling sessions were concurrently
 changing. `test/manifest.test.ts`, `test/adr-numbering.test.ts`, and
 `test/requirements-coverage.test.ts` now import their rules from `fitness/checks/`
 and still assert them under `npm test`.
@@ -65,6 +67,20 @@ and still assert them under `npm test`.
 This is what `test/adr-numbering.test.ts`'s header meant by wanting "no separate
 workflow step to drift from it". A second *implementation* drifts. A second
 *reporter* of the same function cannot.
+
+_Amended 2026-09-03 (#88)._ The shim was transitional: it existed so that #86
+needed no edit to `ci.yml` while #67 and #68 were changing that file. Once those
+had settled, the duplicate `Check the service worker bundle` step and
+`scripts/check-bundle.mjs` were both removed, leaving
+`Software Fitness / Self-compliance` as the rule's single caller.
+
+That removal needed one thing this section did not say. "Reported from two" is a
+claim about *authorship*, and whether a reporter may be dropped turns on
+*enforcement*: at the time, `main` required only `verify`, so the surviving
+reporter could go red without blocking a merge. #88 therefore made
+`Software Fitness / Self-compliance` required first (ADR 0012), and only then
+deleted the duplicate. One implementation is what makes two reporters agree;
+being required is what makes a reporter a gate.
 
 **Every check names the characteristic it defends, in its own output.** The
 report carries the characteristic beside the result, so a red says what is being

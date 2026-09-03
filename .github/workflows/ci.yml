@@ -93,13 +93,18 @@ jobs:
       - name: Build
         run: npm run build
 
-      # `npm run build` exiting 0 does not prove the bundle can load in an MV3
-      # service worker. Only an artifact check does — see scripts/check-bundle.mjs.
-      - name: Check the service worker bundle
-        run: node scripts/check-bundle.mjs
-
-      # And a bundle that loads is not the same as a package the store accepts.
-      # This applies the store's own rules to the real build output — icon
+      # Loadability — that the bundle is one an MV3 service worker can actually
+      # register — is not checked here. The `bundle-shape` fitness function owns
+      # that rule, and the required `Software Fitness / Self-compliance` check
+      # runs it against its own build (docs/adr/0010).
+      #
+      # Dropping the duplicate was only safe once that check was required (#88,
+      # ADR 0012). Before then it reported without gating, and moving the
+      # assertion here would have taken loadability off the only merge-blocking
+      # job: a reporter that cannot block a merge is not a second gate.
+      #
+      # A bundle that loads is still not the same as a package the store
+      # accepts. This applies the store's own rules to the real build output — icon
       # dimensions, description length, manifest/package.json version agreement,
       # files that must never ship — so a rejection surfaces here rather than
       # from a reviewer several days after the change that caused it.

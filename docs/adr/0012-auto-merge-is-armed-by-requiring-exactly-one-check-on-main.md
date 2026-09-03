@@ -4,7 +4,10 @@ Date: 2026-09-02
 
 ## Status
 
-Accepted
+Accepted. Amended 2026-09-03 (#88) — `main` now requires three checks rather than
+one. The criterion in the Decision is unchanged, and is exactly what admitted the
+other two: they report on every pull request. The title's "exactly one" records
+the state this decision created, not a cap it imposed.
 
 Numbered 12 rather than 10 deliberately: `0007` landed on `main` with
 [#61](../../pull/61) while this was being written, and [#86](../../pull/86) is
@@ -102,12 +105,36 @@ So the rule is not "require the important checks". It is: **a check may be
 required only if it reports on every pull request.** Importance is not the
 criterion; reporting reliably is.
 
+_Amended 2026-09-03 (#88)._ Two more checks now clear that bar and are required:
+
+| check | source | reports on every PR? | required? |
+|---|---|---|---|
+| `BDD / Scenarios` | `bdd-and-fitness.yml`, `pull_request`, unfiltered | yes | **yes** |
+| `Software Fitness / Self-compliance` | `bdd-and-fitness.yml`, `pull_request`, unfiltered | yes | **yes** |
+
+They were absent from the table above because this ADR was written about arming
+auto-merge, and one required check is all that takes. The cost of leaving them
+unrequired only became visible in #88, which set out to delete `ci.yml`'s
+duplicate bundle check on the reasoning that `Software Fitness / Self-compliance`
+already ran the same rule. It did — but it did not *gate*, so the deletion would
+have moved the loadability assertion off the only merge-blocking job and let a
+bundle Chrome cannot register merge green. Requiring them first is what makes
+that deletion the no-op it was described as.
+
+The generalisation is worth keeping separate from the fix: **a check that runs is
+not a check that gates.** Two reporters of one rule are equivalent only when both
+are required, and this repo had been reasoning about them as though reporting
+were the same as enforcing.
+
 ## Consequences
 
 Auto-merge becomes armable, which is what `CLAUDE.md` already assumed.
 
 `verify` becomes genuinely blocking. That is the point, but it is a real change:
 a red `verify` now stops a merge rather than merely embarrassing it.
+
+All three required checks were green on all ten open pull requests when they were
+made required, so nothing in flight was blocked by the change.
 
 CodeQL remains unenforced at the merge boundary as of this ADR. The evidence it
 asked for arrived under [#89](../../issues/89): the `CodeQL` rollup is to become
