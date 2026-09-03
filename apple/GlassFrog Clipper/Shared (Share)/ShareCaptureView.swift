@@ -43,7 +43,15 @@ public struct ShareCaptureView: View {
     private var content: some View {
         switch model.phase {
         case .loading:
-            ProgressView("Reading what you shared…")
+            VStack(spacing: 16) {
+                ProgressView("Reading what you shared…")
+                // A source app's load handler can simply never call back. The
+                // read is bounded (`SharedItem.loadDeadline`), but a spinner
+                // with no way out is still the wrong thing to hand someone who
+                // is standing in another app mid-task.
+                Button("Cancel", action: onCancel)
+            }
+            .padding()
 
         case .notConfigured:
             // R21: say what to do next. A share sheet that reports only
