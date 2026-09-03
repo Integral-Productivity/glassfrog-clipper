@@ -45,13 +45,17 @@ struct ShareSheetSurfaceTests {
 
     /// A `public.url` attachment whose payload is not an address.
     ///
-    /// The shape that makes the URL slot's decoder identity observable. Every
-    /// representation of `public.url` reaches `loadItem` as `Data` — measured:
-    /// `NSItemProvider(item:typeIdentifier:)`, `(object:)` and `(contentsOf:)`
-    /// all serialise — so `url(from:)` and `text(from:)` read an ordinary link
-    /// identically, and swapping one for the other at the call site is
-    /// invisible. What separates them is the scheme check, which only bites
-    /// when the bytes are not an address.
+    /// The shape that makes the URL slot's decoder identity observable.
+    ///
+    /// Not because of the container. Measured on macOS 27.0 (build 26A5416b): a
+    /// URL object registered under `public.url` arrives as `Data` whichever
+    /// initialiser registered it, while a `String` registered under the same
+    /// identifier arrives as a `String`. But `url(from:)` and `text(from:)`
+    /// both read both shapes, so the container never tells them apart — a
+    /// decoder swapped at the call site is invisible on any well-formed link.
+    ///
+    /// What separates them is the scheme check, which only bites when the bytes
+    /// are not an address. Hence this fixture.
     private static func malformedUrlProvider(_ text: String) -> NSItemProvider {
         NSItemProvider(item: NSString(string: text), typeIdentifier: UTType.url.identifier)
     }
@@ -67,6 +71,29 @@ struct ShareSheetSurfaceTests {
         if let contentText { item.attributedContentText = NSAttributedString(string: contentText) }
         item.attachments = attachments
         return item
+    }
+
+
+    /// A `public.url` attachment whose load handler never answers.
+    ///
+    /// The share sheet's worst case, and not a hypothetical: `loadItem`'s
+    /// completion is invoked by the *source app*'s registered handler, so a
+    /// buggy or hostile one can simply never call back.
+    private static func silentProvider() -> NSItemProvider {
+        let provider = NSItemProvider()
+        provider.registerItem(forTypeIdentifier: UTType.url.identifier) { _, _, _ in
+            // Deliberately never calls its completion.
+        }
+        return provider
+    }
+
+    /// A `public.url` attachment whose load handler reports an error.
+    private static func failingProvider() -> NSItemProvider {
+        let provider = NSItemProvider()
+        provider.registerItem(forTypeIdentifier: UTType.url.identifier) { completion, _, _ in
+            completion?(nil, NSError(domain: "test", code: 1))
+        }
+        return provider
     }
 
     // MARK: The shape an attachment arrives in
@@ -211,24 +238,28 @@ struct ShareSheetSurfaceTests {
     // it is what the practitioner was looking at when they shared.
     @Test("the source app's title is preferred, then its content text, then the link")
     func titleFallsBackInOrder() async {
-        let link = Self.urlProvider("https://example.test/page")
+        // A fresh provider per case, deliberately. `NSItemProvider` carries
+        // state across `loadItem` calls, so reusing one instance for all three
+        // lets an earlier read affect a later one — which made this test fail
+        // roughly once in several hundred runs before each case got its own.
+        let link = { Self.urlProvider("https://example.test/page") }
 
         guard let both = await SharedItem.pageContext(from: [
-            Self.item(title: "The title", contentText: "The content text", attachments: [link])
+            Self.item(title: "The title", contentText: "The content text", attachments: [link()])
         ]) else {
             Issue.record("expected a capture"); return
         }
         #expect(both.title == "The title")
 
         guard let contentOnly = await SharedItem.pageContext(from: [
-            Self.item(contentText: "The content text", attachments: [link])
+            Self.item(contentText: "The content text", attachments: [link()])
         ]) else {
             Issue.record("expected a capture"); return
         }
         #expect(contentOnly.title == "The content text")
 
         guard let neither = await SharedItem.pageContext(from: [
-            Self.item(attachments: [link])
+            Self.item(attachments: [link()])
         ]) else {
             Issue.record("expected a capture"); return
         }
@@ -330,5 +361,94 @@ struct ShareSheetSurfaceTests {
         // Still read, because they are addresses.
         #expect(SharedItem.url(from: "https://example.test/page") == "https://example.test/page")
         #expect(SharedItem.url(from: Data("https://example.test/page".utf8)) == "https://example.test/page")
+    }
+
+    // MARK: Reading an attachment is bounded, and failure is not absence
+
+    // A provider that never calls back used to park the capture forever, with
+    // the sheet on a spinner and no way out but dismissing it at the OS level.
+    @Test("an attachment that never answers gives up instead of hanging")
+    func aSilentAttachmentIsBounded() async {
+        let outcome = await SharedItem.load(
+            Self.silentProvider(),
+            as: UTType.url.identifier,
+            decode: SharedItem.url(from:),
+            deadline: .milliseconds(50)
+        )
+
+        #expect(outcome == .failed)
+    }
+
+    // Three outcomes, not two: `empty` and `failed` both yield no value, but
+    // only one of them means the source app said no.
+    @Test("a load that reports an error is distinguishable from one that carried nothing")
+    func failureIsNotAbsence() async {
+        let failed = await SharedItem.load(
+            Self.failingProvider(),
+            as: UTType.url.identifier,
+            decode: SharedItem.url(from:),
+            deadline: .seconds(5)
+        )
+        #expect(failed == .failed)
+
+        // Readable, but nothing this capture can use: the bytes are not an
+        // address, so the decoder declines them.
+        let empty = await SharedItem.load(
+            Self.malformedUrlProvider("not an address"),
+            as: UTType.url.identifier,
+            decode: SharedItem.url(from:),
+            deadline: .seconds(5)
+        )
+        #expect(empty == .empty)
+
+        let value = await SharedItem.load(
+            Self.urlProvider("https://example.test/page"),
+            as: UTType.url.identifier,
+            decode: SharedItem.url(from:),
+            deadline: .seconds(5)
+        )
+        #expect(value == .value("https://example.test/page"))
+        #expect(value.value == "https://example.test/page")
+        #expect(failed.value == nil)
+        #expect(empty.value == nil)
+    }
+
+    // A share whose only attachment stalls still files whatever else arrived,
+    // rather than refusing the capture over one attachment.
+    @Test("a stalled attachment does not take the rest of the share with it")
+    func aStalledAttachmentStillFilesTheRest() async {
+        guard let page = await SharedItem.pageContext(from: [
+            Self.item(title: "Policy draft", attachments: [Self.textProvider("the selection")])
+        ]) else {
+            Issue.record("expected a capture"); return
+        }
+
+        #expect(page.title == "Policy draft")
+        #expect(page.selection == "the selection")
+    }
+
+    // MARK: A title with no content of its own is not a title
+
+    // The guard treats a title as reason enough to file, so a whitespace-only
+    // one would produce an item whose body is the provenance marker and
+    // nothing else — worse than no item, because it survives into triage and
+    // has to be read before it can be discarded.
+    @Test("a whitespace-only title is not reason enough to file")
+    func blankTitleYieldsNothing() async {
+        #expect(await SharedItem.pageContext(from: [Self.item(title: "   ")]) == nil)
+        #expect(await SharedItem.pageContext(from: [Self.item(title: "\n\t ")]) == nil)
+        #expect(await SharedItem.pageContext(from: [Self.item(contentText: "   ")]) == nil)
+    }
+
+    // Trimming must not discard a title that has content, only the padding.
+    @Test("a padded title keeps its content and loses its padding")
+    func paddedTitleIsTrimmed() async {
+        guard let page = await SharedItem.pageContext(from: [
+            Self.item(title: "  Policy draft\n", attachments: [Self.urlProvider("https://example.test/policy")])
+        ]) else {
+            Issue.record("expected a capture"); return
+        }
+
+        #expect(page.title == "Policy draft")
     }
 }

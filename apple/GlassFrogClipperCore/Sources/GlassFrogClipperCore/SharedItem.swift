@@ -46,19 +46,23 @@ public enum SharedItem {
         var title: String?
 
         for item in items {
-            if title == nil, let attributed = item.attributedTitle?.string, !attributed.isEmpty {
-                title = attributed
-            }
-            if title == nil, let contentText = item.attributedContentText?.string, !contentText.isEmpty {
-                title = contentText
-            }
+            // Trimmed before it is accepted, because the guard below treats a
+            // title as reason enough to file. A whitespace-only title would
+            // otherwise satisfy it and produce an item whose body is the
+            // provenance marker and nothing else — the outcome
+            // `nothingToCapture` exists to prevent. Everything else on this
+            // path already trims: `CaptureFiler.pageContext` treats a blank
+            // selection as absent, and `Configuration` treats a blank key as
+            // missing rather than letting it reach an opaque 401.
+            if title == nil { title = trimmed(item.attributedTitle?.string) }
+            if title == nil { title = trimmed(item.attributedContentText?.string) }
 
             for provider in item.attachments ?? [] {
                 if url == nil, provider.hasItemConformingToTypeIdentifier(UTType.url.identifier) {
-                    url = await load(provider, as: UTType.url.identifier, decode: url(from:))
+                    url = await load(provider, as: UTType.url.identifier, decode: url(from:)).value
                 }
                 if selection == nil, provider.hasItemConformingToTypeIdentifier(UTType.plainText.identifier) {
-                    selection = await load(provider, as: UTType.plainText.identifier, decode: text(from:))
+                    selection = await load(provider, as: UTType.plainText.identifier, decode: text(from:)).value
                 }
             }
         }
@@ -77,32 +81,115 @@ public enum SharedItem {
         )
     }
 
-    /// Loads one attachment and decodes it in the same breath.
+    /// How long one attachment may take before the capture gives up on it.
+    ///
+    /// `loadItem`'s completion handler is invoked by whatever load handler the
+    /// *source app* registered, so a buggy or hostile one can simply never call
+    /// back. Without a deadline the share sheet sits on its spinner for as long
+    /// as the practitioner is willing to look at it.
+    static let loadDeadline: Duration = .seconds(10)
+
+    /// What one attachment yielded.
+    ///
+    /// Three outcomes, not two. `empty` and `failed` both produce no value, but
+    /// they are not the same event, and collapsing them is what made the old
+    /// discarded-error path impossible to reason about.
+    enum Loaded: Equatable, Sendable {
+        /// The attachment decoded to something this capture can use.
+        case value(String)
+        /// The attachment was readable and carried nothing usable.
+        case empty
+        /// The load reported an error, or did not answer inside `loadDeadline`.
+        case failed
+
+        var value: String? {
+            if case let .value(decoded) = self { return decoded }
+            return nil
+        }
+    }
+
+    /// Loads one attachment, decodes it, and bounds how long that may take.
     ///
     /// Decoding happens *inside* the completion handler because `loadItem` hands
     /// back `Any?`, which is not `Sendable`: resuming the continuation with the
     /// raw value sends task-isolated state across an isolation boundary, and
-    /// Swift 6 rejects it outright. What crosses is a `String?`.
-    private static func load(
+    /// Swift 6 rejects it outright. What crosses is a `Loaded`.
+    ///
+    /// A task group cannot bound this. `withTaskGroup` waits for every child
+    /// before it returns, and cancelling a task parked on a callback that never
+    /// arrives does not make it finish — so the group would hang exactly where
+    /// the continuation does. The deadline therefore races the *resume* itself:
+    /// whichever of the two arrives first wins, and `ResumeOnce` guarantees the
+    /// loser is dropped rather than tripping the checked continuation's
+    /// double-resume trap.
+    ///
+    /// A `failed` outcome degrades this attachment to no value rather than
+    /// failing the capture. That is deliberate: the practitioner is standing in
+    /// another app with a modal sheet open, and filing what did arrive beats
+    /// refusing the capture over one attachment. It is recorded here because
+    /// silent degradation should be a decision someone made, not a gap.
+    static func load(
         _ provider: NSItemProvider,
         as identifier: String,
-        decode: @escaping @Sendable (Any?) -> String?
-    ) async -> String? {
-        await withCheckedContinuation { continuation in
-            provider.loadItem(forTypeIdentifier: identifier, options: nil) { value, _ in
-                continuation.resume(returning: decode(value))
+        decode: @escaping @Sendable (Any?) -> String?,
+        deadline: Duration = loadDeadline
+    ) async -> Loaded {
+        let once = ResumeOnce()
+        return await withCheckedContinuation { continuation in
+            let deadline = Task {
+                try? await Task.sleep(for: deadline)
+                if once.claim() { continuation.resume(returning: .failed) }
+            }
+
+            provider.loadItem(forTypeIdentifier: identifier, options: nil) { value, error in
+                deadline.cancel()
+                guard once.claim() else { return }
+                // The error is read rather than discarded. It changes no field
+                // today — a failed load and an unusable one both yield no value
+                // — but it is the difference between "the source app said no"
+                // and "there was nothing there", and only one of those is worth
+                // a practitioner's attention later.
+                if error != nil { continuation.resume(returning: .failed); return }
+                continuation.resume(returning: decode(value).map(Loaded.value) ?? .empty)
             }
         }
+    }
+
+    /// Lets exactly one of two racing paths resume a continuation.
+    ///
+    /// `CheckedContinuation` traps on a second resume, so the deadline and the
+    /// completion handler must not both fire. Whichever claims first wins.
+    private final class ResumeOnce: @unchecked Sendable {
+        private let lock = NSLock()
+        private var claimed = false
+
+        func claim() -> Bool {
+            lock.lock()
+            defer { lock.unlock() }
+            if claimed { return false }
+            claimed = true
+            return true
+        }
+    }
+
+    /// A string with no content of its own is absent, not empty.
+    static func trimmed(_ value: String?) -> String? {
+        guard let trimmed = value?.trimmingCharacters(in: .whitespacesAndNewlines),
+              !trimmed.isEmpty else { return nil }
+        return trimmed
     }
 
     /// The page address, out of whatever shape the attachment arrived in.
     ///
     /// What `loadItem` hands back is not implied by the type identifier asked
-    /// for. Measured on macOS 26: every way of registering a `public.url`
-    /// representation — `NSItemProvider(item:typeIdentifier:)`, `(object:)` and
-    /// `(contentsOf:)` alike — serialises, and the value arrives as `Data`. The
-    /// object-only reader this replaced therefore dropped the address from
-    /// every one of them, which is the exact loss this file exists to prevent.
+    /// for; it follows from what the source app registered. Measured on macOS
+    /// 27.0 (build 26A5416b): a URL *object* registered under `public.url`
+    /// arrives as `Data` whichever initialiser registered it
+    /// (`NSItemProvider(item:typeIdentifier:)`, `(object:)` and `(contentsOf:)`
+    /// all serialise), while a `String` registered under the same identifier
+    /// arrives as a `String`. The object-only reader this replaced handled
+    /// neither, and so dropped the address from both, which is the exact loss
+    /// this file exists to prevent.
     ///
     /// The `URL` branch is kept even though nothing observed here reaches it:
     /// the shape is Apple's to change, and one measurement on one OS is not a
