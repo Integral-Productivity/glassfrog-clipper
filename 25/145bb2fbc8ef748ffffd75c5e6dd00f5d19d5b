@@ -1,0 +1,49 @@
+apple/GlassFrogClipperCore/Sources/GlassFrogClipperCore/CaptureFiler.swift
+  s_5e0d38be0d08d5::t_68400600742a9a 3-11,25,31-36,38,40,46
+  s_5e0d38be0d08d5::t_97b52f11875330 21-24
+  s_96f23e3526a8ea::t_ac16f538dd54eb 12
+docs/adr/0011-behaviour-is-specified-at-the-domain-with-a-thin-platform-surface-layer.md
+  s_5e0d38be0d08d5::t_4120765f04e0a3 8-9
+  s_5e0d38be0d08d5::t_002684d196091b 174-216
+apple/GlassFrogClipperCore/Sources/GlassFrogClipperCore/Configuration.swift
+  s_5e0d38be0d08d5::t_d4c4f054e1bafc 73
+  s_5e0d38be0d08d5::t_340ac2c14773de 44-55
+apple/GlassFrogClipperCore/Sources/GlassFrogClipperCore/ShareCaptureModel.swift
+  s_5e0d38be0d08d5::t_4e0f897babc489 1,3-29
+  s_5e0d38be0d08d5::t_1c8119cf8439d8 61-70
+"apple/GlassFrog Clipper/GlassFrog Clipper.xcodeproj/project.pbxproj"
+  s_5e0d38be0d08d5::t_d1650a21e27e8f 178
+  s_5e0d38be0d08d5::t_72228a5e09959b 289
+apple/GlassFrogClipperCore/Sources/GlassFrogClipperCore/SharedItem.swift
+  s_5e0d38be0d08d5::t_f1d01908e5f770 27-30
+  s_5e0d38be0d08d5::t_6f97ec0a300cdb 44-52
+  s_5e0d38be0d08d5::t_7d6741c48f1818 53,144
+apple/GlassFrogClipperCore/Tests/GlassFrogClipperCoreTests/ShareCapturePhaseTests.swift
+  s_5e0d38be0d08d5::t_71faad1789dda7 351
+  s_5e0d38be0d08d5::t_befaf34d43c86d 423,435,439,443,447,451,460
+  s_5e0d38be0d08d5::t_f62eb0bc2f63f8 1-350,352-422,424-434,436-438,440-442,444-446,448-450,452-459,461-482
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "25145bb2fbc8ef748ffffd75c5e6dd00f5d19d5b",
+  "prompts": {},
+  "sessions": {
+    "s_5e0d38be0d08d5": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "b952182c-4d27-485a-9310-d94bac0b7514",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Kraig Parkinson <kraig.parkinson@gmail.com>"
+    },
+    "s_96f23e3526a8ea": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "18609f69-7e06-4902-b612-c64390e088d8",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Kraig Parkinson <kraig.parkinson@gmail.com>"
+    }
+  }
+}
