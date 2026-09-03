@@ -54,7 +54,7 @@ The distinction that governs every assignment:
 |  | Cardinality | Answers |
 |---|---|---|
 | **State** (6 labels) | Exactly one, always | Where does this sit in triage? |
-| **Marker** (2 labels) | Zero or more, freely | What else is true about it right now? |
+| **Marker** (3 labels) | Zero or more, freely | What else is true about it right now? |
 
 A state is a position in the triage flow, so an issue can only occupy one. A
 marker is a fact that can be true of an issue in any state, so it composes.
@@ -94,6 +94,7 @@ Compatible with any state, and with each other.
 |---|---|---|
 | `status:in-progress` | Actively being worked by a session | A session has claimed the issue and started. This is the claim signal: apply it *before* any code, alongside self-assigning and setting the GitHub Project item to In Progress, and remove it when the work lands or is abandoned. Work in progress is invisible on GitHub until a PR appears, so without this label a second session reads the issue as free and starts it too. |
 | `blocked-on-upstream` | Cannot proceed until a fix lands in another repo | The blocker lives in another repository — the `@integral-productivity/glassfrog` SDK, a `devops-excellence` workflow. Distinct from `needs-info`, whose blocker is information a person can supply; this one waits on someone else's merge. Name the upstream issue or PR in a comment. |
+| `operator-errand` | Resolved by a human errand outside the repository | The next step is something a person does in the world — registering an account, paying a fee, taking screenshots, running a build on a device, configuring a developer portal. Distinct from `ready-for-human`, whose blocker is a *decision*; this one's blocker is an *action*, and the decision may already be made. An issue carrying it must also carry an executable runbook and a block telling an agent to walk the operator through it — see [operator-runbooks.md](operator-runbooks.md). |
 
 ## Tracks — one per issue
 
