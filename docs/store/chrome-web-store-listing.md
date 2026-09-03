@@ -56,8 +56,8 @@ Spend the caution on the account address, which really is permanent.
 |---|---|---|
 | Owning account | `chrome-store@integralproductivity.com`, as a **Cloud Identity Free user** in the existing Workspace organization — a sign-in identity, not a licensed mailbox | Google's own registration guidance suggests a dedicated publishing account. Because the address is permanent, binding it to a role rather than a person is the only version of this choice that survives the person. The requirement is an account that can *sign in*, which a licence does not add and an alias cannot supply — so the identity is free rather than ~$85–110/year. ADR [0017](../adr/0017-the-publisher-is-owned-by-an-identity-not-a-mailbox.md). |
 | Publisher display name | **Integral Productivity** | The brand as it reads everywhere else. Drops the entity suffix, which the verified trader block carries anyway. |
-| Trader declaration | **Trader**, with **organization verification** | Commercial licensing is the plan, so trader is the accurate declaration; the alternative would be a misdeclaration *and* would tell EU users their consumer-protection rights do not apply. Verification is also the only route to a verified publisher name and a publisher page. |
-| Published contact | **Business address** and a **Google Voice** number | Both are mandatory and both are public. Google's trader FAQ names Google Voice as an acceptable SMS-capable option, which keeps a personal mobile off a page anyone can scrape. |
+| Trader declaration | **Trader**, with **organization verification** — *declared; verification currently approved against an individual, see [the entity correction](#the-entity-is-decided-by-the-payments-profile-not-by-the-trader-form)* | Commercial licensing is the plan, so trader is the accurate declaration; the alternative would be a misdeclaration *and* would tell EU users their consumer-protection rights do not apply. Verification is also the only route to a verified publisher name and a publisher page. |
+| Published contact | **Business address** and a **Google Voice** number — as published | Both are mandatory and both are public. Google's trader FAQ names Google Voice as an acceptable SMS-capable option, which keeps a personal mobile off a page anyone can scrape. |
 | Human access | Kraig as **Admin** member of the publisher | Satisfies "recorded somewhere durable" as a membership row in the dashboard rather than a fact someone has to remember. |
 
 **The display name and the verified name will differ, and that is expected.**
@@ -83,14 +83,49 @@ organization gets a verified publisher name and a
 concrete form of the trust argument this listing is built on. Unverified, the
 publisher name is free text with nothing standing behind it.
 
-> **Unconfirmed, and owned by
+> **Still unconfirmed, and still owned by
 > [#105](https://github.com/Integral-Productivity/glassfrog-clipper/issues/105):**
 > Google's public FAQ does not say what happens to a live item if trader
 > verification is started and never completed, nor whether a registered-agent
-> address is acceptable in place of a business address. Neither blocks
-> registration, so neither is a reason to wait. Read both off the dashboard's own
-> copy at step 7 below and record the answers on #105 rather than assuming them
-> here.
+> address is acceptable in place of a business address. Step 7 was run on
+> 2026-09-03 and **the flow surfaced neither**, so they are recorded as
+> unanswered rather than quietly dropped. The first one is moot for the
+> correction below, because there is no live item yet — which is part of why the
+> correction is cheap now and would not be later.
+
+### The entity is decided by the payments profile, not by the trader form
+
+**This went wrong on the first attempt, and the mechanism is worth knowing before
+anyone repeats it.** Verification on 2026-09-03 came back approved against
+**Kraig as an individual**, not against Integral Productivity LLC — so the name
+standing behind the listing would have been a person's, and the verified
+*publisher* name that [ADR 0016](../adr/0016-a-verified-publisher-is-bought-with-a-public-address.md)
+set out to buy is available to a verified **organization**.
+
+The cause is not the trader form. **Trader entity is inherited from the Google
+payments profile used at registration**, and a payments profile's account type —
+Individual or Business — is fixed when the profile is created and cannot be
+changed afterwards. Paying the $5 on a personal profile therefore decides the
+trader identity, silently, several steps before the trader form is ever shown.
+The trader form then has no field that could correct it.
+
+**The correction, and it is available because nothing is published yet:**
+
+1. Create a **Business** payments profile for Integral Productivity LLC. A new
+   profile is required; the existing one cannot be converted.
+2. On the developer account, switch trader status to **non-trader**, then back to
+   **trader**. This is the documented way to restart verification — it is what
+   forces the profile choice to be asked again.
+3. Choose the business profile, and verify as an organization. Organization
+   verification accepts a D-U-N-S number or company documents such as a corporate
+   registry extract, rather than the personal identification an individual
+   trader is asked for.
+
+No second developer account and no second $5 are involved; the fee is bound to
+the account, which is unchanged. **Do this before the first submission.** Once an
+item is live the personal name and address are on a public page, and the
+non-trader interval in step 2 stops being free — which is exactly the risk the
+first unconfirmed question above names and nobody can currently answer.
 
 ### Registering, in order
 
