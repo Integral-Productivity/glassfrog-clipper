@@ -44,6 +44,98 @@
 # WITH Actions-scoped secrets and should be reviewed) and not
 # `github.triggering_actor` (which becomes the human who clicked Re-run, while
 # secret scope still follows the original event).
+#
+# WHY THE PROMPT CARRIES `--comment` (issue #108)
+# ------------------------------------------------
+# Between landing in PR #78 and 2026-09-02 this workflow ran on every pull
+# request, concluded green every time, and posted NOTHING — not one comment
+# anywhere in the repo, across roughly $4.30 of model spend. One run did the
+# full five-agent fan-out for four and a half minutes and said nothing.
+#
+# The cause was a single missing flag. Upstream commit e4f68203 (2025-12-15,
+# "Make no-comment the default for /code-review") inverted the command's
+# default. `plugins/code-review/commands/code-review.md` step 7 now reads:
+#
+#   > If `--comment` argument was NOT provided, stop here.
+#   > Do not post any GitHub comments.
+#
+# This workflow passed the bare command. Every run was obeying that
+# instruction exactly — reviewing the diff properly, writing the findings to a
+# terminal nobody was reading, and posting nothing. Nothing was broken; the
+# reviewer was being told to keep the result to itself.
+#
+# `--comment` also buys the positive clean signal issue #108 asks for. The same
+# step 7: "If `--comment` IS provided and NO issues were found, post a summary
+# comment." So a healthy pass now leaves "## Code review — No issues found."
+# on the PR, and silence stops being ambiguous.
+#
+# NOTE on the issue's stated causes: #108 attributed the silence partly to a
+# "score less than 80" filter and to an agent reading `git blame` without
+# permission. Neither exists in the command that runs. Both are in
+# `plugins/code-review/README.md`, which was last updated 2025-12-15 and
+# describes a design the command shed in its 2026-01-08 and 2026-01-16
+# rewrites. Read `commands/code-review.md`, not the README beside it.
+#
+# WHY THE PROMPT CARRIES THE CLAUDE-AUTHORED OVERRIDE (issue #114)
+# ----------------------------------------------------------------
+# The command's step 1 dispatches a Haiku agent to stop early if the PR "does
+# not need code review (e.g. automated PR ...)". Every pull request here is
+# opened by a Claude session on a `claude/*` branch with a "Generated with
+# Claude Code" trailer — that is the branch convention auto-merge keys on, so
+# it is not going to change.
+#
+# Upstream opposes that bullet with a bare note ("Still review Claude generated
+# PR's"), and the run evidence shows the note winning only sometimes: runs
+# split cleanly into 5-7 turns / ~22s (the bail) and 22-51 turns / 96-264s (the
+# real fan-out). A note losing to a bullet roughly half the time is a coverage
+# coin flip, so the prompt below states the repo's convention explicitly rather
+# than leaving it to a judgment call on prose.
+#
+# This makes the bail rarer. It cannot make it impossible — it is still a model
+# decision. The emission assertion below is what actually guarantees the skip
+# is visible.
+#
+# WHY THE JOB ASSERTS AN ARTIFACT AFTERWARDS (issue #108)
+# -------------------------------------------------------
+# The two fixes above make the reviewer speak on the paths we know about. The
+# assertion covers the paths we do not: it fails the job RED, and says so on
+# the PR, whenever the run finishes having left no review artifact at all.
+#
+# It asserts "this PR carries a review", NOT "this run produced one". That
+# distinction is load-bearing. Step 1 of the command also bails when "Claude has
+# already commented on this PR", so on every `synchronize` after the first the
+# reviewer legitimately posts nothing. An assertion demanding a fresh comment
+# per run would fail red on every subsequent push to a healthy PR.
+#
+# A THIRD CONTEXT WHERE THE REVIEW STRUCTURALLY CANNOT RUN
+# ---------------------------------------------------------
+# The action refuses to run when this workflow file differs from the copy on the
+# default branch — an anti-tampering guard, so a PR cannot rewrite the reviewer
+# that is about to review it. It reports:
+#
+#   Skipping action due to workflow validation: ... The workflow file must exist
+#   and have identical content to the version on the repository's default branch.
+#
+# That guard is NOT gone, contrary to how issue #108 read it. It is conditional,
+# and fires only on a pull request that edits THIS FILE. Every run #108 sampled
+# was on a PR that touched something else, so the guard stayed silent there and
+# the action genuinely ran. Both observations hold; the inference from them did
+# not, and it is worth keeping the correction here — a future reader hitting a
+# green 13-second run will otherwise re-derive it.
+#
+# So this joins Dependabot and fork PRs as a context where no configuration of
+# ours produces a review. It cannot be gated at the job level the way those are:
+# the condition is "does this PR's diff include this file", which no `if:`
+# expression can see. The assertion detects it instead, and — this is the part
+# that matters — does NOT simply pass quietly. Passing quietly would recreate
+# #108's defect in miniature: a green check standing for a review that did not
+# happen. It posts an explanation to the PR and then exits 0, so all four
+# outcomes leave distinguishable artifacts:
+#
+#   reviewed, found nothing  -> the reviewer's "No issues found" comment, green
+#   reviewed, found issues   -> the reviewer's inline comments, green
+#   could not run (this file edited) -> the workflow's explanation, green
+#   silent for any other reason      -> the workflow's silence notice, RED
 
 name: Claude Code Review
 
@@ -53,9 +145,9 @@ on:
 
 # The repo default is `default_workflow_permissions: read`, which grants only
 # contents/packages read — everything else defaults to `none`. pull-requests is
-# WRITE so the bot can post a PR review; contents stays read (the reviewer only
-# reads code), issues stays read (the review path does not touch issues), and
-# id-token is for OIDC.
+# WRITE so the bot can post a PR review AND so the assertion step can post its
+# silence notice; contents stays read (the reviewer only reads code), issues
+# stays read (the review path does not touch issues), and id-token is for OIDC.
 permissions:
   contents: read
   pull-requests: write
@@ -100,16 +192,170 @@ jobs:
         with:
           fetch-depth: 1
 
+      # The PR reference stays alone on the first line: everything after the
+      # command name reaches the command as its argument string, and step 7
+      # tests for `--comment` textually. The paragraph below it is context for
+      # the eligibility agent, not an argument.
       - name: Run Claude Code Review
         uses: anthropics/claude-code-action@v1
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           plugin_marketplaces: 'https://github.com/anthropics/claude-code.git'
           plugins: 'code-review@claude-code-plugins'
-          prompt: '/code-review:code-review ${{ github.repository }}/pull/${{ github.event.pull_request.number }}'
+          prompt: |
+            /code-review:code-review ${{ github.repository }}/pull/${{ github.event.pull_request.number }} --comment
+
+            Context for the eligibility check in step 1: every pull request in this
+            repository is opened by a Claude Code session, lives on a `claude/*` branch,
+            and carries a "Generated with Claude Code" trailer. That is this repository's
+            branch convention — it is what auto-merge keys on — and it is not a signal
+            that the change is machine-generated boilerplate or otherwise exempt. Do NOT
+            classify this pull request as an "automated pull request" that does not need
+            review. Review it on its contents, as you would any hand-authored change.
           # Our automation Apps drive PRs (ip-automerge pushes branch updates,
           # producing a non-human `synchronize`; ip-adopt-standard opens the
           # org-wide adopt-standard PRs). Without this they hard-fail the
           # action's "workflow initiated by non-human actor" guard. Dependabot
           # is deliberately absent — those runs never reach here.
           allowed_bots: 'ip-automerge,ip-automerge-bot,ip-adopt-standard'
+
+      # Runs only when the action above succeeded — a failed action is already
+      # red for a stated reason. This step exists for the case that failed
+      # #108: the action reporting success having produced nothing.
+      #
+      # The HTML marker excludes this step's own notices from the count.
+      # Without it the first silent run would post a notice as
+      # github-actions[bot], and the next run would find that notice and pass
+      # green — an assertion satisfied by its own failure message.
+      #
+      # Posting the notice is best-effort; the RED is not. If the comment
+      # cannot be posted the step still exits 1, so a permissions gap degrades
+      # to "red without explanation" rather than to a false green.
+      - name: Assert the review left an artifact on this PR
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          PR: ${{ github.event.pull_request.number }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          MARKER: '<!-- claude-review-silence-notice -->'
+          SELF: .github/workflows/claude-code-review.yml
+        run: |
+          set -euo pipefail
+
+          # Counts comments authored by the identities this action can post
+          # under: claude[bot] when the Claude App token is available,
+          # github-actions[bot] when it falls back to GITHUB_TOKEN.
+          #
+          # $2 selects which side of the marker to count. Comments CARRYING the
+          # marker are this step's own notices, and counting them as reviews
+          # would let the first failure satisfy the next run's assertion —
+          # green on the strength of its own error message. Counting them
+          # separately is what stops the notice being posted again on every
+          # subsequent push.
+          #
+          # An API failure exits non-zero via `set -e`, which is correct:
+          # "we could not tell" must never be reported as "we found one".
+          count() {
+            local keep='not'
+            if [ "$2" = 'notices' ]; then keep='.'; fi
+            gh api "$1" --paginate --jq "
+              .[]
+              | select(.user.type == \"Bot\")
+              | select(.user.login | ascii_downcase | test(\"^(claude|github-actions)\"))
+              | select(((.body // \"\") | contains(env.MARKER)) | ${keep})
+              | .id
+            " | wc -l | tr -d ' '
+          }
+
+          total_of() {
+            echo $(( $(count "repos/${REPO}/issues/${PR}/comments" "$1") \
+                   + $(count "repos/${REPO}/pulls/${PR}/comments" "$1") \
+                   + $(count "repos/${REPO}/pulls/${PR}/reviews" "$1") ))
+          }
+
+          artifacts=$(total_of artifacts)
+          echo "PR #${PR}: ${artifacts} review artifact(s)."
+
+          if [ "$artifacts" -gt 0 ]; then
+            echo "The reviewer left something readable on this pull request."
+            exit 0
+          fi
+
+          # The id of this step's own notice, if it has already left one here.
+          notice_id=$(gh api "repos/${REPO}/issues/${PR}/comments" --paginate --jq "
+            .[]
+            | select(.user.type == \"Bot\")
+            | select(((.body // \"\") | contains(env.MARKER)))
+            | .id
+          " | head -1)
+
+          # Leaves exactly one notice per pull request, always stating the
+          # CURRENT outcome — updated in place rather than skipped.
+          #
+          # Skipping when a notice already exists was the obvious guard against
+          # duplicates on every `synchronize`, and it is wrong: the outcome can
+          # change between runs, and a PR then carries a green check beside a
+          # comment insisting the job failed red. A reader has to resolve that
+          # contradiction, which is the work this artifact exists to spare them.
+          #
+          # If the update fails, post a fresh comment instead. The ordering is
+          # deliberate — a duplicate notice is a nuisance, a stale one is the
+          # defect this whole workflow is being fixed to remove.
+          #
+          # Best-effort throughout: the step's exit code never depends on any of
+          # it, so a permissions gap degrades to "no explanation on the PR" and
+          # never to a wrong exit code.
+          notify() {
+            if [ -n "$notice_id" ] \
+              && gh api --method PATCH "repos/${REPO}/issues/comments/${notice_id}" \
+                   -f body="${MARKER}
+          $1" --silent; then
+              echo "Updated the existing notice (${notice_id})."
+              return 0
+            fi
+            if [ -n "$notice_id" ]; then
+              echo "::warning::Could not update notice ${notice_id}; posting a fresh one so the PR is not left with a stale message."
+            fi
+            gh pr comment "$PR" --repo "$REPO" --body "${MARKER}
+          $1" || echo "::warning::Could not post the notice."
+          }
+
+          # The anti-tampering guard: the action refuses to run when this file
+          # differs from the copy on the default branch, so a PR editing it gets
+          # no review no matter what we configure. Green is the honest colour —
+          # nothing failed — but only alongside an artifact saying so.
+          if gh pr diff "$PR" --repo "$REPO" --name-only | grep -qxF "$SELF"; then
+            notify "### Claude Code Review could not run on this pull request
+
+          This pull request edits \`${SELF}\`, and \`anthropics/claude-code-action\` refuses to
+          run when that file differs from the copy on the default branch — an anti-tampering
+          guard, so that a pull request cannot rewrite the reviewer about to review it.
+
+          No review happened here, and none was possible. The check is green because nothing
+          failed, not because the diff was reviewed. The reviewer resumes on the next pull
+          request after this one merges.
+
+          [Run log](${RUN_URL})
+
+          _Posted by the workflow, not by the reviewer. This is not a review._"
+            echo "Reviewer structurally cannot run: this PR edits ${SELF}. Reported on the PR; not failing."
+            exit 0
+          fi
+
+          notify "### Claude Code Review produced no output
+
+          This check ran to completion and left no review on this pull request — no summary
+          comment, no inline comment, no review. A run that found nothing and a run that
+          never reviewed anything look identical from here, so the job is failing red rather
+          than painting a green check over work nobody can audit.
+
+          The reviewer is passed \`--comment\`, so a clean pass is expected to post
+          \"## Code review — No issues found. Checked for bugs and CLAUDE.md compliance.\"
+          Silence means it did not run, stopped at its eligibility check, or could not post.
+
+          [Run log](${RUN_URL})
+
+          _Posted by the workflow, not by the reviewer. This is not a review._"
+
+          echo "::error::Claude Code Review completed successfully but left no review artifact on PR #${PR}. See issue #108 — a green check for a review nobody can read is the defect this assertion exists to catch."
+          exit 1
