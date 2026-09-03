@@ -201,6 +201,18 @@ async function applyLabels(repo, { missing, changed }) {
 async function main() {
   const manifest = JSON.parse(await readFile(MANIFEST, 'utf8'));
   const repo = manifest.repo;
+
+  // The workflow files its drift issue against `github.repository`, while every
+  // label read and write below goes to `manifest.repo`. Those are two copies of
+  // one fact, and a rename updates them separately — so a stale manifest would
+  // reconcile the wrong repository's labels and report the result against this
+  // one, green. Unset outside Actions, so local runs are untouched.
+  const running = process.env.GITHUB_REPOSITORY;
+  if (running !== undefined && running !== repo) {
+    console.error(`::error::${MANIFEST} names ${repo} but this run is in ${running}`);
+    process.exitCode = 1;
+    return;
+  }
   const wanted = manifestLabels(manifest);
   const diff = diffLabels(wanted, await liveLabels(repo));
   const drifted = diff.missing.length + diff.changed.length + diff.extra.length;

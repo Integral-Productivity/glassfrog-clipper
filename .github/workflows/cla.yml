@@ -37,7 +37,13 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           path-to-signatures: '.github/cla-signatures.json'
-          path-to-document: 'https://github.com/Integral-Productivity/glassfrog-clipper/blob/main/CLA.md'
+          # No `path-to-document:` here on purpose. The action renders it only
+          # inside its default not-signed comment, and `custom-notsigned-prcomment`
+          # below replaces that comment wholesale — so a URL here never reaches a
+          # contributor while still looking like the live link. The link in that
+          # custom comment is the one contributors actually click, so it is the
+          # only one worth maintaining. #62 and #177 both had to update two copies
+          # of it; there is now one.
           branch: 'main'
           allowlist: kraigparkinson,dependabot[bot],bot*
           custom-notsigned-prcomment: >-
