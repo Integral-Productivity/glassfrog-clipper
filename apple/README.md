@@ -15,6 +15,7 @@ for why this lives in the same repository as the Chrome extension.
 | `GlassFrog Clipper/Shared (Extension)/` | The native bridge the Safari extension talks to. |
 | `GlassFrog Clipper/Shared (Share)/` | The share-sheet capture form. |
 | `GlassFrog Clipper/Entitlements/` | App Group and Keychain access, per platform. |
+| `GlassFrog Clipper/Configurations/` | Signing. `Signing.xcconfig` is attached to the project; the team identifier goes in a gitignored `Local.xcconfig` beside it. |
 
 The core is **compiled into** each target rather than linked as a package
 product. `GlassFrogClipperCore` remains its canonical home and is what
@@ -62,10 +63,32 @@ Everything below needs an Apple Developer team, and none of it can be done from
 a build with signing disabled. **Until these are set, the code compiles and the
 app launches, but capture will not work end to end.**
 
-1. **Set a Development Team** on all six targets in Xcode.
+1. **Set a Development Team.** Copy the example and fill in the ten-character
+   identifier from developer.apple.com/account -> Membership details:
+
+   ```bash
+   cp "apple/GlassFrog Clipper/Configurations/Local.xcconfig.example" \
+      "apple/GlassFrog Clipper/Configurations/Local.xcconfig"
+   ```
+
+   `Local.xcconfig` is gitignored, and `Signing.xcconfig` includes it optionally,
+   so a machine without one builds unsigned exactly as before — which is what
+   `verify-apple.sh` and CI rely on.
+
+   Set here rather than in Xcode's target editor because this project is
+   generated: `xcode-bootstrap.sh` deletes and rebuilds it, and a value typed
+   into the editor is lost the next time anyone regenerates. `xcode-team.py`
+   reattaches the xcconfig on every bootstrap, the way `xcode-entitlements.py`
+   reattaches the entitlements. One value at the project level is inherited by
+   all six targets.
 
 2. **Register the App Group** `group.com.integralproductivity.GlassFrogClipper`
    on the developer portal, and enable it for all six targets.
+
+   Six targets, but three App IDs: iOS and macOS share a bundle identifier for
+   each of the app (`com.integralproductivity.GlassFrogClipper`), the Safari
+   extension (`.Extension`) and the Share Extension (`.Share`). Each of the three
+   needs App Groups *and* Keychain Sharing enabled.
 
    Without it, `UserDefaults(suiteName:)` returns nil and `ConfigurationStore`
    falls back to `.standard`. The app then works standalone and the Share

@@ -1,0 +1,17 @@
+// Signing configuration for every target in this project.
+//
+// Attached to the two *project-level* build configurations rather than to each
+// target's, because no target sets DEVELOPMENT_TEAM of its own. A value here is
+// therefore inherited by all six, and stays inherited by a seventh that nobody
+// has thought of yet — which is the failure this file is really guarding
+// against, since a target added later would otherwise be signed by omission.
+//
+// The team identifier itself is deliberately not in this file. It is a property
+// of whoever is building, not of the source, so it lives in Local.xcconfig,
+// which is gitignored. Copy Local.xcconfig.example to get started.
+//
+// The `?` makes the include optional: with no Local.xcconfig present,
+// DEVELOPMENT_TEAM is simply unset and the project builds exactly as it did
+// before this file existed. That is what keeps ./scripts/verify-apple.sh and CI
+// working on a machine that has no Apple Developer account at all.
+#include? "Local.xcconfig"

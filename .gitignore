@@ -22,3 +22,9 @@ apple/**/build/
 apple/**/.build/
 apple/**/xcuserdata/
 *.xcuserstate
+
+# The signing team identifier, which belongs to whoever is building rather than
+# to this repository. Signing.xcconfig includes it optionally, so its absence is
+# a working state: builds are unsigned, exactly as CI wants them.
+# See apple/GlassFrog Clipper/Configurations/Local.xcconfig.example.
+apple/**/Configurations/Local.xcconfig
