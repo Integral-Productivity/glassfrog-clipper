@@ -214,12 +214,37 @@ same objects on the main actor. `pageContext` and `SharedItem.load` are
 could see, and it is the second time this has happened, which is the argument
 for moving the next one too.
 
-**What the Swift half is gated by is convention, not mechanism.** The `Swift
-core` job that runs these tests is path-filtered and is not a required check —
-`verify` is the only one (ADR 0012) — so a red run here reports on a pull
-request touching `apple/` but cannot block a merge. That is the same division
-the boundary note already draws for Chrome, and it is stated in
-`SharedItem.swift`'s header so a reader does not mistake reachable for enforced.
+**Both surface layers are gated by mechanism up to a line, and by convention
+past it** *(amended 2026-09-02, resolving #98; this paragraph previously read
+"what the Swift half is gated by is convention, not mechanism", and framed the
+gap as Safari-only)*.
+
+The framing it replaces was wrong in a way worth recording, because it is the
+kind of wrong that survives review. It said the Chrome half was enforced and the
+Swift half was not. Measured on 2026-09-02: `npm run bdd` runs in
+`bdd-and-fitness.yml` as `BDD / Scenarios`, which is unfiltered and therefore
+*requirable*, but is not among what `main` requires — `verify` is the only one
+(ADR 0012), and #91 owns that divergence. Deleting
+`features/surface/chrome.feature` and running the required suite passed, 354 of
+354. The gap was symmetric; Safari was simply the half that got looked at.
+
+`test/surface-layer.test.ts` closes the presence half of it for both, inside
+`verify`, on every pull request. It fails if either specification is deleted or
+gutted below a floor, if `ShareSheetSurfaceTests.swift` is dropped from the
+SwiftPM test target that compiles it, or if nothing under `.github/workflows/`
+or `scripts/` still invokes `swift test` against the package or `npm run bdd`.
+That last one was in neither half's account of itself: delete `apple.yml` today
+and the Swift suite stops running entirely, with nothing to notice.
+
+Read the line precisely, because `SharedItem.swift`'s header once overclaimed in
+exactly this direction. **Presence and wiring are now mechanism. Passing is
+still convention.** A red `Swift core` reports on a pull request touching
+`apple/` and cannot block a merge; a red `BDD / Scenarios` reports on every pull
+request and cannot block one either. Closing that needs checks `main` actually
+requires — an aggregator for Safari, since ADR 0012 explains that requiring the
+path-filtered `Swift core` would pin every non-Apple pull request at "waiting for
+status to be reported" — which is [#133](../../issues/133), and for Chrome it is
+part of [#91](../../issues/91).
 
 **A domain scenario that starts needing a browser is a signal, not a nuisance.**
 It means either the behaviour is genuinely platform-shaped and the scenario is in

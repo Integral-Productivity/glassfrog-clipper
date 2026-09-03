@@ -14,10 +14,12 @@
 //
 //  See ShareCapturePhaseTests.swift, which states the phase machine below and
 //  carries the boundary note about what a green run there does and does not
-//  prove. Reachable is not the same as enforced: the `Swift core` job that
-//  runs it is path-filtered and is not a required check (`verify` is the only
-//  one, ADR 0012), so a red run reports on a pull request touching `apple/`
-//  but cannot block a merge. Treat it as a stop signal by convention.
+//  prove. Reachable is not the same as enforced, and the line falls where
+//  SharedItem.swift's header says it does: passing is convention, because the
+//  `Swift core` job is path-filtered and is not required (`verify` is the only
+//  one, ADR 0012). The presence guard in `test/surface-layer.test.ts` covers
+//  the *surface* layer, not this file, so nothing mechanical notices if this
+//  specification is deleted — #169 is open on whether it should.
 //
 //  Moving the file here also put it under the package's Swift 6
 //  strict-concurrency checking, which the Xcode targets do not apply — they

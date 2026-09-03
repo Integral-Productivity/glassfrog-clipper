@@ -16,11 +16,14 @@
 //  ShareSheetSurfaceTests.swift, which states this behaviour and carries the
 //  boundary note about what a green run there does and does not prove.
 //
-//  Reachable is not the same as enforced, and the difference is worth knowing:
-//  the `Swift core` job that runs these tests is path-filtered and is not a
-//  required check (`verify` is the only one), so it reports on a pull request
-//  that touches `apple/` but cannot block a merge. Treat a red run here as a
-//  stop signal by convention, not by mechanism.
+//  Reachable is not the same as enforced, and the line falls in an exact place
+//  (#98). Presence and wiring ARE mechanism: `test/surface-layer.test.ts` runs
+//  inside the required `verify` check and fails if this specification is
+//  deleted or gutted, if it is dropped from the SwiftPM test target, or if
+//  nothing under `.github/workflows/` still runs `swift test`. Passing is
+//  still convention: the `Swift core` job is path-filtered and is not required
+//  (`verify` is the only one, ADR 0012), so a red run here reports on a pull
+//  request touching `apple/` and cannot block a merge. #133 owns that half.
 //
 //  Moving the file here also put it under the package's Swift 6
 //  strict-concurrency checking, which the Xcode targets do not apply — they
