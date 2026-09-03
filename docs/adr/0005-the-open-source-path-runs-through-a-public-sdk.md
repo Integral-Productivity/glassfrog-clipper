@@ -1,4 +1,4 @@
-# 5. The open-source path runs through a public SDK, not a vendored fork
+# The open-source path runs through a public SDK, not a vendored fork
 
 Date: 2026-08-31
 
@@ -7,7 +7,7 @@ Date: 2026-08-31
 Accepted
 
 Resolves the open question left by
-[2. GlassFrog authentication and write path for the browser extension](0002-glassfrog-authentication-and-write-path-for-the-browser-extension.md),
+[GlassFrog authentication and write path for the browser extension](0002-glassfrog-authentication-and-write-path-for-the-browser-extension.md),
 whose consequences recorded the collision and explicitly did not decide it.
 
 Amends the mechanism chosen in

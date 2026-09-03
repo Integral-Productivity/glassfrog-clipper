@@ -5,7 +5,7 @@ import {
   adrFilenames,
   adrHeadings,
   duplicateAdrNumbers,
-  headingNumberMismatches,
+  numberedHeadings,
 } from '../fitness/checks/adr-numbering.ts';
 
 /**
@@ -33,6 +33,14 @@ import {
  * original note in this header meant by "no separate workflow step to drift
  * from it". A second *implementation* is the thing that drifts; a second
  * reporter of the same function is not. See docs/adr/0010.
+ *
+ * WHAT INVERTED, AND WHAT DID NOT. The heading rule below used to require
+ * every heading to repeat its filename's number. ADR 0015 took the number off
+ * the heading instead of guarding the agreement of two copies of it, so the
+ * rule now fails a heading that carries a number at all. The *collision* rule
+ * is untouched and still guards a live race: 0015 kept sequential allocation
+ * deliberately, changing what losing the race costs rather than whether it can
+ * happen.
  */
 test('no two ADRs claim the same number', async () => {
   const duplicates = duplicateAdrNumbers(await adrFilenames());
@@ -86,63 +94,72 @@ test('an unnumbered filename is not read as claiming a number', () => {
   assert.deepEqual(duplicateAdrNumbers(['README.md', 'template.md', 'notes.md']), []);
 });
 
-test('every ADR heading carries its own filename number', async () => {
-  const mismatches = headingNumberMismatches(await adrHeadings());
+test('no ADR heading carries a number', async () => {
+  const numbered = numberedHeadings(await adrHeadings());
 
   assert.deepEqual(
-    mismatches,
+    numbered,
     [],
-    'an ADR heading disagrees with its filename — a renumber that moves the file must edit the heading too',
+    'an ADR heading carries a number — the number belongs to the filename alone (docs/adr/0015), so that a renumber stays a pure `git mv`',
   );
 });
 
-test('the guard detects the heading a renumber left behind', () => {
-  // The exact tree #42 produced: the file renamed to 0006, the heading still
-  // reading `# 5.`, and 0005 legitimately reading `# 5.` beside it. The red
-  // half of red-then-green, kept in the suite rather than performed by hand.
+test('the guard detects the heading a renumber would leave behind', () => {
+  // The exact tree #42 produced: the file renamed to 0006 with the heading
+  // still reading `# 5.`. Under the old convention that was a *mismatch*
+  // between two copies of the number; under 0015 it is simpler — the heading
+  // should not have carried a number in the first place, so both files below
+  // are reported, including the one whose number was never stale. The red half
+  // of red-then-green, kept in the suite rather than performed by hand.
   assert.deepEqual(
-    headingNumberMismatches([
-      { filename: '0005-the-open-source-path-runs-through-a-public-sdk.md', heading: '# 5. The open-source path runs through a public SDK, not a vendored fork' },
+    numberedHeadings([
+      {
+        filename: '0005-the-open-source-path-runs-through-a-public-sdk.md',
+        heading: '# 5. The open-source path runs through a public SDK, not a vendored fork',
+      },
       {
         filename: '0006-queue-health-is-measured-from-capture-not-from-last-touch.md',
         heading: '# 5. Queue health is measured from capture, not from last touch',
       },
-    ]),
+    ]).map((m) => m.filename),
     [
-      {
-        filename: '0006-queue-health-is-measured-from-capture-not-from-last-touch.md',
-        filenameNumber: 6,
-        heading: '# 5. Queue health is measured from capture, not from last touch',
-      },
+      '0005-the-open-source-path-runs-through-a-public-sdk.md',
+      '0006-queue-health-is-measured-from-capture-not-from-last-touch.md',
     ],
   );
 });
 
-test('a heading the parser cannot read is a failure, not a skip', () => {
-  // A file with no heading, or one that opens with prose instead of `# N.`,
-  // must be reported. Skipping it would let the guard pass over precisely the
-  // file it can no longer see.
-  const unreadable = headingNumberMismatches([
-    { filename: '0007-no-heading-at-all.md', heading: undefined },
-    { filename: '0008-heading-without-a-number.md', heading: '# Queue health' },
-  ]);
-
+test('a missing heading is a failure, not a skip', () => {
+  // Inverting the rule must not turn "no heading at all" into a pass. A file
+  // with no `# ` line trivially carries no number, and skipping it would let
+  // the guard pass over precisely the file it can no longer see.
   assert.deepEqual(
-    unreadable.map((m) => m.filename),
-    ['0007-no-heading-at-all.md', '0008-heading-without-a-number.md'],
+    numberedHeadings([{ filename: '0007-no-heading-at-all.md', heading: undefined }]).map((m) => m.filename),
+    ['0007-no-heading-at-all.md'],
   );
 });
 
-test('zero-padding in the filename does not read as a mismatch', () => {
-  // `0004-` against `# 4.` is the ordinary case and must stay green; a textual
-  // comparison would flag every ADR in the repo. Unnumbered files are skipped
-  // here exactly as `duplicateAdrNumbers` skips them.
+test('a title-only heading is what the rule wants, and unnumbered files are skipped', () => {
+  // The ordinary case, and the one that must stay green or the guard reports
+  // every ADR in the repo. `README.md` carries no NNNN- prefix, so it is not an
+  // ADR by this rule's reckoning and is skipped exactly as
+  // `duplicateAdrNumbers` skips it — the stray-filename rule reports it instead.
   assert.deepEqual(
-    headingNumberMismatches([
-      { filename: '0001-record-architecture-decisions.md', heading: '# 1. Record architecture decisions' },
-      { filename: '0004-provenance-marker-rides-in-the-tension-body.md', heading: '# 4. Provenance marker rides in the tension body' },
-      { filename: 'README.md', heading: '# Architecture decisions' },
+    numberedHeadings([
+      { filename: '0001-record-architecture-decisions.md', heading: '# Record architecture decisions' },
+      { filename: '0004-provenance-marker-rides-in-the-tension-body.md', heading: '# Provenance marker rides in the tension body' },
+      { filename: 'README.md', heading: '# 3. Architecture decisions' },
     ]),
+    [],
+  );
+});
+
+test('a decision title is not mistaken for a stale number', () => {
+  // The rule bans `# N. `, the shape `adr new` generates, rather than any
+  // leading digit — so an ADR whose title genuinely opens with a number reads
+  // as a title. Widening this to `^#\s+\d` would fail the heading below.
+  assert.deepEqual(
+    numberedHeadings([{ filename: '0015-two-clocks.md', heading: '# 2 clocks are reported, never averaged' }]),
     [],
   );
 });

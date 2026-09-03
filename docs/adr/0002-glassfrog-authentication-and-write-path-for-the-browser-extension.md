@@ -1,4 +1,4 @@
-# 2. GlassFrog authentication and write path for the browser extension
+# GlassFrog authentication and write path for the browser extension
 
 Date: 2026-08-28
 
@@ -6,9 +6,9 @@ Date: 2026-08-28
 
 Accepted
 
-Amended by [3. GlassFrog v5 has no role-less write path](0003-glassfrog-v5-has-no-role-less-write-path.md) — the SDK-direct decision below stands; ADR 0003 adds the role-resolution constraint discovered afterward.
+Amended by [GlassFrog v5 has no role-less write path](0003-glassfrog-v5-has-no-role-less-write-path.md) — the SDK-direct decision below stands; ADR 0003 adds the role-resolution constraint discovered afterward.
 
-The open question in the third consequence below — publish the SDK publicly or vendor it — is resolved by [5. The open-source path runs through a public SDK, not a vendored fork](0005-the-open-source-path-runs-through-a-public-sdk.md).
+The open question in the third consequence below — publish the SDK publicly or vendor it — is resolved by [The open-source path runs through a public SDK, not a vendored fork](0005-the-open-source-path-runs-through-a-public-sdk.md).
 
 ## Context
 
