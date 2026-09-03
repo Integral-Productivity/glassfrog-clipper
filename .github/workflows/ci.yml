@@ -83,3 +83,26 @@ jobs:
       # service worker. Only an artifact check does — see scripts/check-bundle.mjs.
       - name: Check the service worker bundle
         run: node scripts/check-bundle.mjs
+
+      # And a bundle that loads is not the same as a package the store accepts.
+      # This applies the store's own rules to the real build output — icon
+      # dimensions, description length, manifest/package.json version agreement,
+      # files that must never ship — so a rejection surfaces here rather than
+      # from a reviewer several days after the change that caused it.
+      #
+      # test/store-package.test.ts runs the same exported rules against the
+      # repository's manifest with no build in the way, which catches most drift
+      # in the unit suite. This is the half that needs compiled output: only here
+      # can a file tsup started emitting be caught before it reaches the zip.
+      #
+      # Invoked directly rather than via `npm run package`, which would rebuild
+      # what the Build step above already produced.
+      - name: Check the extension still packages for the Chrome Web Store
+        run: node scripts/package-chrome.mjs
+
+      # Recorded so the log identifies the exact artifact. The zip is
+      # deterministic, so this digest is reproducible from the commit — which is
+      # what makes "is the uploaded package the one that was reviewed?" a
+      # question with an answer.
+      - name: Record the package digest
+        run: sha256sum release/*.zip
