@@ -7,7 +7,7 @@
   "author": "Kraig Parkinson <kraigparkinson@integralproductivity.com>",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Integral-Productivity/glassfrog-clipper-chrome-extension.git"
+    "url": "git+https://github.com/Integral-Productivity/glassfrog-clipper.git"
   },
   "type": "module",
   "scripts": {

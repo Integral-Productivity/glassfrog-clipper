@@ -1,4 +1,4 @@
-# 6. Queue health is measured from capture, not from last touch
+# Queue health is measured from capture, not from last touch
 
 Date: 2026-08-31
 
@@ -8,7 +8,7 @@ Accepted
 
 Settles the triage-survival criterion in [STRATEGY.md](../../STRATEGY.md) and
 OQ8 of [the capture-path plan](../plans/2026-08-28-1123-feat-zero-decision-capture-path-plan.md).
-Depends on [4. Provenance marker rides in the tension body](0004-provenance-marker-rides-in-the-tension-body.md)
+Depends on [Provenance marker rides in the tension body](0004-provenance-marker-rides-in-the-tension-body.md)
 for the marker that makes clipped items identifiable at all.
 
 ## Context

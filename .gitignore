@@ -1,16 +1,26 @@
-node_modules/
-dist/
+# Trailing slashes are deliberately absent from the generated- and vendored-
+# content patterns below. A trailing slash makes a pattern directory-only, and a
+# *symlink* is not a directory as far as git is concerned — so `node_modules/`
+# ignores a real node_modules but not a symlinked one, which then shows up as an
+# untracked `?? node_modules` that a `git add -A` would commit. That is not
+# hypothetical here: `npm ci` needs a `read:packages` token, so the practical way
+# to run the suite in a `.claude/worktrees/*` worktree is to symlink the main
+# clone's installed tree. See #171, and test/gitignore-symlink.test.ts, which
+# fails if a slash comes back.
+
+node_modules
+dist
 *.log
 .DS_Store
 .env
 .env.local
 .context/compound-engineering/
 .claude/.reclaim-session.json
-dist-safari/
+dist-safari
 
 # Store-upload zips built by `npm run package`. Reproducible from the tree at a
 # given commit, so committing them would only invite uploading a stale one.
-release/
+release
 
 # Xcode and SwiftPM build output. `apple/build/` is not enough: xcodebuild puts
 # its output beside the project, at `apple/GlassFrog Clipper/build/`, and
@@ -22,3 +32,10 @@ apple/**/build/
 apple/**/.build/
 apple/**/xcuserdata/
 *.xcuserstate
+
+# The signing team identifier, which belongs to whoever is building rather than
+# to this repository. Signing.xcconfig includes it optionally, so its absence is
+# a working state: builds are unsigned, exactly as CI wants them.
+# See apple/GlassFrog Clipper/Configurations/Local.xcconfig.example.
+apple/**/Configurations/Local*.xcconfig
+!apple/**/Configurations/Local.xcconfig.example

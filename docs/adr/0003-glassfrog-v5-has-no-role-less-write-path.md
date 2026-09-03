@@ -1,4 +1,4 @@
-# 3. GlassFrog v5 has no role-less write path
+# GlassFrog v5 has no role-less write path
 
 Date: 2026-08-28
 
@@ -6,7 +6,7 @@ Date: 2026-08-28
 
 Accepted
 
-Amends [2. GlassFrog authentication and write path for the browser extension](0002-glassfrog-authentication-and-write-path-for-the-browser-extension.md)
+Amends [GlassFrog authentication and write path for the browser extension](0002-glassfrog-authentication-and-write-path-for-the-browser-extension.md)
 
 ## Context
 

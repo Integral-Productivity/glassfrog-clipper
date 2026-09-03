@@ -1,4 +1,4 @@
-# 10. Four architectural characteristics get fitness functions
+# Four architectural characteristics get fitness functions
 
 Date: 2026-09-01
 
@@ -7,10 +7,10 @@ Date: 2026-09-01
 Accepted
 
 Makes enforceable the permission stop-condition in the Definition of Done, the
-SDK boundary chosen in [2. GlassFrog authentication and write path](0002-glassfrog-authentication-and-write-path-for-the-browser-extension.md),
-and the marker contract in [4. Provenance marker rides in the tension body](0004-provenance-marker-rides-in-the-tension-body.md).
+SDK boundary chosen in [GlassFrog authentication and write path](0002-glassfrog-authentication-and-write-path-for-the-browser-extension.md),
+and the marker contract in [Provenance marker rides in the tension body](0004-provenance-marker-rides-in-the-tension-body.md).
 
-Paired with [11. Behaviour is specified at the domain, with a thin platform surface layer](0011-behaviour-is-specified-at-the-domain-with-a-thin-platform-surface-layer.md),
+Paired with [Behaviour is specified at the domain, with a thin platform surface layer](0011-behaviour-is-specified-at-the-domain-with-a-thin-platform-surface-layer.md),
 which covers the other half of the tier-1 gate content.
 
 ## Context

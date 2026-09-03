@@ -35,22 +35,29 @@ Three constraints shape everything below. All three are Google's, not ours.
 - **A developer account's email address is permanent.** Google's registration
   guidance is explicit that it cannot be changed after the account exists. The
   address is therefore an architectural choice, not an administrative one.
-- **An account gets one publisher, for the life of the account.** Deleting a
-  publisher does not restore the quota. There is no second attempt at the name
-  or the entity behind it.
+- **A deleted account's address is burnt with it.** Google's registration page
+  states that the email identity of a deleted developer account cannot be reused
+  to create a new one. Deleting is not a way back to the same address.
 - **Group publishing no longer exists.** It was replaced by adding *members* to
   a single publisher with roles — viewer, item manager, editor, admin. Members
   join free and do not repeat the registration flow. This, not a note in a wiki,
   is how a second person gets access.
 
+**What *is* reversible, despite an earlier reading of this page:** the publisher
+display name. It is an editable field on the Account page. The
+one-publisher-per-account-for-life quota was the *group publisher* rule, from
+the system the bullet above records as removed — see ADR
+[0017](../adr/0017-the-publisher-is-owned-by-an-identity-not-a-mailbox.md).
+Spend the caution on the account address, which really is permanent.
+
 ### Decisions
 
 | Decision | Value | Why |
 |---|---|---|
-| Owning account | A **new dedicated Workspace mailbox** on `integralproductivity.com` — `chrome-store@` or similar | Google's own registration guidance suggests a dedicated publishing account. Because the address is permanent, binding it to a role rather than a person is the only version of this choice that survives the person. A personal mailbox would have welded the listing to one inbox forever. |
+| Owning account | A `chrome-store`-style role address on the company domain, as a **Cloud Identity Free user** in the existing Workspace organization — a sign-in identity, not a licensed mailbox | Google's own registration guidance suggests a dedicated publishing account. Because the address is permanent, binding it to a role rather than a person is the only version of this choice that survives the person. The requirement is an account that can *sign in*, which a licence does not add and an alias cannot supply — so the identity is free rather than ~$85–110/year. ADR [0017](../adr/0017-the-publisher-is-owned-by-an-identity-not-a-mailbox.md). |
 | Publisher display name | **Integral Productivity** | The brand as it reads everywhere else. Drops the entity suffix, which the verified trader block carries anyway. |
-| Trader declaration | **Trader**, with **organization verification** | Commercial licensing is the plan, so trader is the accurate declaration; the alternative would be a misdeclaration *and* would tell EU users their consumer-protection rights do not apply. Verification is also the only route to a verified publisher name and a publisher page. |
-| Published contact | **Business address** and a **Google Voice** number | Both are mandatory and both are public. Google's trader FAQ names Google Voice as an acceptable SMS-capable option, which keeps a personal mobile off a page anyone can scrape. |
+| Trader declaration | **Trader**, with **organization verification** — approved as Integral Productivity LLC on 2026-09-03, at the second attempt ([why](#the-entity-is-decided-by-the-payments-profile-not-by-the-trader-form)) | Commercial licensing is the plan, so trader is the accurate declaration; the alternative would be a misdeclaration *and* would tell EU users their consumer-protection rights do not apply. Verification is also the only route to a verified publisher name and a publisher page. |
+| Published contact | **Business address** and a **Google Voice** number — as published | Both are mandatory and both are public. Google's trader FAQ names Google Voice as an acceptable SMS-capable option, which keeps a personal mobile off a page anyone can scrape. |
 | Human access | Kraig as **Admin** member of the publisher | Satisfies "recorded somewhere durable" as a membership row in the dashboard rather than a fact someone has to remember. |
 
 **The display name and the verified name will differ, and that is expected.**
@@ -76,37 +83,129 @@ organization gets a verified publisher name and a
 concrete form of the trust argument this listing is built on. Unverified, the
 publisher name is free text with nothing standing behind it.
 
-> **Unconfirmed, and owned by
+> **Still unconfirmed, and still owned by
 > [#105](https://github.com/Integral-Productivity/glassfrog-clipper/issues/105):**
 > Google's public FAQ does not say what happens to a live item if trader
 > verification is started and never completed, nor whether a registered-agent
-> address is acceptable in place of a business address. Neither blocks
-> registration, so neither is a reason to wait. Read both off the dashboard's own
-> copy at step 7 below and record the answers on #105 rather than assuming them
-> here.
+> address is acceptable in place of a business address. Step 7 was run on
+> 2026-09-03 and **the flow surfaced neither**, so they are recorded as
+> unanswered rather than quietly dropped. The first one is moot for the
+> correction below, because there is no live item yet — which is part of why the
+> correction is cheap now and would not be later.
+
+### The entity is decided by the payments profile, not by the trader form
+
+**This went wrong on the first attempt, and the mechanism is worth knowing before
+anyone repeats it.** Verification on 2026-09-03 came back approved against an
+**individual**, not against Integral Productivity LLC — so the name
+standing behind the listing would have been a person's, and the verified
+*publisher* name that [ADR 0016](../adr/0016-a-verified-publisher-is-bought-with-a-public-address.md)
+set out to buy is available to a verified **organization**.
+
+The cause is not the trader form. **Trader entity is inherited from the Google
+payments profile used at registration**, and a payments profile's account type —
+Individual or Business — is fixed when the profile is created and cannot be
+changed afterwards. Paying the $5 on a personal profile therefore decides the
+trader identity, silently, several steps before the trader form is ever shown.
+The trader form then has no field that could correct it.
+
+**The correction, and it is available because nothing is published yet:**
+
+0. **Read the Dun & Bradstreet record first**, at
+   [service.dnb.com](https://service.dnb.com/home). Google verifies an
+   organization through D&B, and the payments profile must match that record
+   *exactly* — entity name, address, phone. D&B is the source of truth here, not
+   the profile.
+
+   This step is load-bearing for a reason that is easy to miss: **whatever
+   verifies becomes the public address on the listing.** A D&B record carrying a
+   home or stale address would publish that instead, undoing through the back
+   door the choice ADR 0016 made deliberately. Correcting a D&B record goes
+   through their review and takes days, so it is a prerequisite rather than a
+   cleanup. Checked on 2026-09-03: the record holds the business address, so no
+   correction was needed.
+1. Create a **Business** payments profile for Integral Productivity LLC — legal
+   name, address and phone exactly as D&B holds them, with the
+   [D-U-N-S number entered when prompted](https://support.google.com/paymentscenter/answer/13992651).
+   A new profile is required; the existing one cannot be converted.
+2. On the developer account, switch trader status to **non-trader**, then back to
+   **trader**. This is the documented way to restart verification — it is what
+   forces the profile choice to be asked again. Submit nothing during that
+   interval.
+3. Choose the business profile, and verify as an organization. Organization
+   verification accepts a D-U-N-S number or company documents such as a corporate
+   registry extract, rather than the personal identification an individual
+   trader is asked for. Keep the SMS-capable number to hand: Google's trader FAQ
+   still requires one for corporations today, with a D-U-N-S-associated number
+   named only as a future option.
+
+No second developer account and no second $5 are involved; the fee is bound to
+the account, which is unchanged. **Do this before the first submission.** Once an
+item is live the personal name and address are on a public page, and the
+non-trader interval in step 2 stops being free — which is exactly the risk the
+first unconfirmed question above names and nobody can currently answer.
+
+**Done on 2026-09-03, exactly as written above.** Verification is approved as
+**Integral Productivity LLC**. The sequence needed no step that is not listed and
+no step that turned out to be unnecessary, so this is a runbook validated by use
+rather than by reasoning. It cost one cycle only because nothing was published
+yet — the argument for correcting before the first submission is the same
+argument that made the correction cheap.
 
 ### Registering, in order
 
-Order matters in one place: **create the mailbox before touching the
+Order matters in one place: **create the identity before touching the
 dashboard.** Registering first and fixing the address afterwards is the one
 mistake here with no remedy.
 
-1. **Create the mailbox.** In Google Workspace admin, add
-   `chrome-store@integralproductivity.com` as a user (not an alias — an alias
-   cannot own a Google account). Set a password and keep it in 1Password.
+1. **Create the identity.** In the Admin console, turn **off** automatic
+   licensing (Billing → License settings) *before* adding anyone, add the
+   **Cloud Identity Free** subscription, then add the role address as a
+   **user** — not an alias, which cannot sign in, and not a group. Confirm in Billing → Subscriptions that it
+   holds a Cloud Identity licence and not a Workspace one; the intent is not
+   visible from the user record. Password into the team's password manager, in
+   a vault that outlives whoever set it up.
+
+   Then two settings the identity needs and a mailbox would not: a Gmail
+   **Default routing** rule for that address (Apps → Google Workspace → Gmail →
+   Default routing), because mail to a user without Gmail bounces and this is
+   the address Google verifies and notifies; and **Chrome Web Store** turned on
+   for that user's organizational unit (Apps → Additional Google services),
+   because an administrator can have it off.
+
+   **Test the routing before step 4.** Send a message to the address from
+   outside and watch it arrive. This is the cheap moment to find it wrong. If an
+   already-committed but unassigned Workspace seat exists, using it instead is
+   equally free until renewal and skips both settings and this test.
+
+   **Done on 2026-09-03.** The role address exists as a Cloud Identity Free
+   user; it signs in independently, mail reaches it through
+   the routing rule, Billing shows a Cloud Identity licence rather than a
+   consumed seat, and Chrome Web Store is on for its organizational unit. Step 3
+   then showed the developer dashboard presenting its ordinary registration
+   screen to that account, so a publisher can be owned by an identity with no
+   mailbox behind it. Google documents this neither way; it is recorded here
+   because it was observed.
+
+   **Registration completed the same day.** The fee is paid, the display name is
+   saved, the account email verified through Google's own message reaching the
+   mailbox-less address by the routing rule, and Kraig holds Admin as a
+   membership row. Only the trader declaration (step 7) is outstanding, waiting
+   on an SMS-capable number.
 2. **Have a Google Voice number ready**, or note which existing business line
    can receive SMS. Trader verification will ask, and stalling mid-flow is
    avoidable.
 3. **Sign in to the [Developer Dashboard](https://chrome.google.com/webstore/devconsole)
-   as that mailbox**, in a clean profile or incognito window. Signing in as the
+   as that account**, in a clean profile or incognito window. Signing in as the
    wrong Google account and paying is the expensive slip, and the dashboard does
    not make the active account obvious.
 4. **Accept the developer agreement, then pay the $5.** One-time, per account,
    non-refundable, and charged before the dashboard is usable. Gift cards are
    not accepted; if several payment methods are attached to the account, confirm
    which one is charged.
-5. **Create the publisher** with the display name `Integral Productivity`. This
-   is the one-per-lifetime action — read the field back before confirming.
+5. **Set the publisher display name** to `Integral Productivity` on the Account
+   page. This is an editable field, not a one-shot: the irreversible choice was
+   the account address, in step 1.
 6. **Verify the account email** from the message Google sends.
 7. **Declare trader status** and start organization verification. Supply the
    legal name, business address, and SMS-capable number from the table above.
@@ -134,14 +233,16 @@ These are human steps. None can be done from a terminal.
       [Publisher identity](#publisher-identity) for who owns it, what it is
       called, and what gets published — but the registration itself is a
       card-and-clicks errand that only a human can run.
-- [ ] **A reachable privacy policy URL** —
-      [#107](https://github.com/Integral-Productivity/glassfrog-clipper/issues/107),
-      blocked by [#72](https://github.com/Integral-Productivity/glassfrog-clipper/issues/72)
-      / [#80](https://github.com/Integral-Productivity/glassfrog-clipper/issues/80).
-      `PRIVACY.md` is written, but the repository is still private. **The
-      submission cannot be completed until the flip lands**, because the store
-      validates the URL anonymously. Once public it is
-      `https://github.com/Integral-Productivity/glassfrog-clipper/blob/main/PRIVACY.md`.
+- [x] **A reachable privacy policy URL** —
+      [#107](https://github.com/Integral-Productivity/glassfrog-clipper/issues/107).
+      **Done.** The repository went public on 2026-09-03
+      ([#72](https://github.com/Integral-Productivity/glassfrog-clipper/issues/72)),
+      which was the blocker, and
+      `https://github.com/Integral-Productivity/glassfrog-clipper/blob/main/PRIVACY.md`
+      now returns HTTP 200 to an anonymous request. That last part is the check
+      that matters and it is easy to fake by looking at a signed-in browser tab:
+      the store fetches the URL without credentials, so it has to be verified
+      without them too.
 
       The rename to `glassfrog-clipper` has **already happened**, which is the
       order this document previously asked for. Every URL here is written against
@@ -150,8 +251,7 @@ These are human steps. None can be done from a terminal.
       repository under the old name. A privacy-policy URL the store has recorded
       is not somewhere to rely on a redirect.
       [#62](https://github.com/Integral-Productivity/glassfrog-clipper/issues/62)
-      stays open for the references still carrying the old name elsewhere in the
-      tree.
+      swept the rest of the tree for the same reason.
 - [ ] **Screenshots** —
       [#104](https://github.com/Integral-Productivity/glassfrog-clipper/issues/104).
       See [Graphic assets](#graphic-assets); they need a real browser and a real
@@ -236,9 +336,25 @@ A GlassFrog account and an API key, which you generate in GlassFrog itself. Chro
 
 | Field | Value | Note |
 |---|---|---|
-| Homepage URL | repository URL | Blocked on the public flip ([#72](https://github.com/Integral-Productivity/glassfrog-clipper/issues/72)). Deliberately **not** added to `manifest.json` as `homepage_url` yet — a private repo would render a dead "Website" link in `chrome://extensions`. Add it in the same change as the flip. |
-| Support URL | repository `/issues` | Same dependency. |
-| Privacy policy URL | `PRIVACY.md` on `main` | Same dependency. Mandatory — see below. |
+All three resolve for an anonymous visitor — the repository went public on
+2026-09-03 (#72), which was the blocker. Verified by fetching each without
+credentials rather than from a signed-in browser tab, since that is how the store
+fetches them.
+
+| Field | Value | Verified |
+|---|---|---|
+| Homepage URL | `https://github.com/Integral-Productivity/glassfrog-clipper` | HTTP 200 anonymous |
+| Support URL | `https://github.com/Integral-Productivity/glassfrog-clipper/issues` | HTTP 200 anonymous |
+| Privacy policy URL | `https://github.com/Integral-Productivity/glassfrog-clipper/blob/main/PRIVACY.md` | HTTP 200 anonymous |
+
+The homepage is also declared in the manifest as `homepage_url`, which is what
+renders the "Website" link on the extension's card in `chrome://extensions`. It
+was deliberately withheld until the flip: a private repository would have put a
+dead link there.
+
+Re-check these if the repository is ever renamed again. They are written against
+`glassfrog-clipper`, not a redirect — see the note under the privacy policy
+prerequisite above.
 
 ## Graphic assets
 
@@ -349,8 +465,8 @@ Source, including the architecture decisions behind the permission set, is publi
 - [ ] Developer account registered, publisher created as **Integral Productivity**, and the $5 paid ([#105](https://github.com/Integral-Productivity/glassfrog-clipper/issues/105))
 - [ ] Trader status declared and organization verification submitted ([#105](https://github.com/Integral-Productivity/glassfrog-clipper/issues/105)) — account-level, and nothing in the item submission flow prompts for it
 - [x] Repository renamed to `glassfrog-clipper` — done; every URL here is written against the new name rather than the redirect
-- [ ] Repository public ([#72](https://github.com/Integral-Productivity/glassfrog-clipper/issues/72))
-- [ ] URLs filled in and loading for a signed-out visitor ([#107](https://github.com/Integral-Productivity/glassfrog-clipper/issues/107))
+- [x] Repository public ([#72](https://github.com/Integral-Productivity/glassfrog-clipper/issues/72)) — read back as `visibility: public`, and topics added ([#70](https://github.com/Integral-Productivity/glassfrog-clipper/issues/70))
+- [x] URLs filled in and loading for a signed-out visitor ([#107](https://github.com/Integral-Productivity/glassfrog-clipper/issues/107)) — all three HTTP 200 anonymous; `homepage_url` declared in the manifest
 - [x] `npm run package` clean against the real bundle — `verify` does this on every PR ([#103](https://github.com/Integral-Productivity/glassfrog-clipper/issues/103)); take the SHA-256 from that run's log
 - [ ] Screenshots taken at 1280×800 against a demonstration org ([#104](https://github.com/Integral-Productivity/glassfrog-clipper/issues/104))
 - [ ] Listing fields pasted from this document

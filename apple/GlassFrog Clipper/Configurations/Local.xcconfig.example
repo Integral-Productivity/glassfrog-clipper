@@ -1,0 +1,16 @@
+// Copy to Local.xcconfig and fill in the team identifier.
+//
+//     cp "Local.xcconfig.example" "Local.xcconfig"
+//
+// Local.xcconfig is gitignored. The identifier is not a secret — it is readable
+// in any shipped build — but it belongs to the person doing the signing rather
+// than to the repository, and a committed value would be wrong for every other
+// machine that ever builds this.
+//
+// Find yours at https://developer.apple.com/account under Membership details,
+// or in Xcode: Settings -> Accounts -> your team -> the ten-character ID.
+//
+// Setting this is necessary but not sufficient. The App Group and the Keychain
+// access group must also be registered on the developer portal and enabled for
+// all six targets — see "Before this can actually run" in ../../README.md.
+DEVELOPMENT_TEAM = ABCDE12345

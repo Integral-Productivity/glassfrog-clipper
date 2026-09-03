@@ -70,7 +70,10 @@ public struct CaptureFiler: CaptureFiling, Sendable {
     public static func pageContext(url: String, title: String, selection: String? = nil) -> PageContext {
         let trimmedSelection = selection?.trimmingCharacters(in: .whitespacesAndNewlines)
         return PageContext(
-            url: Compose.truncate(url),
+            // R7: the credential strip runs here for the same reason it runs in
+            // `pageContextFromTab` on the extension side — this is where a share
+            // becomes a PageContext, and it must happen before truncation.
+            url: Compose.truncate(Compose.stripUrlCredentials(url)),
             title: Compose.truncate(title),
             selection: (trimmedSelection?.isEmpty ?? true) ? nil : Compose.truncate(trimmedSelection!),
             capturedAt: timestamp()

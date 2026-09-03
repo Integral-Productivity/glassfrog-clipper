@@ -1,4 +1,4 @@
-# 14. Code-scanning default setup is the sole CodeQL owner
+# Code-scanning default setup is the sole CodeQL owner
 
 Date: 2026-09-02
 

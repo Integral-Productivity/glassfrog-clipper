@@ -1,5 +1,5 @@
 {
-  "repo": "Integral-Productivity/glassfrog-clipper-chrome-extension",
+  "repo": "Integral-Productivity/glassfrog-clipper",
   "trackDescriptionPrefix": "STRATEGY.md track — ",
   "states": [
     { "name": "needs-triage", "description": "Not yet assessed", "color": "ededed" },
