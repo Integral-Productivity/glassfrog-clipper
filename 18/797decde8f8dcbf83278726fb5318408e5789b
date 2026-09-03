@@ -1,0 +1,21 @@
+docs/solutions/workflow-issues/never-replace-a-list-you-have-only-read-one-page-of.md
+  s_c2a2dedbaa47b2::t_1c70f789ebfe82 1-104
+docs/solutions/best-practices/a-maintained-replacement-can-be-the-wrong-instrument.md
+  s_c2a2dedbaa47b2::t_d3bc58e207d50c 1-105
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "18797decde8f8dcbf83278726fb5318408e5789b",
+  "prompts": {},
+  "sessions": {
+    "s_c2a2dedbaa47b2": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "161f3f4f-c523-48a7-9b7d-6dc29f00d6dc",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Kraig Parkinson <kraig.parkinson@gmail.com>"
+    }
+  }
+}
