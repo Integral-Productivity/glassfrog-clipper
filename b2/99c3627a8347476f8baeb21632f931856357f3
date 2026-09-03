@@ -1,0 +1,24 @@
+docs/store/chrome-web-store-listing.md
+  s_c2a2dedbaa47b2::t_50d533bea5a555 42-52
+  s_c2a2dedbaa47b2::t_9ee607810e1f94 68-71,75
+  s_c2a2dedbaa47b2::t_4863bdbf8c5677 248-249,251
+  s_c2a2dedbaa47b2::t_ddd4514b2cb7d4 11-12,18,29,36-38,54,137,247,250,252,256
+PRIVACY.md
+  s_c2a2dedbaa47b2::t_ddd4514b2cb7d4 53,57,137
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "b299c3627a8347476f8baeb21632f931856357f3",
+  "prompts": {},
+  "sessions": {
+    "s_c2a2dedbaa47b2": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "161f3f4f-c523-48a7-9b7d-6dc29f00d6dc",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Kraig Parkinson <kraig.parkinson@gmail.com>"
+    }
+  }
+}
