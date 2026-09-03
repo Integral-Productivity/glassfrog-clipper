@@ -14,7 +14,7 @@ One gate did not run. It is marked as such rather than folded into the passes.
 | Types — `npm run typecheck` | Pass | `strict` + `noUncheckedIndexedAccess`, green in CI on every PR |
 | Tests — `npm test` | Pass | 103 tests, non-zero count confirmed in CI output |
 | Build — `npm run build` | Pass | green in CI |
-| Bundle — no bare specifier | Pass | `scripts/check-bundle.mjs`; also rejects DOM-only globals |
+| Bundle — no bare specifier | Pass | `scripts/check-bundle.mjs`; also rejects DOM-only globals *(that script was removed in #88; the same rule now runs as `fitness/checks/bundle-shape.ts`)* |
 | CI on a pull request | Pass | PRs #18, #20, #21, and `main` after each merge |
 | CI on a Dependabot pull request | Pass | PR #22, run 33224406342 — all steps succeeded, including `npm ci` against GitHub Packages |
 | Manual — loads unpacked, worker registers | Pass | Chrome for Testing; no exceptions; both commands bound (R22) |
