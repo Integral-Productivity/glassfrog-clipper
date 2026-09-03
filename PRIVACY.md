@@ -45,12 +45,16 @@ That is the whole payload. It is composed in [`src/compose.ts`](src/compose.ts).
 
 Two consequences worth stating plainly rather than leaving you to infer:
 
-- **The full URL is transmitted, including its query string.** If you capture a
-  page whose URL carries a session token or other secret, that secret goes into
-  GlassFrog along with everything else. Where it lands is your own GlassFrog
-  organisation, visible to whoever your organisation's settings make it visible
-  to. Tracked as
-  [issue #8](https://github.com/Integral-Productivity/glassfrog-clipper/issues/8).
+- **The URL is transmitted in full, including its query string — with one
+  exception.** Any credentials embedded in the URL's `userinfo` component (the
+  `user:password@` that sometimes appears just before the hostname) are stripped
+  before the capture is stored or sent. Everything else is carried exactly as
+  you saw it, so if you capture a page whose URL holds a session token in its
+  query string or fragment, that token goes into GlassFrog along with everything
+  else. Where it lands is your own GlassFrog organisation, visible to whoever
+  your organisation's settings make it visible to. This is deliberate: deciding
+  which query parameters are secret means guessing, and a wrong guess would
+  quietly destroy the evidence you clipped the page for.
 - **A popup draft persists until you file or clear it.** If you open the popup
   on a sensitive page and close it without filing, the page's content stays in
   local storage until the next capture replaces it. Tracked as

@@ -452,3 +452,58 @@ struct ShareSheetSurfaceTests {
         #expect(page.title == "Policy draft")
     }
 }
+
+// R7's credential strip on the share-sheet side.
+//
+// The extension and the share sheet build a PageContext through different code,
+// so a strip that lives only in `src/compose.ts` protects only half the product.
+// These pin the Swift half against exactly that: a share whose URL carries
+// userinfo must not file it.
+struct ShareSheetCredentialTests {
+
+    @Test("userinfo is stripped from a shared URL")
+    func stripsUserinfo() {
+        #expect(
+            Compose.stripUrlCredentials("https://alice:hunter2@example.test/reset?token=abc")
+                == "https://example.test/reset?token=abc"
+        )
+        #expect(Compose.stripUrlCredentials("https://s3cr3t-token@example.test/doc") == "https://example.test/doc")
+        #expect(Compose.stripUrlCredentials("https://:hunter2@example.test/doc") == "https://example.test/doc")
+    }
+
+    @Test("a nested-scheme URL does not smuggle userinfo past the check")
+    func stripsNestedScheme() {
+        #expect(
+            Compose.stripUrlCredentials("view-source:https://alice:hunter2@example.test/")
+                == "view-source:https://example.test/"
+        )
+        #expect(
+            Compose.stripUrlCredentials("blob:https://alice:hunter2@example.test/x")
+                == "blob:https://example.test/x"
+        )
+    }
+
+    @Test("a URL with no userinfo is returned unchanged")
+    func leavesCleanUrlsAlone() {
+        for url in [
+            "https://example.test",
+            "HTTPS://Example.TEST/Path?b=2&a=1#frag",
+            "view-source:https://example.test/",
+            "https://example.test/?next=//user:pass@host",
+            "",
+            "not a url at all",
+        ] {
+            #expect(Compose.stripUrlCredentials(url) == url, "rewrote \(url)")
+        }
+    }
+
+    @Test("the share sheet's page context carries the stripped URL")
+    func pageContextStrips() {
+        let page = CaptureFiler.pageContext(
+            url: "https://alice:hunter2@example.test/spec",
+            title: "A spec"
+        )
+        #expect(page.url == "https://example.test/spec")
+        #expect(!page.url.contains("hunter2"))
+    }
+}

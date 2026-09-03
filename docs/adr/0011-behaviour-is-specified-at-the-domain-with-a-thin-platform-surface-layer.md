@@ -1,4 +1,4 @@
-# 11. Behaviour is specified at the domain, with a thin platform surface layer
+# Behaviour is specified at the domain, with a thin platform surface layer
 
 Date: 2026-09-01
 
@@ -7,7 +7,7 @@ Date: 2026-09-01
 Accepted. Amended 2026-09-02 to resolve the Safari deferral it created (#85) —
 see the first entry under Consequences.
 
-Paired with [10. Four architectural characteristics get fitness functions](0010-four-architectural-characteristics-get-fitness-functions.md),
+Paired with [Four architectural characteristics get fitness functions](0010-four-architectural-characteristics-get-fitness-functions.md),
 which covers the other half of the tier-1 gate content (#69).
 
 Constrains, but does not decide, how the Apple targets in PR #66 are specified.

@@ -69,6 +69,13 @@ explains why.
 - **Architectural decisions get an ADR.** See [docs/adr/](docs/adr/). If you
   find yourself explaining *why* a change is shaped the way it is, that
   explanation belongs in an ADR rather than a commit message.
+- **An ADR's number lives on its filename, and nowhere else.** The heading is
+  the title alone — `# The Apple build shares this repo`, never
+  `# 8. The Apple build shares this repo` — and so is the link text when one
+  ADR cites another. `adr new` generates a numbered heading; delete the
+  `N. ` before you commit. This is what makes renumbering a colliding ADR a
+  plain `git mv`, and CI fails if a number reappears in a heading. See
+  [ADR 0015](docs/adr/0015-an-adr-number-lives-on-one-surface.md).
 - **No secrets, ever — including realistic-looking fake ones.** Test fixtures
   must be obviously fake. A plausible-looking key trips secret scanners and
   wastes everybody's afternoon.

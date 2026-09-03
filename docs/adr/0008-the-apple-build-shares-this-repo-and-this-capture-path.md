@@ -1,4 +1,4 @@
-# 8. The Apple build shares this repo, and this capture path
+# The Apple build shares this repo, and this capture path
 
 Date: 2026-08-31
 
@@ -6,9 +6,9 @@ Date: 2026-08-31
 
 Accepted
 
-Builds on [2. GlassFrog authentication and write path for the browser extension](0002-glassfrog-authentication-and-write-path-for-the-browser-extension.md),
-[3. GlassFrog v5 has no role-less write path](0003-glassfrog-v5-has-no-role-less-write-path.md),
-and [4. Provenance marker rides in the tension body](0004-provenance-marker-rides-in-the-tension-body.md).
+Builds on [GlassFrog authentication and write path for the browser extension](0002-glassfrog-authentication-and-write-path-for-the-browser-extension.md),
+[GlassFrog v5 has no role-less write path](0003-glassfrog-v5-has-no-role-less-write-path.md),
+and [Provenance marker rides in the tension body](0004-provenance-marker-rides-in-the-tension-body.md).
 
 ## Context
 

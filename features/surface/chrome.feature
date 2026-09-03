@@ -57,3 +57,14 @@ Feature: Reading a page through Chrome's extension surface
     When the practitioner triggers a quick capture
     Then one item is filed
     And the filed evidence is bounded to 4000 characters per page field
+
+  # R7, issue #8. The credential is stripped where the tab becomes a capture, so
+  # it reaches neither the pending slot nor GlassFrog. Proved here rather than
+  # only at the unit, because the claim is about the whole tab-to-filed-item
+  # path the shortcut and the popup share.
+  Scenario: A URL carrying credentials files without them
+    Given the active tab address is "https://alice:hunter2@example.test/reset?token=abc"
+    When the practitioner triggers a quick capture
+    Then one item is filed
+    And nothing filed contains "hunter2"
+    And the detail contains "https://example.test/reset?token=abc"

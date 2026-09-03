@@ -70,6 +70,56 @@ public enum Compose {
         return String(view) + ellipsis
     }
 
+    /// Removes the URL's `userinfo` component — `user:password@`, and the bare
+    /// `token@` and `:password@` forms — from a captured URL.
+    ///
+    /// The Swift half of R7's credential strip. The share sheet builds its own
+    /// `PageContext` rather than going through the extension's capture path, so
+    /// this is not shared code with `src/compose.ts` and has to hold on its own:
+    /// a strip that existed only in TypeScript would leave every share from an
+    /// iOS or macOS app filing the credential, with a green `swift test`.
+    ///
+    /// Parity with the TypeScript is on the security property, not on bytes.
+    /// Both remove userinfo and both return a credential-free URL untouched;
+    /// what each returns for a URL that *did* carry one differs, because
+    /// `URLComponents` and the WHATWG `URL` serialiser normalise differently.
+    /// Chasing byte-parity there would mean reimplementing one parser in terms
+    /// of the other for the one case where the practitioner's own evidence has
+    /// already been rewritten either way.
+    public static func stripUrlCredentials(_ url: String) -> String {
+        guard let components = URLComponents(string: url) else { return url }
+
+        guard components.user != nil || components.password != nil else {
+            return stripNestedUrlCredentials(url)
+        }
+
+        var stripped = components
+        stripped.user = nil
+        stripped.password = nil
+        return stripped.string ?? url
+    }
+
+    /// The schemes that carry a whole URL inside their own path.
+    ///
+    /// `view-source:https://alice:hunter2@example.test/` parses with a nil
+    /// `user`, because the inner address is only path text at this level — so
+    /// the check above waves the credential through. Recursion terminates
+    /// because each level removes its scheme prefix.
+    private static func stripNestedUrlCredentials(_ url: String) -> String {
+        for scheme in ["view-source", "blob", "filesystem"] {
+            let prefix = scheme + ":"
+            guard url.lowercased().hasPrefix(prefix) else { continue }
+
+            let rest = String(url.dropFirst(prefix.count))
+            guard !rest.isEmpty else { return url }
+
+            let inner = stripUrlCredentials(rest)
+            // Byte-identical unless the inner URL actually changed.
+            return inner == rest ? url : String(url.prefix(prefix.count)) + inner
+        }
+        return url
+    }
+
     /// Marker first, then as much of the title as fits inside `headlineLimit`.
     ///
     /// The marker leads and is never truncated, so R11 holds no matter how long

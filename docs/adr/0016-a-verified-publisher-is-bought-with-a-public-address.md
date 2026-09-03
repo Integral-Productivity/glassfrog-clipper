@@ -1,4 +1,4 @@
-# 16. A verified publisher is bought with a public address
+# A verified publisher is bought with a public address
 
 Date: 2026-09-02
 
