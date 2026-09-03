@@ -134,12 +134,16 @@ test('importing the CLI runs nothing — it is a module as well as a command', a
  * The two guards above cover a check that stops being run and a check that can
  * no longer fail. #88 found the one they miss. `scripts/check-bundle.mjs` became
  * a three-line shim over `fitness/checks/bundle-shape.ts` in #86, so `ci.yml`'s
- * "Check the service worker bundle" step and the fitness suite assert the same
- * thing twice — and the obvious cleanup is to delete the duplicate. At the time
+ * "Check the service worker bundle" step and the fitness suite asserted the same
+ * thing twice — and the obvious cleanup was to delete the duplicate. At the time
  * `verify` was the only merge-blocking context, so deleting that step would have
  * moved `bundle-shape` off the one gating job onto a job that reported without
  * gating. Every test passed. The suite still ran it, it could still fail, and
  * failing would no longer have stopped anything.
+ *
+ * The duplicate is gone as of this change, which is why the guard below is not
+ * optional: it is now the only thing standing between `bundle-shape` and that
+ * same silent un-gating.
  *
  * So the property to assert is not about the checks; it is about who is obliged
  * to be green. Three links carry it, all offline:
@@ -153,6 +157,11 @@ test('importing the CLI runs nothing — it is a module as well as a command', a
  *
  * Break any one and a check stops being gated. Link 3 is not repeated here; it
  * is the same assertion, and two copies of it would drift.
+ *
+ * The rule this enforces is `docs/adr/0022`: a fitness check is only a gate
+ * where a required context runs it. #88's deletion of `ci.yml`'s duplicate step
+ * is the first change made under it, and is safe only because the surviving
+ * reporter was made required first.
  */
 
 export interface WorkflowJob {
