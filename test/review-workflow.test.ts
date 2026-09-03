@@ -140,3 +140,40 @@ test('the structural-skip carve-out is scoped to this workflow file alone', asyn
     'the carve-out no longer matches the changed-file list exactly (`grep -qxF`). A substring or pattern match would exempt any PR touching a path that merely contains this one, turning a narrow structural exemption into a general escape from the assertion.',
   );
 });
+
+test('only the reviewer counts as a review artifact, never shared bot automation', async () => {
+  // The first live run after this workflow landed exposed the defect this
+  // guards. The artifact filter accepted any `github-actions[bot]` comment,
+  // hedging against the action falling back to GITHUB_TOKEN when no Claude App
+  // token is present. That premise was wrong — it posts as `claude[bot]` — and
+  // on PR #180 the hedge counted the CLA bot's comment as a review. A pull
+  // request carrying any github-actions[bot] comment would have gone green with
+  // the reviewer entirely silent: issue #108's defect, rebuilt inside its fix.
+  //
+  // Replayed against that PR's real data, the old filter counted 2 and the
+  // current one counts 1.
+  //
+  // The login selector is asserted, not merely the absence of the string:
+  // `github-actions[bot]` still appears in this file's prose, and the notice
+  // lookup still has to find notices posted under that identity. Only the
+  // ARTIFACT count must be narrow.
+  const source = await workflow();
+
+  const selector = source.match(/select\(\.user\.login \| ascii_downcase \| [^\n]+/);
+  assert.ok(
+    selector,
+    'no login selector found in the artifact count — the assertion cannot tell a review from any other bot comment without one.',
+  );
+
+  assert.match(
+    selector[0],
+    /startswith\(\\?"claude\\?"\)/,
+    `the artifact filter no longer restricts to the reviewer's own login. Found: ${selector[0]}. Widening it to a shared namespace such as github-actions lets unrelated automation — the CLA bot, a labeler, this workflow's own notices — satisfy the assertion, so the check goes green while the reviewer said nothing.`,
+  );
+
+  assert.doesNotMatch(
+    selector[0],
+    /github-actions/,
+    'the artifact filter accepts github-actions[bot] again. That namespace is shared with automation unrelated to reviewing, so any one of those comments passes the assertion on a PR the reviewer never spoke on.',
+  );
+});
