@@ -1,0 +1,22 @@
+docs/solutions/best-practices/test-fixture-fitted-to-fake-not-platform-behaviour.md
+  s_e1ba14da3f6ac0::t_3bc17a58f38cd9 23,25,47,69,87,93,112,124,150
+  s_e1ba14da3f6ac0::t_9d822ed61f88fe 1-22,24,26-46,48-68,70-86,88-92,94-111,113-123,125-149,151-159
+CONCEPTS.md
+  s_e1ba14da3f6ac0::t_3bc17a58f38cd9 59-74
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "29d35261c8af139ff065ffec600181a5f4e8ccb7",
+  "prompts": {},
+  "sessions": {
+    "s_e1ba14da3f6ac0": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "fff66259-fe97-4a13-88ee-cc2a59b0636a",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Kraig Parkinson <kraig.parkinson@gmail.com>"
+    }
+  }
+}
