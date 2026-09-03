@@ -13,14 +13,18 @@ model this ADR records replacing it, and the owning account need not be a
 licensed Workspace mailbox. Both are corrected in 0017; the text here is left as
 written, because what was believed when the decision was made is the record.
 
-**This ADR's decision is not yet met in practice.** Trader verification on
-2026-09-03 came back approved against an individual rather than Integral
-Productivity LLC, so the verified *organization* publisher name this ADR spends a
-public address to buy has not been obtained. The cause and the correction are in
-[`docs/store/chrome-web-store-listing.md`](../store/chrome-web-store-listing.md#the-entity-is-decided-by-the-payments-profile-not-by-the-trader-form):
-trader entity is inherited from the Google payments profile, whose Individual or
-Business type is fixed at creation. The decision below is unchanged and remains
-the target; what failed was execution, several steps upstream of the trader form.
+**Met in practice on 2026-09-03, at the second attempt.** The first pass came
+back approved against an *individual* rather than Integral Productivity LLC —
+the verified *organization* publisher name this ADR spends a public address to
+buy is not something an individual verification obtains. The cause sat several
+steps upstream of the trader form, which is why nothing in that form could have
+caught it: trader entity is inherited from the Google payments profile, whose
+Individual or Business type is fixed at creation. A new Business profile, a
+trader → non-trader → trader cycle to restart verification, and a D-U-N-S check
+against the Dun & Bradstreet record produced the approval this ADR asked for.
+The mechanism is written up in
+[`docs/store/chrome-web-store-listing.md`](../store/chrome-web-store-listing.md#the-entity-is-decided-by-the-payments-profile-not-by-the-trader-form),
+because it is the part worth knowing next time.
 
 Numbered 16 rather than 15: `0015` is claimed by [#150](../../pull/150), still
 open while this was written. `0014` landed on `main` during the same session
