@@ -1,0 +1,26 @@
+test/surface-layer.test.ts
+  s_5e0d38be0d08d5::t_a7434f094dcde8 1-302
+docs/adr/0011-behaviour-is-specified-at-the-domain-with-a-thin-platform-surface-layer.md
+  s_5e0d38be0d08d5::t_a7434f094dcde8 217-247
+apple/GlassFrogClipperCore/Sources/GlassFrogClipperCore/SharedItem.swift
+  s_5e0d38be0d08d5::t_b13298ca2469c3 19-26
+apple/GlassFrogClipperCore/Sources/GlassFrogClipperCore/ShareCaptureModel.swift
+  s_5e0d38be0d08d5::t_e7d6ffb61638d3 17-19
+  s_5e0d38be0d08d5::t_352d016fa556d1 20-22
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "b8fb16efb953eb1ce9a4352cfa09c598bfefbf9a",
+  "prompts": {},
+  "sessions": {
+    "s_5e0d38be0d08d5": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "b952182c-4d27-485a-9310-d94bac0b7514",
+        "model": "unknown"
+      },
+      "human_author": "Kraig Parkinson <kraig.parkinson@gmail.com>"
+    }
+  }
+}
