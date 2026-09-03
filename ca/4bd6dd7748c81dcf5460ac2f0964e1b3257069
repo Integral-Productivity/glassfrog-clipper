@@ -1,0 +1,20 @@
+.github/workflows/ci.yml
+  s_c2a2dedbaa47b2::t_d5bc27bc079884 86-107
+  s_c2a2dedbaa47b2::t_3b3dcb3f519ecd 108
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "ca4bd6dd7748c81dcf5460ac2f0964e1b3257069",
+  "prompts": {},
+  "sessions": {
+    "s_c2a2dedbaa47b2": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "161f3f4f-c523-48a7-9b7d-6dc29f00d6dc",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Kraig Parkinson <kraig.parkinson@gmail.com>"
+    }
+  }
+}
