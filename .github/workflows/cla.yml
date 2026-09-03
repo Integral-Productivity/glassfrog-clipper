@@ -52,7 +52,15 @@ jobs:
           # and no signature can ever be recorded. This branch carries no
           # ruleset by design; test/cla-signature-branch.test.ts guards it.
           branch: 'cla-signatures'
-          allowlist: kraigparkinson,dependabot[bot],bot*
+          # Enumerated, never globbed. The action compiles a `*` pattern to an
+          # UNANCHORED regex (checkAllowList.ts: escapeRegExp -> split('\\*')
+          # -> join('.*') -> RegExp.test), so the old `bot*` matched any login
+          # merely *containing* "bot" — abbott, robotics-inc, sabotage-labs all
+          # exempted from the CLA, silently. `claude` is here because AI-authored
+          # commits carry that account as committer; see ADR 0020 for why an
+          # automation identity is exempt rather than asked to sign.
+          # test/cla-allowlist.test.ts refuses any glob here.
+          allowlist: kraigparkinson,claude,dependabot[bot]
           custom-notsigned-prcomment: >-
             Thanks for the pull request. Before it can be merged, please read
             [the Contributor Licence Agreement](https://github.com/Integral-Productivity/glassfrog-clipper/blob/main/CLA.md)
