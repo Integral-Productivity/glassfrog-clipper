@@ -233,14 +233,16 @@ These are human steps. None can be done from a terminal.
       [Publisher identity](#publisher-identity) for who owns it, what it is
       called, and what gets published — but the registration itself is a
       card-and-clicks errand that only a human can run.
-- [ ] **A reachable privacy policy URL** —
-      [#107](https://github.com/Integral-Productivity/glassfrog-clipper/issues/107),
-      blocked by [#72](https://github.com/Integral-Productivity/glassfrog-clipper/issues/72)
-      / [#80](https://github.com/Integral-Productivity/glassfrog-clipper/issues/80).
-      `PRIVACY.md` is written, but the repository is still private. **The
-      submission cannot be completed until the flip lands**, because the store
-      validates the URL anonymously. Once public it is
-      `https://github.com/Integral-Productivity/glassfrog-clipper/blob/main/PRIVACY.md`.
+- [x] **A reachable privacy policy URL** —
+      [#107](https://github.com/Integral-Productivity/glassfrog-clipper/issues/107).
+      **Done.** The repository went public on 2026-09-03
+      ([#72](https://github.com/Integral-Productivity/glassfrog-clipper/issues/72)),
+      which was the blocker, and
+      `https://github.com/Integral-Productivity/glassfrog-clipper/blob/main/PRIVACY.md`
+      now returns HTTP 200 to an anonymous request. That last part is the check
+      that matters and it is easy to fake by looking at a signed-in browser tab:
+      the store fetches the URL without credentials, so it has to be verified
+      without them too.
 
       The rename to `glassfrog-clipper` has **already happened**, which is the
       order this document previously asked for. Every URL here is written against
@@ -334,9 +336,25 @@ A GlassFrog account and an API key, which you generate in GlassFrog itself. Chro
 
 | Field | Value | Note |
 |---|---|---|
-| Homepage URL | repository URL | Blocked on the public flip ([#72](https://github.com/Integral-Productivity/glassfrog-clipper/issues/72)). Deliberately **not** added to `manifest.json` as `homepage_url` yet — a private repo would render a dead "Website" link in `chrome://extensions`. Add it in the same change as the flip. |
-| Support URL | repository `/issues` | Same dependency. |
-| Privacy policy URL | `PRIVACY.md` on `main` | Same dependency. Mandatory — see below. |
+All three resolve for an anonymous visitor — the repository went public on
+2026-09-03 (#72), which was the blocker. Verified by fetching each without
+credentials rather than from a signed-in browser tab, since that is how the store
+fetches them.
+
+| Field | Value | Verified |
+|---|---|---|
+| Homepage URL | `https://github.com/Integral-Productivity/glassfrog-clipper` | HTTP 200 anonymous |
+| Support URL | `https://github.com/Integral-Productivity/glassfrog-clipper/issues` | HTTP 200 anonymous |
+| Privacy policy URL | `https://github.com/Integral-Productivity/glassfrog-clipper/blob/main/PRIVACY.md` | HTTP 200 anonymous |
+
+The homepage is also declared in the manifest as `homepage_url`, which is what
+renders the "Website" link on the extension's card in `chrome://extensions`. It
+was deliberately withheld until the flip: a private repository would have put a
+dead link there.
+
+Re-check these if the repository is ever renamed again. They are written against
+`glassfrog-clipper`, not a redirect — see the note under the privacy policy
+prerequisite above.
 
 ## Graphic assets
 
@@ -447,8 +465,8 @@ Source, including the architecture decisions behind the permission set, is publi
 - [ ] Developer account registered, publisher created as **Integral Productivity**, and the $5 paid ([#105](https://github.com/Integral-Productivity/glassfrog-clipper/issues/105))
 - [ ] Trader status declared and organization verification submitted ([#105](https://github.com/Integral-Productivity/glassfrog-clipper/issues/105)) — account-level, and nothing in the item submission flow prompts for it
 - [x] Repository renamed to `glassfrog-clipper` — done; every URL here is written against the new name rather than the redirect
-- [ ] Repository public ([#72](https://github.com/Integral-Productivity/glassfrog-clipper/issues/72))
-- [ ] URLs filled in and loading for a signed-out visitor ([#107](https://github.com/Integral-Productivity/glassfrog-clipper/issues/107))
+- [x] Repository public ([#72](https://github.com/Integral-Productivity/glassfrog-clipper/issues/72)) — read back as `visibility: public`, and topics added ([#70](https://github.com/Integral-Productivity/glassfrog-clipper/issues/70))
+- [x] URLs filled in and loading for a signed-out visitor ([#107](https://github.com/Integral-Productivity/glassfrog-clipper/issues/107)) — all three HTTP 200 anonymous; `homepage_url` declared in the manifest
 - [x] `npm run package` clean against the real bundle — `verify` does this on every PR ([#103](https://github.com/Integral-Productivity/glassfrog-clipper/issues/103)); take the SHA-256 from that run's log
 - [ ] Screenshots taken at 1280×800 against a demonstration org ([#104](https://github.com/Integral-Productivity/glassfrog-clipper/issues/104))
 - [ ] Listing fields pasted from this document
