@@ -200,6 +200,22 @@ jobs:
         uses: anthropics/claude-code-action@v1
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          # TEMPORARY — diagnostic for #186, revert once the answer is read.
+          #
+          # The reviewer has posted one review in this repository's history
+          # (PR #180) and said nothing on every other pull request. #108's
+          # remaining hypothesis is that the upstream command's step 1 bails
+          # when a pull request looks "very simple and obviously ok" — the
+          # clause #135's added prompt context does not address. The action
+          # hides the command's own output by default, so which branch it takes
+          # cannot be seen from outside the run. This turns that off for one
+          # run, on this pull request only.
+          #
+          # Exposure: this repository is public, so the run log is public. What
+          # becomes visible is the command's reasoning over a diff that is
+          # already public in this pull request. The token stays masked by
+          # Actions secret redaction and is not printed by this flag.
+          show_full_output: true
           plugin_marketplaces: 'https://github.com/anthropics/claude-code.git'
           plugins: 'code-review@claude-code-plugins'
           prompt: |
