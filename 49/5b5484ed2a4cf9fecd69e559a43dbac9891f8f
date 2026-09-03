@@ -1,0 +1,20 @@
+docs/adr/0014-code-scanning-default-setup-is-the-sole-codeql-owner.md
+  s_93538a0497557b::t_c42f67ddbbfcc4 1-120,122-162,164-182
+  s_93538a0497557b::t_e32e2130731a89 121,163
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "495b5484ed2a4cf9fecd69e559a43dbac9891f8f",
+  "prompts": {},
+  "sessions": {
+    "s_93538a0497557b": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "f93ecbde-b301-4609-9424-896772d3fe6e",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Kraig Parkinson <kraig.parkinson@gmail.com>"
+    }
+  }
+}
