@@ -92,14 +92,22 @@ test('the review prompt tells the eligibility agent not to skip Claude-authored 
   );
 });
 
-test('the job asserts a review artifact exists, so a silent run fails red', async () => {
+test('a silent run always leaves a notice, even though it no longer fails red', async () => {
   // The belt above makes the reviewer speak on the paths we know about. This is
   // the suspenders: whatever the cause, a run that ends having left nothing
-  // readable on the PR must not conclude green.
+  // readable on the PR must say so on the PR.
   //
   // It asserts "this PR carries a review", not "this run produced one" —
   // step 1 also bails once Claude has already commented, so a per-run
   // assertion would fail red on every synchronize push to a healthy PR.
+  //
+  // ADVISORY SINCE ADR 0021. The check no longer goes red on silence, because
+  // #186 showed the reviewer is silent on roughly seven pull requests out of
+  // eight for an unisolated upstream cause, and a blocking gate on that spends
+  // attention without adding information. What #108 actually required is that a
+  // clean pass and a no-op be distinguishable, and the NOTICE is what delivers
+  // that — not the exit code. So the guarantee this test defends moved: it is
+  // no longer "fails red", it is "never silent AND wordless".
   const source = await workflow();
 
   assert.match(
@@ -112,6 +120,23 @@ test('the job asserts a review artifact exists, so a silent run fails red', asyn
     source,
     /claude-review-silence-notice/,
     'the silence notice lost its HTML marker. The marker is what excludes this step’s own failure comments from the artifact count; without it the first silent run posts a notice as github-actions[bot] and the next run counts that notice as a review, passing green on the strength of its own error message.',
+  );
+
+  // The load-bearing assertion now that the exit code is advisory. A green
+  // check plus a notice is an honest "not reviewed"; a green check alone is
+  // issue #108 verbatim.
+  assert.match(
+    source,
+    /notify "### Claude Code Review left no review on this pull request/,
+    'the silent path no longer posts a notice. The check is advisory since ADR 0021, so the notice is the ONLY thing distinguishing “reviewed, found nothing” from “never reviewed”. Green and wordless is exactly the defect #108 was opened about — if this notice is being removed, restore the red exit with it.',
+  );
+
+  // Guards the contradiction the workflow's own comments warn about: a notice
+  // asserting the job failed, beside a check reporting success.
+  assert.doesNotMatch(
+    source,
+    /the job is failing red/,
+    'the silence notice still tells the reader the job failed red, but the step exits 0 since ADR 0021. A PR would carry a green check beside a comment insisting it went red, and resolving that contradiction is the work this notice exists to spare the reader.',
   );
 });
 
