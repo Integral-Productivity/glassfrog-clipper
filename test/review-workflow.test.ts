@@ -47,9 +47,10 @@ const workflow = async (): Promise<string> => readFile(fromRoot(WORKFLOW), 'utf8
 const promptBlock = (source: string): string => {
   const lines = source.split('\n');
   const start = lines.findIndex((line) => /^\s*prompt:\s*\|/.test(line));
-  assert.notEqual(start, -1, `no \`prompt: |\` block in ${WORKFLOW} — the review is driven by that prompt, so its absence is not a test-fixture problem.`);
+  const header = lines[start];
+  assert.ok(header !== undefined, `no \`prompt: |\` block in ${WORKFLOW} — the review is driven by that prompt, so its absence is not a test-fixture problem.`);
 
-  const indent = lines[start].search(/\S/);
+  const indent = header.search(/\S/);
   const body: string[] = [];
   for (const line of lines.slice(start + 1)) {
     if (line.trim() !== '' && line.search(/\S/) <= indent) break;
@@ -111,5 +112,31 @@ test('the job asserts a review artifact exists, so a silent run fails red', asyn
     source,
     /claude-review-silence-notice/,
     'the silence notice lost its HTML marker. The marker is what excludes this step’s own failure comments from the artifact count; without it the first silent run posts a notice as github-actions[bot] and the next run counts that notice as a review, passing green on the strength of its own error message.',
+  );
+});
+
+test('the structural-skip carve-out is scoped to this workflow file alone', async () => {
+  // `anthropics/claude-code-action` refuses to run when this file differs from
+  // the copy on the default branch, so a PR editing it gets no review however
+  // the job is configured. Failing red there would be a FALSE red — the exact
+  // mirror of the false green in #108 — so the assertion reports it green with
+  // an explanation on the PR instead.
+  //
+  // The danger is that the escape widens. An exemption keyed on anything
+  // broader than "this pull request edits this exact file" becomes a way for a
+  // silent reviewer to pass, which is the defect coming back through the door
+  // marked exit.
+  const source = await workflow();
+
+  assert.match(
+    source,
+    /SELF:\s*\.github\/workflows\/claude-code-review\.yml/,
+    'the carve-out no longer names this workflow file explicitly. It must key on this exact path — the action self-skips only when THIS file differs from the default branch, so any broader condition exempts runs that had no excuse to be silent.',
+  );
+
+  assert.match(
+    source,
+    /gh pr diff[^\n]*--name-only[^\n]*\n?[^\n]*grep -qxF "\$SELF"/,
+    'the carve-out no longer matches the changed-file list exactly (`grep -qxF`). A substring or pattern match would exempt any PR touching a path that merely contains this one, turning a narrow structural exemption into a general escape from the assertion.',
   );
 });
