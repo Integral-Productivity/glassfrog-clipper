@@ -19,8 +19,9 @@
  * does not let a duplicate reach `main`.
  */
 import { claimedAdrNumbers, collidingClaims, describeCollisions, type AdrClaim, type ChangedFile } from './adr-claims.ts';
+import { repoSlug } from './repo-slug.ts';
 
-const SLUG = process.env.GITHUB_REPOSITORY ?? 'Integral-Productivity/glassfrog-clipper-chrome-extension';
+const SLUG = process.env.GITHUB_REPOSITORY ?? repoSlug();
 const TOKEN = process.env.GITHUB_TOKEN ?? process.env.GH_TOKEN;
 
 /** GitHub caps a page at 100. Passing that is a signal, not a limit to hide. */

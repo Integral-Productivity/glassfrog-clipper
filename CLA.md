@@ -69,4 +69,10 @@ Open a pull request. A bot will ask you to accept this agreement by leaving a
 single comment on it, and will record your acceptance. You only ever do this
 once.
 
+Your acceptance is recorded in this repository — no external service holds it —
+in `.github/cla-signatures.json` on the **`cla-signatures`** branch. It is kept
+off `main` for a mechanical reason rather than a discreet one: the bot records a
+signature by pushing that file, and `main` rejects pushes that carry no `verify`
+check. See [ADR 0019](docs/adr/0019-the-cla-signature-record-lives-off-the-protected-branch.md).
+
 Questions about these terms are welcome — open an issue before signing.
