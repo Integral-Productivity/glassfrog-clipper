@@ -16,15 +16,21 @@
 //  ShareSheetSurfaceTests.swift, which states this behaviour and carries the
 //  boundary note about what a green run there does and does not prove.
 //
-//  Reachable is not the same as enforced, and the difference is worth knowing:
-//  the `Swift core` job that runs these tests is path-filtered and is not a
-//  required check (`verify` is the only one), so it reports on a pull request
-//  that touches `apple/` but cannot block a merge. Treat a red run here as a
-//  stop signal by convention, not by mechanism.
+//  Reachable is not the same as enforced, and the line falls in an exact place
+//  (#98). Presence and wiring ARE mechanism: `test/surface-layer.test.ts` runs
+//  inside the required `verify` check and fails if this specification is
+//  deleted or gutted, if it is dropped from the SwiftPM test target, or if
+//  nothing under `.github/workflows/` still runs `swift test`. Passing is
+//  still convention: the `Swift core` job is path-filtered and is not required
+//  (`verify` is the only one, ADR 0012), so a red run here reports on a pull
+//  request touching `apple/` and cannot block a merge. #133 owns that half.
 //
 //  Moving the file here also put it under the package's Swift 6
 //  strict-concurrency checking, which the Xcode targets do not apply — they
-//  build at SWIFT_VERSION 5.0. `load` carries what that turned up.
+//  build at SWIFT_VERSION 5.0. `load` carries what that turned up, and
+//  `pageContext` carries a second finding from the same source: moving
+//  `ShareCaptureModel` in after it (#94) made the isolation of the share's own
+//  items checkable for the first time.
 //
 
 import Foundation
@@ -38,6 +44,16 @@ public enum SharedItem {
     /// that yields something. Share sheets routinely attach a URL and a text
     /// selection to the same item, and taking whichever arrives first throws
     /// away half of what the practitioner meant to capture.
+    ///
+    /// `@MainActor` because the share's items are the main actor's. They arrive
+    /// from `extensionContext.inputItems` on the main thread and are held there
+    /// for the sheet's lifetime by `ShareCaptureView`, so reading them off it
+    /// is a send the compiler rejects — which is how this was found, when
+    /// `ShareCaptureModel` moved into this package and its `@MainActor load`
+    /// started handing `items` to a nonisolated reader. Annotating rather than
+    /// suppressing, because the isolation claim is true: nothing else reads an
+    /// `NSItemProvider` here, and the awaits below suspend rather than block.
+    @MainActor
     public static func pageContext(from items: [NSExtensionItem]) async -> PageContext? {
         var url: String?
         var selection: String?
@@ -128,6 +144,7 @@ public enum SharedItem {
     /// another app with a modal sheet open, and filing what did arrive beats
     /// refusing the capture over one attachment. It is recorded here because
     /// silent degradation should be a decision someone made, not a gap.
+    @MainActor
     static func load(
         _ provider: NSItemProvider,
         as identifier: String,
