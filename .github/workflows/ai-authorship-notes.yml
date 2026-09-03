@@ -41,8 +41,22 @@ jobs:
       && github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     steps:
+      # Check out the BASE branch, not the pull request. On a `pull_request`
+      # event actions/checkout defaults to `refs/pull/N/merge`, which puts the
+      # pull request's own content in the working tree of a job holding
+      # `contents: write` — the pattern CodeQL flags as "checkout of untrusted
+      # code in a non-privileged context" (alert 4 on #84).
+      #
+      # No step here executes anything from the tree — every step is git
+      # plumbing plus an inline script — and the job only runs on a *merged*
+      # same-repository pull request, so the content is already on `main` by
+      # then. But the working tree is not needed at all: the commits this job
+      # reasons about are fetched by explicit SHA below. Checking out the base
+      # branch removes the exposure rather than relying on the guard above and
+      # on no future step ever running something from the tree.
       - uses: actions/checkout@v7
         with:
+          ref: ${{ github.event.pull_request.base.ref }}
           fetch-depth: 0
 
       - name: Copy the authorship note onto the squashed commit
@@ -67,6 +81,18 @@ jobs:
           # No --depth here: this is a full clone, and a shallow fetch would cut
           # off ${HEAD_SHA}^, which the diff guard below needs.
           git fetch origin "$HEAD_SHA" 2>/dev/null || true
+
+          # The squashed commit comes along with the base branch checkout, but
+          # fetch it explicitly too: this job no longer checks out the pull
+          # request, so its presence should not depend on how far `main` had
+          # advanced when the runner cloned it.
+          git fetch origin "$MERGE_SHA" 2>/dev/null || true
+
+          if ! git cat-file -e "${MERGE_SHA}^{commit}" 2>/dev/null; then
+            echo "::warning::Squashed commit $MERGE_SHA is not available here,"
+            echo "::warning::so its authorship note cannot be written."
+            exit 0
+          fi
 
           if ! git cat-file -e "${HEAD_SHA}^{commit}" 2>/dev/null; then
             echo "::warning::Head commit $HEAD_SHA is no longer served by origin;"
