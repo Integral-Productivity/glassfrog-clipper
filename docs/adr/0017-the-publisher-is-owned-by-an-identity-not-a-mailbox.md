@@ -122,11 +122,19 @@ licence rather than a consumed Workspace seat, and Chrome Web Store is on for it
 organizational unit. So the identity half of the reasoning is no longer an
 assumption, and the $0 is real rather than projected.
 
-**The other half is still ahead of the evidence.** Nothing yet shows the *Chrome
-Web Store dashboard* accepting a Gmail-less account — that is first exercised at
-[#105](../../issues/105) step 3, before the fee at step 4, which is why the
-ordering puts sign-in and mail ahead of payment. The fallbacks if it refuses are
-unchanged: the committed spare seat or a licensed one, and the loss is minutes.
+**The other half is observed too.** At [#105](../../issues/105) step 3 the
+developer dashboard, signed in as that account in a clean profile, presented the
+ordinary registration screen — the developer agreement and the fee. So a Chrome
+Web Store developer account can be owned by a Google identity with no mailbox
+behind it. Google documents this neither way, which is why the runbook puts that
+sign-in *before* the fee: the observation was bought with minutes, and the
+fallbacks — the committed spare seat, or a licensed one — stayed available until
+it came back.
+
+What remains unobserved is only what is unobserved for any new publisher:
+whether the notification traffic that follows registration keeps arriving through
+the routing rule. That is a monitoring signal rather than an open question, and
+it is named as one below.
 
 **The identity is admin-recoverable, which the mailbox alternative also was.**
 Nothing about the free licence weakens the Admin console's control over the

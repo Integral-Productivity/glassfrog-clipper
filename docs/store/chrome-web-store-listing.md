@@ -121,10 +121,11 @@ mistake here with no remedy.
    **Done on 2026-09-03.** `chrome-store@integralproductivity.com` exists as a
    Cloud Identity Free user; it signs in independently, mail reaches it through
    the routing rule, Billing shows a Cloud Identity licence rather than a
-   consumed seat, and Chrome Web Store is on for its organizational unit. What
-   this has *not* yet shown is the developer dashboard accepting a Gmail-less
-   account — step 3 is where that is first seen, and it comes before the fee for
-   that reason.
+   consumed seat, and Chrome Web Store is on for its organizational unit. Step 3
+   then showed the developer dashboard presenting its ordinary registration
+   screen to that account, so a publisher can be owned by an identity with no
+   mailbox behind it. Google documents this neither way; it is recorded here
+   because it was observed.
 2. **Have a Google Voice number ready**, or note which existing business line
    can receive SMS. Trader verification will ask, and stalling mid-flow is
    avoidable.
