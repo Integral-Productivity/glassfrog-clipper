@@ -96,9 +96,10 @@ background you can reach for when a design question comes up.
   fails — that is the point. The loss is silent.
 - **[ADR 0012](docs/adr/0012-auto-merge-is-armed-by-requiring-exactly-one-check-on-main.md)
   and [ADR 0013](docs/adr/0013-an-adr-number-is-defended-at-three-points-not-one.md)
-  — exactly one required check, and it must be up to date.** `main` runs with
-  `strict_required_status_checks_policy` on, so a branch that falls behind must
-  be brought current before it can merge. Bringing it current with a merge
+  — three required checks, and they must be up to date.** `main` requires
+  `verify`, `BDD / Scenarios` and `Software Fitness / Self-compliance`, and runs
+  with `strict_required_status_checks_policy` on, so a branch that falls behind
+  must be brought current before it can merge. Bringing it current with a merge
   commit turns a compliant one-commit pull request into a two-commit one, which
   is ADR 0009's silent loss arriving with no author involved. `gh pr
   update-branch --rebase` is the way out — it reconciles by rebasing rather than

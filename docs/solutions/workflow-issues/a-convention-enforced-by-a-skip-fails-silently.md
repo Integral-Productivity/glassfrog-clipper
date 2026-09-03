@@ -82,7 +82,7 @@ gh run view 33705670201 --log
 # (no output)
 ```
 
-And `copy-note` blocks nothing, because it is not a required check. The ruleset on `main` requires exactly one context:
+And `copy-note` blocks nothing, because it is not a required check. The ruleset on `main` required exactly one context when this was measured — it requires three now, and `copy-note` is still not among them:
 
 ```bash
 gh api repos/…/rules/branches/main \
