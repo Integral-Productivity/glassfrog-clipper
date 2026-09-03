@@ -1,0 +1,53 @@
+docs/adr/0015-an-adr-number-lives-on-one-surface.md
+  s_e95c8be71c517a::t_581ba6ccb345ab 155-169
+  s_e95c8be71c517a::t_e1a541bc77bc99 170-173
+  s_e95c8be71c517a::t_8bfa022712c125 1-154
+CONTRIBUTING.md
+  s_e95c8be71c517a::t_710bb510b12719 72-78
+docs/adr/0001-record-architecture-decisions.md
+  s_e95c8be71c517a::t_7f76eafe57cc95 1
+docs/adr/0002-glassfrog-authentication-and-write-path-for-the-browser-extension.md
+  s_e95c8be71c517a::t_c9b5b11c3790f8 1,9,11
+docs/adr/0003-glassfrog-v5-has-no-role-less-write-path.md
+  s_e95c8be71c517a::t_e7faaadf432d19 1,9
+docs/adr/0004-provenance-marker-rides-in-the-tension-body.md
+  s_e95c8be71c517a::t_197a36985a1640 1,11
+docs/adr/0005-the-open-source-path-runs-through-a-public-sdk.md
+  s_e95c8be71c517a::t_4917eca69ab5fd 1,10
+docs/adr/0006-queue-health-is-measured-from-capture-not-from-last-touch.md
+  s_e95c8be71c517a::t_32286e171bc78f 1,11
+docs/adr/0007-telemetry-is-local-only-and-allowlisted-at-the-write-boundary.md
+  s_e95c8be71c517a::t_f84395754568c0 1,11,13
+docs/adr/0008-the-apple-build-shares-this-repo-and-this-capture-path.md
+  s_e95c8be71c517a::t_fcd2f4615a929a 1,9-11
+docs/adr/0009-ai-authorship-survives-a-squash-only-where-the-diff-is-unchanged.md
+  s_e95c8be71c517a::t_f893b06833f3b4 1
+docs/adr/0010-four-architectural-characteristics-get-fitness-functions.md
+  s_e95c8be71c517a::t_c98f4371d4f3ba 1,10-11,13
+docs/adr/0011-behaviour-is-specified-at-the-domain-with-a-thin-platform-surface-layer.md
+  s_e95c8be71c517a::t_43c787e10265ff 1,10
+docs/adr/0012-auto-merge-is-armed-by-requiring-exactly-one-check-on-main.md
+  s_e95c8be71c517a::t_c64cac9b39a81d 1
+docs/adr/0013-an-adr-number-is-defended-at-three-points-not-one.md
+  s_e95c8be71c517a::t_7e37830dd26b21 1,9-10
+fitness/checks/adr-numbering.ts
+  s_e95c8be71c517a::t_83d29334af7b47 15-22,31,42-46,66,68-71,73-77,79,81-86,111,115,118-121,142
+test/adr-numbering.test.ts
+  s_e95c8be71c517a::t_ee33765d8efa58 8,36-43,97-98,101,103,107-113,115,117-118,124-127,132-135,137-138,142-146,148-151,156-165
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "0fac16cbb8b9c71fb48ed47f16bb975346b78490",
+  "prompts": {},
+  "sessions": {
+    "s_e95c8be71c517a": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "c86a4f78-a8a6-4d47-98b2-082115078bc4",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Kraig Parkinson <kraig.parkinson@gmail.com>"
+    }
+  }
+}
