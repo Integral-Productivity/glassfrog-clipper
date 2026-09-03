@@ -1,6 +1,6 @@
 {
   "name": "glassfrog-clipper",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "private": true,
   "description": "Clip the page you're on into GlassFrog as a tension, action, or project \u2014 without losing your train of thought.",
   "license": "GPL-3.0-or-later",
@@ -17,6 +17,8 @@
     "test": "node --test 'test/**/*.test.ts'",
     "build:safari": "tsup && node scripts/build-safari.mjs",
     "build:all": "npm run build && node scripts/build-safari.mjs",
+    "package": "npm run build && node scripts/package-chrome.mjs",
+    "icons": "python3 scripts/render-icons.py",
     "bdd": "node node_modules/@cucumber/cucumber/bin/cucumber",
     "fitness:self": "node fitness/self/cli.ts"
   },
