@@ -171,4 +171,4 @@ fails on it.
 
 _Still not covered here: a capture against a live organisation with a real key.
 That is the first-install checklist above, and on Safari it is
-[#64](https://github.com/Integral-Productivity/glassfrog-clipper-chrome-extension/issues/64)._
+[#64](https://github.com/Integral-Productivity/glassfrog-clipper/issues/64)._

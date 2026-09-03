@@ -249,8 +249,7 @@ These are human steps. None can be done from a terminal.
       repository under the old name. A privacy-policy URL the store has recorded
       is not somewhere to rely on a redirect.
       [#62](https://github.com/Integral-Productivity/glassfrog-clipper/issues/62)
-      stays open for the references still carrying the old name elsewhere in the
-      tree.
+      swept the rest of the tree for the same reason.
 - [ ] **Screenshots** —
       [#104](https://github.com/Integral-Productivity/glassfrog-clipper/issues/104).
       See [Graphic assets](#graphic-assets); they need a real browser and a real
