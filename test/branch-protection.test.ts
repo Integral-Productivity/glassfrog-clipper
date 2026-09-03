@@ -45,50 +45,14 @@ import { repoSlug } from '../scripts/repo-slug.ts';
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 
 /**
- * What `main`'s ruleset requires. Changing this line without changing the
- * ruleset — or the reverse — is what the live check below catches.
+ * The three declarations this file's rules are about. They live in
+ * `test/support/required-checks.ts` so `test/fitness/suite.test.ts` can read
+ * them without importing a test module — see that file's header for why that
+ * distinction is not cosmetic. Re-exported here because this is where callers
+ * and the ADRs expect to find them.
  */
-export const REQUIRED_CHECKS = ['verify'];
-
-/**
- * Whether `main` requires a pull request to be up to date with it before merging
- * — GitHub's `strict_required_status_checks_policy`.
- *
- * This is the half of the collision defence that #83 exposed, and it is worth
- * being precise about what was actually wrong, because the obvious diagnosis is
- * not it. `test/adr-numbering.test.ts` was never the gap: it runs on the *merged*
- * tree GitHub builds from head plus base, so it does see `main`'s ADRs, exactly
- * as its own header claims.
- *
- * The gap was that a green it produced could go stale and still merge. Checks
- * are recorded against a head SHA, and a base-branch move is not a
- * `synchronize` event, so nothing re-runs when `main` gains an ADR underneath an
- * open pull request. With this policy off, that stale pass stays mergeable:
- *
- *   1. #66 merges `docs/adr/0007-*.md`.
- *   2. #61's `verify` is already green — against a tree where 0007 was free.
- *   3. Nothing re-runs. #61 merges. `main` now holds two `0007-*.md`.
- *
- * Turning it on does not make the guard smarter; it makes the guard *binding*,
- * by forcing the merge tree to be rebuilt against a `main` that has moved. It is
- * also why `allow_update_branch` belongs on with it — auto-merge (ADR 0012)
- * needs a way to bring a stale branch forward without a human rebase.
- *
- * Requiring exactly one check keeps ADR 0012's reasoning intact: strictness is a
- * property of *when* the required check is evaluated, not of how many are
- * required.
- */
-export const REQUIRE_UP_TO_DATE_BRANCHES = true;
-
-/**
- * Which workflow each required check reports from. Declared rather than
- * inferred: mapping a check-run name back to its job would mean parsing job
- * ids, `name:` overrides and matrix expansions, and a parser that gets that
- * subtly wrong fails open — it would find no problem and report green.
- */
-export const CHECK_SOURCES: Record<string, string> = {
-  verify: 'ci.yml',
-};
+export { CHECK_SOURCES, REQUIRED_CHECKS, REQUIRE_UP_TO_DATE_BRANCHES } from './support/required-checks.ts';
+import { CHECK_SOURCES, REQUIRED_CHECKS, REQUIRE_UP_TO_DATE_BRANCHES } from './support/required-checks.ts';
 
 export interface PullRequestTrigger {
   /** The workflow has a `pull_request:` trigger at all. */
@@ -261,6 +225,58 @@ test('an unmapped check is a failure, not a skip', () => {
   assert.deepEqual(unreliablyRequiredChecks(['mystery'], {}, { 'ci.yml': 'on:\n  pull_request:\n' }), [
     { check: 'mystery', workflow: '(unmapped)', reason: 'workflow missing' },
   ]);
+});
+
+/**
+ * The two tier-1 contexts are named in two files, and the copies must agree.
+ *
+ * `test/workflow-contexts.test.ts` pins them against being *renamed in the
+ * workflow*; this file pins what `main` requires. Those are different jobs, so
+ * two declarations is the right shape — but two copies of a string is also how
+ * #83 happened, and the failure here is the quiet kind: rename a context in
+ * `bdd-and-fitness.yml`, update that file's list, and the ruleset would go on
+ * requiring a name nothing emits, pinning every pull request at "waiting for
+ * status to be reported" with both test files green.
+ *
+ * Read out of the source rather than imported. Importing one test module into
+ * another would register its tests in both runs, and `node --test` runs each
+ * file in its own process — so the cross-check would cost a duplicate run of an
+ * unrelated suite. Reading the text also fails loudly if the constant is
+ * renamed away, which an import would too, but a re-export would not.
+ */
+export function pinnedContexts(source: string): string[] {
+  const declared = source.match(/const REQUIRED_CONTEXTS = \[([^\]]*)\]/)?.[1];
+  if (declared === undefined) return [];
+  return [...declared.matchAll(/'([^']+)'/g)].map((match) => match[1] as string);
+}
+
+test('the contexts pinned against renaming are the contexts main requires', async () => {
+  const source = await readFile(join(root, 'test', 'workflow-contexts.test.ts'), 'utf8');
+  const pinned = pinnedContexts(source);
+
+  assert.ok(
+    pinned.length > 0,
+    'REQUIRED_CONTEXTS could not be read out of test/workflow-contexts.test.ts — the cross-check is not checking anything',
+  );
+  for (const context of pinned) {
+    assert.ok(
+      REQUIRED_CHECKS.includes(context),
+      `${JSON.stringify(context)} is pinned as a tier-1 context but is not in REQUIRED_CHECKS — main would require a name this repository no longer promises to emit`,
+    );
+  }
+});
+
+test('the guard detects a context pinned in one file and missing from the other', () => {
+  // The red half. If `pinnedContexts` ever stopped finding the array — a
+  // reformat that breaks the line, a rename of the constant — it would return
+  // `[]`, every `includes` check would vacuously hold, and the green test above
+  // would pass forever over a cross-check that had stopped crossing. This shows
+  // it reading a real list, so the emptiness case is a genuine failure rather
+  // than the normal one.
+  const source = "const REQUIRED_CONTEXTS = ['BDD / Scenarios', 'Fitness / Renamed'];";
+
+  assert.deepEqual(pinnedContexts(source), ['BDD / Scenarios', 'Fitness / Renamed']);
+  assert.ok(!REQUIRED_CHECKS.includes('Fitness / Renamed'));
 });
 
 /**

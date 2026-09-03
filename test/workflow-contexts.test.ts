@@ -7,9 +7,14 @@ import { fromRoot } from '../fitness/root.ts';
 /**
  * The two required status checks, pinned by name.
  *
- * `devops-excellence/rulesets/self-governance-adopted.json` requires exactly
- * these two contexts. A required check that never reports blocks every PR, so
- * the name is not cosmetic — it is the whole mechanism.
+ * `main`'s own ruleset requires exactly these two contexts alongside `verify`
+ * (#194, ADR 0012), and `devops-excellence/rulesets/self-governance-adopted.json`
+ * names the same two for the eventual org-managed tier. Until #194 only the org
+ * ruleset named them, and it is not applied to this repository — so both
+ * reported on every PR and neither gated one.
+ *
+ * A required check that never reports blocks every PR, so the name is not
+ * cosmetic — it is the whole mechanism.
  *
  * The names look wrong on purpose. A caller of a reusable workflow emits
  * `<caller job name> / <called job name>`, which is how devops-excellence's own

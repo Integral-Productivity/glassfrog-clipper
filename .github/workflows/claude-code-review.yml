@@ -345,20 +345,37 @@ jobs:
             exit 0
           fi
 
-          notify "### Claude Code Review produced no output
+          # ADVISORY, not blocking. The notice is the guarantee; the exit code
+          # is not.
+          #
+          # #108's requirement was that a clean pass and a no-op must not look
+          # identical. A comment on the pull request saying "this was not
+          # reviewed" satisfies that on its own — the reader can tell the two
+          # apart without the check going red. Red additionally *stopped* work,
+          # and #186 established that the reviewer is silent on roughly seven
+          # pull requests out of eight for a cause nobody has isolated yet. A
+          # blocking gate on an unresolved upstream defect spends attention on
+          # every pull request and buys nothing the notice does not already buy.
+          #
+          # What must never come back is silence with NO artifact. If this
+          # notify() is ever removed, restore the red with it — green and
+          # wordless is exactly #108.
+          notify "### Claude Code Review left no review on this pull request
 
-          This check ran to completion and left no review on this pull request — no summary
-          comment, no inline comment, no review. A run that found nothing and a run that
-          never reviewed anything look identical from here, so the job is failing red rather
-          than painting a green check over work nobody can audit.
+          This check ran to completion and posted nothing — no summary comment, no inline
+          comment, no review. **The diff was not reviewed.**
+
+          The check is green because this reviewer is advisory here, not because anything
+          was checked. Read it as "no opinion offered", never as "no issues found".
 
           The reviewer is passed \`--comment\`, so a clean pass is expected to post
           \"## Code review — No issues found. Checked for bugs and CLAUDE.md compliance.\"
           Silence means it did not run, stopped at its eligibility check, or could not post.
+          Which of those is [#186](https://github.com/Integral-Productivity/glassfrog-clipper/issues/186).
 
           [Run log](${RUN_URL})
 
           _Posted by the workflow, not by the reviewer. This is not a review._"
 
-          echo "::error::Claude Code Review completed successfully but left no review artifact on PR #${PR}. See issue #108 — a green check for a review nobody can read is the defect this assertion exists to catch."
-          exit 1
+          echo "::warning::Claude Code Review left no review artifact on PR #${PR}. Reported on the pull request; advisory rather than blocking (docs/adr/0021, issue #186)."
+          exit 0

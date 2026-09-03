@@ -59,8 +59,9 @@ tree to be rebuilt against a `main` that has moved, so a stale green cannot
 merge. `allow_update_branch` is paired with it because auto-merge (ADR 0012)
 needs a way to bring a stale branch forward without a human rebase. The number of
 required checks is unchanged, so 0012's reasoning is untouched: strictness is a
-property of *when* the one required check is evaluated, not of how many are
-required.
+property of *when* a required check is evaluated, not of how many are
+required. (`main` required one at the time and requires three now; that is the
+sentence demonstrating itself rather than contradicting itself.)
 
 Both are repository configuration rather than code, and **neither is applied
 yet** — changing what `main` accepts is an operator action taken deliberately,

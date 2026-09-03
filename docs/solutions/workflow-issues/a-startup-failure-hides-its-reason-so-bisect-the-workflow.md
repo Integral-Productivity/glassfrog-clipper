@@ -119,10 +119,12 @@ Two properties held it invisible, and both are general:
 
 1. A `startup_failure` produces no annotation and no failing step — a grey-red
    entry that does not read as a test failure.
-2. CLA is not a required check.
+2. CLA is not a required check. Through those 152 runs
    [ADR 0012](../../adr/0012-auto-merge-is-armed-by-requiring-exactly-one-check-on-main.md)
-   requires `verify` alone, and `test/branch-protection.test.ts` pins
-   `REQUIRED_CHECKS = ['verify']`.
+   required `verify` alone, and `test/branch-protection.test.ts` pinned
+   `REQUIRED_CHECKS = ['verify']`. The list has since grown to three, and `cla`
+   is still not on it — [ADR 0018](../../adr/0018-the-cla-check-is-required-only-after-it-has-reported-once.md)
+   sets the condition it has to meet first.
 
 Those compound in a way worth noticing. Because a startup failure emits **no
 check run at all**, a required CLA check would not have gone red either — it

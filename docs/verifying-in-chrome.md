@@ -167,7 +167,8 @@ ignores files the manifest does not name, so nothing broke — but the packaged
 extension carried a manifest describing a different platform.
 `scripts/build-safari.mjs` already removed it from the Safari bundle for the same
 reason; the Chrome half was missing. Fixed, and `scripts/check-bundle.mjs` now
-fails on it.
+fails on it. (That script has since been removed — #88. The rule it ran lives in
+`fitness/checks/bundle-shape.ts` and is reported by `npm run fitness:self`.)
 
 _Still not covered here: a capture against a live organisation with a real key.
 That is the first-install checklist above, and on Safari it is
