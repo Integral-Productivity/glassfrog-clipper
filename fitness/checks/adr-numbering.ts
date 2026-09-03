@@ -12,9 +12,14 @@
  * too. One implementation, two reporting surfaces, nothing to drift — see
  * docs/adr/0010.
  *
- * The collision this guards is not hypothetical for this repo today: as of
- * 2026-09-01, PRs #61 and #66 both carry a `docs/adr/0007-*.md`, and neither
- * names the number anywhere a PR-title search can see it.
+ * WHAT THE HEADING RULE NOW ASSERTS, AND WHY IT INVERTED. It used to require
+ * every heading to repeat its filename's number, because #42 renamed a file to
+ * `0006-` with a pure `git mv` and left `# 5.` behind, and #54 repaired that by
+ * hand. ADR 0015 removed the number from headings entirely rather than keep
+ * guarding the agreement of two copies: the rule below now fails a heading that
+ * carries a number at all. The number lives on the filename and nowhere else,
+ * so a renumber is a `git mv` with nothing left to drift — which is what #42
+ * was trying to do and what the old convention made wrong.
  */
 import { readFile, readdir } from 'node:fs/promises';
 import { join } from 'node:path';
@@ -23,7 +28,7 @@ import { type CheckResult, type Violation, fail, pass } from '../report.ts';
 import { REPO_ROOT } from '../root.ts';
 
 const NAME = 'adr-numbering';
-const CHARACTERISTIC = 'navigability — every ADR has one number, on both surfaces';
+const CHARACTERISTIC = 'navigability — every ADR has one number, on exactly one surface';
 
 export const ADR_DIR = join('docs', 'adr');
 
@@ -34,6 +39,11 @@ export const ADR_DIR = join('docs', 'adr');
  *
  * Returns each duplicated number with the files claiming it, sorted, so a
  * failure message names the files to fix rather than only the count.
+ *
+ * ADR 0015 kept sequential allocation rather than moving to a scheme in which
+ * two branches cannot claim the same number, so this rule still guards a live
+ * race — it is not vestigial. What 0015 changed is the cost of losing that
+ * race, not the possibility of losing it.
  */
 export function duplicateAdrNumbers(filenames: string[]): Array<{ number: string; files: string[] }> {
   const byNumber = new Map<string, string[]>();
@@ -53,38 +63,27 @@ export function duplicateAdrNumbers(filenames: string[]): Array<{ number: string
 }
 
 /**
- * The second surface carrying the same number.
+ * The second surface, kept empty.
  *
- * #42 renumbered the queue-health ADR from `0005` to `0006` with a pure
- * `git mv` — 100% similarity, no content touched — so the filename moved and
- * the in-file `# 5.` heading stayed behind. A reader browsing rendered ADRs
- * sees headings, not filenames. So does an agent grepping `^# `.
+ * A heading matching `# N. ` is the shape `adr new` generates and the shape
+ * that drifted twice. Banning exactly that form rather than any leading digit
+ * is deliberate: it is the generated pattern, so it cannot mistake a decision
+ * title for a stale number, and it mirrors the parser this rule replaced.
  *
- * Filenames zero-pad to four digits (`0006-`); headings do not (`# 6.`). The
- * comparison is therefore numeric, not textual — string equality would report
- * every correctly-numbered ADR in the repo as a mismatch.
- *
- * A file whose filename carries no number is skipped, matching
- * `duplicateAdrNumbers`. A file whose *heading* carries no number is reported:
- * a heading the parser cannot read is exactly the state this guard exists to
- * fail on, and silently skipping it is how a fitness function rots into a no-op.
+ * A file with *no* heading is still reported, for the reason the old rule gave:
+ * a heading the parser cannot see is exactly the state this guard exists to
+ * fail on, and silently skipping it is how a fitness function rots into a
+ * no-op. A file whose filename carries no number is skipped, matching
+ * `duplicateAdrNumbers` — the stray-filename rule below reports it instead.
  */
-export function headingNumberMismatches(
+export function numberedHeadings(
   adrs: Array<{ filename: string; heading: string | undefined }>,
-): Array<{ filename: string; filenameNumber: number; heading: string | undefined }> {
-  const mismatches: Array<{ filename: string; filenameNumber: number; heading: string | undefined }> = [];
-
-  for (const { filename, heading } of adrs) {
-    const fromFilename = /^(\d{4})-.+\.md$/.exec(filename)?.[1];
-    if (fromFilename === undefined) continue;
-
-    const fromHeading = heading === undefined ? undefined : /^#\s+(\d+)\.\s/.exec(heading)?.[1];
-    if (fromHeading !== undefined && Number(fromHeading) === Number(fromFilename)) continue;
-
-    mismatches.push({ filename, filenameNumber: Number(fromFilename), heading });
-  }
-
-  return mismatches.sort((a, b) => a.filename.localeCompare(b.filename));
+): Array<{ filename: string; heading: string | undefined }> {
+  return adrs
+    .filter(({ filename }) => /^\d{4}-.+\.md$/.test(filename))
+    .filter(({ heading }) => heading === undefined || /^#\s+\d+\.\s/.test(heading))
+    .map(({ filename, heading }) => ({ filename, heading }))
+    .sort((a, b) => a.filename.localeCompare(b.filename));
 }
 
 export async function adrFilenames(root = REPO_ROOT): Promise<string[]> {
@@ -109,14 +108,17 @@ export async function runAdrNumberingCheck(): Promise<CheckResult> {
   for (const { number, files } of duplicateAdrNumbers(filenames)) {
     violations.push({
       where: `${ADR_DIR}/${number}-*`,
-      detail: `claimed by ${files.join(' and ')} — renumber the later one to the next free slot and update references to it.`,
+      detail: `claimed by ${files.join(' and ')} — renumber the later one to the next free slot with \`git mv\`; the number is on the filename only, so nothing else needs editing.`,
     });
   }
 
-  for (const { filename, filenameNumber, heading } of headingNumberMismatches(await adrHeadings())) {
+  for (const { filename, heading } of numberedHeadings(await adrHeadings())) {
     violations.push({
       where: join(ADR_DIR, filename),
-      detail: `filename says ${filenameNumber}, heading says ${JSON.stringify(heading ?? '(none)')} — a renumber that moves the file must edit the heading too.`,
+      detail:
+        heading === undefined
+          ? 'has no `# ` heading — an ADR the reader cannot title is one this guard cannot see.'
+          : `heading ${JSON.stringify(heading)} carries a number — the number lives on the filename only (ADR 0015), so a renumber stays a pure \`git mv\`. Drop the \`N. \` prefix.`,
     });
   }
 
@@ -137,6 +139,6 @@ export async function runAdrNumberingCheck(): Promise<CheckResult> {
   }
 
   return violations.length === 0
-    ? pass(NAME, CHARACTERISTIC, `${numbered.length} ADRs, each with a unique number matching its heading.`)
+    ? pass(NAME, CHARACTERISTIC, `${numbered.length} ADRs, each with a unique number carried by its filename alone.`)
     : fail(NAME, CHARACTERISTIC, 'ADR numbering is ambiguous', violations);
 }

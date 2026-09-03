@@ -27,6 +27,13 @@ build() {
   local target="$1"; shift
   printf '==> %-45s' "$target"
   if xcodebuild build -project "$PROJECT" -target "$target" "${FLAGS[@]}" "$@" > "/tmp/gfc-$(echo "$target" | tr ' ()' '___').log" 2>&1; then
+    # An unopenable base configuration warns rather than errors, so the build
+    # exits 0 and would print ok with the signing xcconfig detached or missing.
+    if grep -q 'Unable to open base configuration reference file' "/tmp/gfc-$(echo "$target" | tr ' ()' '___').log"; then
+      echo "FAILED (base configuration unresolved)"
+      failed=1
+      return
+    fi
     echo "ok"
   else
     echo "FAILED"

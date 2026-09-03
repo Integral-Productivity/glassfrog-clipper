@@ -20,6 +20,9 @@ cd "$(dirname "$0")/.."
 
 PROJECT="apple/GlassFrog Clipper"
 STASH="$(mktemp -d)"
+# The stash now carries an untracked Local.xcconfig through the rm -rf below.
+# Dying in between would otherwise lose a team identifier with no trace of where.
+trap '[ -d "$STASH" ] && echo "bootstrap failed; stashed sources (including any Local.xcconfig) are at: $STASH" >&2' ERR
 
 # The web bundle has to exist first: the converter copies it into the project.
 npm run build:safari
@@ -36,7 +39,7 @@ do
     cp "$PROJECT/$path" "$STASH/$path"
   fi
 done
-for dir in "Shared (Share)" "iOS (Share)" "macOS (Share)" "Entitlements"; do
+for dir in "Shared (Share)" "iOS (Share)" "macOS (Share)" "Entitlements" "Configurations"; do
   [ -d "$PROJECT/$dir" ] && cp -R "$PROJECT/$dir" "$STASH/"
 done
 
@@ -56,6 +59,9 @@ python3 scripts/xcode-wire.py
 # xcode-wire.py declares, so adding them first would declare the same file twice.
 python3 scripts/xcode-add-share.py
 python3 scripts/xcode-entitlements.py
+# After the entitlements, and for the same reason: both are inert without a team
+# identifier, and both would otherwise be lost to the rm -rf above.
+python3 scripts/xcode-team.py
 # Last: replaces the converter's static copy of the web bundle with a build
 # phase that produces it, so nothing generated ends up in version control.
 python3 scripts/xcode-resource-phase.py
