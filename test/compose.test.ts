@@ -8,6 +8,7 @@ import {
   PROVENANCE_MARKER,
   compose,
   headline,
+  stripUrlCredentials,
 } from '../src/compose.ts';
 
 function capture(overrides: Partial<Capture> = {}): Capture {
@@ -233,4 +234,66 @@ test('each page-derived evidence field is bounded on its own', () => {
 
 test('the marker is stable, since triage-survival matching depends on it', () => {
   assert.equal(PROVENANCE_MARKER, '[glassfrog-clipper]');
+});
+
+test('R7: a URL carrying userinfo credentials is stripped of them', () => {
+  assert.equal(
+    stripUrlCredentials('https://alice:hunter2@example.test/reset?token=abc'),
+    'https://example.test/reset?token=abc',
+    'the query string is untouched — only the userinfo component is removed',
+  );
+});
+
+test('R7: a bare userinfo token is stripped too, not just user:password', () => {
+  assert.equal(
+    stripUrlCredentials('https://s3cr3t-token@example.test/doc'),
+    'https://example.test/doc',
+    'a lone userinfo field is still an identifier the practitioner never chose to file',
+  );
+  assert.equal(
+    stripUrlCredentials('https://:hunter2@example.test/doc'),
+    'https://example.test/doc',
+    'a password with no username is the same leak',
+  );
+  assert.equal(
+    stripUrlCredentials('https://alice%40corp.test:p%40ss@example.test/doc'),
+    'https://example.test/doc',
+    'percent-encoded userinfo is userinfo',
+  );
+});
+
+test('R7: a URL with no userinfo is returned byte-identical, not normalised', () => {
+  for (const url of [
+    'https://example.test',
+    'HTTPS://Example.TEST/Path?b=2&a=1#frag',
+    'https://example.test/a%2Fb/../c',
+    'file:///Users/someone/notes.md',
+    'about:blank',
+    '',
+    'not a url at all',
+  ]) {
+    assert.equal(
+      stripUrlCredentials(url),
+      url,
+      `stripping must not rewrite ${url || '(empty)'} — evidence is carried as the practitioner saw it`,
+    );
+  }
+});
+
+test('R7: a project link and the evidence block both carry the stripped URL', () => {
+  const composed = compose(
+    capture({
+      workType: 'project',
+      page: {
+        url: stripUrlCredentials('https://alice:hunter2@example.test/spec'),
+        title: 'A spec',
+        capturedAt: '2026-08-28T12:00:00.000Z',
+      },
+    }),
+  );
+
+  assert.equal(composed.kind, 'project');
+  if (composed.kind !== 'project') return;
+  assert.equal(composed.link, 'https://example.test/spec');
+  assert.doesNotMatch(composed.note, /hunter2/, 'no credential survives into the note either');
 });

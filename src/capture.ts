@@ -1,5 +1,5 @@
 import { compose } from './compose.ts';
-import { EVIDENCE_FIELD_LIMIT, truncate } from './compose.ts';
+import { EVIDENCE_FIELD_LIMIT, stripUrlCredentials, truncate } from './compose.ts';
 import {
   type DefaultStatus,
   clearInFlight,
@@ -41,11 +41,16 @@ export interface CreatedItem {
  * compose time. An untruncated multi-megabyte selection would otherwise blow
  * the storage quota on its way into the pending slot — losing exactly the
  * capture the slot exists to protect.
+ *
+ * R7's userinfo strip happens here for the same reason: this is the single
+ * point where a tab becomes a PageContext, so both the shortcut and the popup
+ * are covered, and the credential is gone before the pending slot, the evidence
+ * block, and a project's `link` field can each carry a copy of it.
  */
 export function pageContextFromTab(tab: chrome.tabs.Tab, selection?: string): PageContext {
   const trimmed = selection?.trim();
   return {
-    url: truncate(tab.url ?? '', EVIDENCE_FIELD_LIMIT),
+    url: truncate(stripUrlCredentials(tab.url ?? ''), EVIDENCE_FIELD_LIMIT),
     title: truncate(tab.title ?? '', EVIDENCE_FIELD_LIMIT),
     ...(trimmed ? { selection: truncate(trimmed, EVIDENCE_FIELD_LIMIT) } : {}),
     capturedAt: new Date().toISOString(),

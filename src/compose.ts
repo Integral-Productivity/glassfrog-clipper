@@ -42,6 +42,40 @@ export function truncate(text: string, limit: number = EVIDENCE_FIELD_LIMIT): st
   return points.slice(0, Math.max(0, limit - 1)).join('') + ELLIPSIS;
 }
 
+/**
+ * Removes the URL's `userinfo` component — `user:password@`, and the bare
+ * `token@` and `:password@` forms — from a captured URL.
+ *
+ * R7 carries the URL as evidence, and a magic-link, password-reset, or
+ * signed-URL page turns a zero-decision keystroke into an export of a
+ * credential the practitioner never chose to share. Userinfo is the one part of
+ * a URL that is *definitionally* a credential, so removing it costs no
+ * decision — which is what keeps this on the right side of STRATEGY.md's resist
+ * test. Secrets carried in the query string or fragment are a judgement call,
+ * not a component, and R7 carries those as-is by design.
+ *
+ * A URL with no userinfo is returned byte-identical rather than round-tripped
+ * through `URL`. Serialising every capture would lowercase hosts, add trailing
+ * slashes, and re-encode paths — rewriting the evidence on the overwhelming
+ * majority of captures that were never at risk. An unparseable string is
+ * likewise returned unchanged: `chrome.tabs.Tab.url` is browser-normalised, so
+ * a parse failure means there is no authority component to reason about.
+ */
+export function stripUrlCredentials(url: string): string {
+  let parsed: URL;
+  try {
+    parsed = new URL(url);
+  } catch {
+    return url;
+  }
+
+  if (!parsed.username && !parsed.password) return url;
+
+  parsed.username = '';
+  parsed.password = '';
+  return parsed.href;
+}
+
 export type Composed =
   | { kind: 'tension'; body: string }
   | { kind: 'action'; description: string; note: string }
