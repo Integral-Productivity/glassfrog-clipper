@@ -19,6 +19,7 @@ import { mkdir, writeFile } from 'node:fs/promises';
 import { dirname } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
+import { runAccountDisclosureCheck } from '../checks/account-disclosure.ts';
 import { runAdrNumberingCheck } from '../checks/adr-numbering.ts';
 import { runBundleShapeCheck } from '../checks/bundle-shape.ts';
 import { runCredentialConfinementCheck } from '../checks/credential-confinement.ts';
@@ -39,6 +40,7 @@ export const CHECKS: Array<() => Promise<CheckResult>> = [
   runSdkBoundaryCheck,
   runAdrNumberingCheck,
   runRequirementsTraceabilityCheck,
+  runAccountDisclosureCheck,
 ];
 
 interface Flags {

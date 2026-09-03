@@ -4,6 +4,8 @@ import { readdir, readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 
+import { repoSlug } from '../scripts/repo-slug.ts';
+
 /**
  * A fitness function for what `main` is allowed to require.
  *
@@ -273,7 +275,15 @@ test('an unmapped check is a failure, not a skip', () => {
  */
 const LIVE = process.env.CHECK_LIVE_BRANCH_PROTECTION === '1';
 const TOKEN = process.env.GITHUB_TOKEN ?? process.env.GH_TOKEN;
-const SLUG = 'Integral-Productivity/glassfrog-clipper-chrome-extension';
+/**
+ * Which repository the live check reads. Derived from `package.json` rather
+ * than written out again: this test is skipped in every ordinary run, so a
+ * literal here would be a copy of the repository's name that nothing reads
+ * until someone runs the opt-in check by hand — exactly how #62's rename could
+ * have left it stale and green. `repo-identity.test.ts` holds the two copies
+ * that genuinely must exist separately against each other.
+ */
+const SLUG = repoSlug();
 
 test('main actually requires the checks REQUIRED_CHECKS names', { skip: !LIVE || !TOKEN }, async () => {
   const response = await fetch(`https://api.github.com/repos/${SLUG}/rules/branches/main`, {

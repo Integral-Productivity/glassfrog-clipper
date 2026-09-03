@@ -41,7 +41,7 @@ You can check by hand at any time:
 node scripts/check-labels.mjs
 ```
 
-> **On the count.** [Issue #43](https://github.com/Integral-Productivity/glassfrog-clipper-chrome-extension/issues/43),
+> **On the count.** [Issue #43](https://github.com/Integral-Productivity/glassfrog-clipper/issues/43),
 > which asked for this document, says "six-state vocabulary" in its body and "the
 > five states" in its acceptance criteria. The live label set carries **six**
 > mutually exclusive states, listed below. Six is what is documented here,

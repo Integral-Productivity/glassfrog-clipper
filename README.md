@@ -81,6 +81,27 @@ npm run build         # → dist/, load unpacked in chrome://extensions
 npm run build:safari  # → dist-safari/, the Safari bundle
 ```
 
+### If you cloned before 2026-09-02
+
+This repository was renamed from `glassfrog-clipper-chrome-extension` to
+`glassfrog-clipper` ([#62](../../issues/62)), because the old name described one
+of the three platforms it serves — see
+[ADR 0008](docs/adr/0008-the-apple-build-shares-this-repo-and-this-capture-path.md).
+GitHub redirects the old URL for both HTTP and git, so an existing clone keeps
+fetching and pushing with no change — but only while the old name stays
+unclaimed. Creating a repository named `glassfrog-clipper-chrome-extension`
+under this org retires the redirect, so repoint the remote rather than relying
+on it:
+
+```
+git remote set-url origin https://github.com/Integral-Productivity/glassfrog-clipper.git
+```
+
+Over SSH, use `git@github.com:Integral-Productivity/glassfrog-clipper.git`
+instead — the HTTPS URL above would silently convert an SSH clone.
+
+Worktrees share the parent clone's remote, so one `set-url` covers all of them.
+
 ## Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md). Contributions need a
