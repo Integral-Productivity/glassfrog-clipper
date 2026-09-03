@@ -1,0 +1,42 @@
+tsconfig.json
+  s_abd69403d51417::t_f079b12fb5a253 25-26
+scripts/adr-claims.ts
+  s_abd69403d51417::t_f079b12fb5a253 1-146
+docs/plans/2026-08-28-1123-feat-zero-decision-capture-path-plan.md
+  s_abd69403d51417::t_f079b12fb5a253 63-64,93-94,100-101,248,253-261,264,266-272,427
+scripts/check-adr-claims.ts
+  s_abd69403d51417::t_f079b12fb5a253 1-111
+CONCEPTS.md
+  s_abd69403d51417::t_f079b12fb5a253 59-74
+docs/adr/0013-an-adr-number-is-defended-at-three-points-not-one.md
+  s_abd69403d51417::t_f079b12fb5a253 1-132
+PRIVACY.md
+  s_abd69403d51417::t_f079b12fb5a253 61,141
+docs/solutions/best-practices/test-fixture-fitted-to-fake-not-platform-behaviour.md
+  s_abd69403d51417::t_f079b12fb5a253 1-159
+docs/store/chrome-web-store-listing.md
+  s_abd69403d51417::t_f079b12fb5a253 11-12,18,29,36-38,42-52,54,68-71,75,137,247-252,256
+.github/workflows/ci.yml
+  s_abd69403d51417::t_f079b12fb5a253 14-17,83-92,100-122
+test/adr-claims.test.ts
+  s_abd69403d51417::t_f079b12fb5a253 1-168
+test/branch-protection.test.ts
+  s_abd69403d51417::t_f079b12fb5a253 52-80,286-289,303-311
+  s_abd69403d51417::t_8f0b3ff4e2a18a 51,312
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "cfd882a67da8d71cb4934e5b4776a7fed6f84d46",
+  "prompts": {},
+  "sessions": {
+    "s_abd69403d51417": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "36fee660-9626-40c1-bc87-5f2c61bfec11",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Kraig Parkinson <kraig.parkinson@gmail.com>"
+    }
+  }
+}
