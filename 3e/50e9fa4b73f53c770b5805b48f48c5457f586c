@@ -1,0 +1,20 @@
+.github/workflows/ai-authorship-notes.yml
+  s_26f656c97b8eae::t_d36ed4075cdc39 44-56,59
+  s_26f656c97b8eae::t_8485dc69a91315 85-96
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "3e50e9fa4b73f53c770b5805b48f48c5457f586c",
+  "prompts": {},
+  "sessions": {
+    "s_26f656c97b8eae": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "2171f4c6-7f94-4276-a409-2b0d21f8dd30",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Kraig Parkinson <kraig.parkinson@gmail.com>"
+    }
+  }
+}
