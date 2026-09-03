@@ -94,7 +94,7 @@ publisher name is free text with nothing standing behind it.
 
 ### Registering, in order
 
-Order matters in one place: **create the mailbox before touching the
+Order matters in one place: **create the identity before touching the
 dashboard.** Registering first and fixing the address afterwards is the one
 mistake here with no remedy.
 
@@ -126,11 +126,17 @@ mistake here with no remedy.
    screen to that account, so a publisher can be owned by an identity with no
    mailbox behind it. Google documents this neither way; it is recorded here
    because it was observed.
+
+   **Registration completed the same day.** The fee is paid, the display name is
+   saved, the account email verified through Google's own message reaching the
+   mailbox-less address by the routing rule, and Kraig holds Admin as a
+   membership row. Only the trader declaration (step 7) is outstanding, waiting
+   on an SMS-capable number.
 2. **Have a Google Voice number ready**, or note which existing business line
    can receive SMS. Trader verification will ask, and stalling mid-flow is
    avoidable.
 3. **Sign in to the [Developer Dashboard](https://chrome.google.com/webstore/devconsole)
-   as that mailbox**, in a clean profile or incognito window. Signing in as the
+   as that account**, in a clean profile or incognito window. Signing in as the
    wrong Google account and paying is the expensive slip, and the dashboard does
    not make the active account obvious.
 4. **Accept the developer agreement, then pay the $5.** One-time, per account,

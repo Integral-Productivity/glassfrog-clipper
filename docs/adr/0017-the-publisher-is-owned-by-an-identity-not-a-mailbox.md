@@ -131,10 +131,18 @@ sign-in *before* the fee: the observation was bought with minutes, and the
 fallbacks — the committed spare seat, or a licensed one — stayed available until
 it came back.
 
-What remains unobserved is only what is unobserved for any new publisher:
-whether the notification traffic that follows registration keeps arriving through
-the routing rule. That is a monitoring signal rather than an open question, and
-it is named as one below.
+**The routing rule then carried Google's own mail.** Registration completed on
+that account — fee paid, publisher display name `Integral Productivity` set, and
+the account-email verification link delivered to the mailbox-less address through
+the rule and followed successfully. The mail path is therefore proven under
+Google's traffic, not only under a test message sent by hand, which was the one
+dependency this decision added.
+
+Access no longer rests on the single password either: Kraig holds **Admin** on
+the publisher as a membership row, added free and without a second registration —
+the members-and-roles mechanism whose arrival is what retired the constraint this
+ADR corrects. The decision is, at this point, entirely observed rather than
+argued.
 
 **The identity is admin-recoverable, which the mailbox alternative also was.**
 Nothing about the free licence weakens the Admin console's control over the
