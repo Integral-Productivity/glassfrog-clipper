@@ -87,13 +87,39 @@ creation as an acceptance criterion; on this decision that criterion is met on
 the `cla-signatures` branch instead, and #179 should be read that way rather
 than treated as unmet.
 
-The branch is created by the action on first signature and must be left out of
-any ruleset. A future change that protects all branches by pattern would
+**Correction, 2026-09-03.** This ADR originally said the branch is created by
+the action on first signature. That was wrong, and it was never checked before
+being written down — in the document whose own argument is that unverified
+premises are what produced #179. `src/persistence/persistence.ts` at the pinned
+SHA only ever calls `repos.createOrUpdateFileContents` with the configured
+`branch:`; there is no branch-creation call anywhere in the action, and
+GitHub's contents API requires the branch to exist already. So the first
+signature would have failed — silently, inside the `cla` check that nothing
+requires, which is #179's failure mode a third time.
+
+`cla-signatures` is therefore **seeded**, as an orphan commit holding
+`.github/cla-signatures.json` byte-identical to what the action writes on
+creation (`JSON.stringify({signedContributors: []}, null, 3)`, from
+`src/setupClaCheck.ts`) plus a README stating the constraint. With the file
+present the action takes its `updateFile` path and never needs to create
+anything.
+
+The branch must be left out of any ruleset. A future change that protects all branches by pattern would
 silently reintroduce this failure — silently, because a signature failure
 appears only inside a check that nothing requires. `test/cla-signature-branch.test.ts`
-guards the half of that which is checkable offline: that `cla.yml` does not
-point its signature storage at the branch this repository protects. The
-ruleset half needs a live check and is not built here.
+carries the guards, and it is worth being exact about which of them actually
+runs:
+
+- **Always.** `cla.yml` does not point signature storage at the protected
+  branch, and the branch it does name matches what `CLA.md` and this ADR tell a
+  reader. Three surfaces name this branch; a rename that updates some of them
+  is the drift that goes unnoticed, so the agreement is asserted rather than
+  hoped for.
+- **Only when asked** (`CHECK_LIVE_CLA_BRANCH=1`). The branch exists and is
+  unprotected. This one needs the network, so it skips by default — which means
+  it is *not* a standing guard, and saying otherwise would be the same
+  overclaim this ADR was already corrected for once. The standing protection is
+  the offline half above.
 
 **This change cannot be verified on the pull request that makes it.** A
 `pull_request_target` workflow is read from the *default* branch, so #180 runs
