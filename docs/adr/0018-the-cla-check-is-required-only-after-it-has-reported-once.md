@@ -125,8 +125,23 @@ not-signed comment on #180 with the custom text and the live `CLA.md` link.
 Worth recording *why* it asked: #180 was opened by an allowlisted account, but
 the commits are authored by `Claude <noreply@anthropic.com>`, which is not on
 the allowlist. The action checks commit authorship, not who opened the pull
-request. Step 4 is open and is now the binding constraint. Until it closes, `REQUIRED_CHECKS` stays
-`['verify']` and ADR 0012 is unmodified.
+request. Step 4 is open and is now the binding constraint. Until it closes,
+`cla` stays out of `REQUIRED_CHECKS`.
+
+The first version of that sentence read "`REQUIRED_CHECKS` stays `['verify']`
+and ADR 0012 is unmodified", which conflated two separate things and went stale
+within the day. `REQUIRED_CHECKS` is now
+`['verify', 'BDD / Scenarios', 'Software Fitness / Self-compliance']` and ADR
+0012 carries an amendment — both from [#194](../../issues/194), which has
+nothing to do with the CLA. What this ADR governs is whether **`cla`** joins
+that list, not how long the list is. The correction is worth leaving visible:
+writing a general rule and then pinning it to an unrelated variable is how a
+rule acquires a false expiry.
+
+The two contexts that did join satisfy this ADR's rule rather than bypassing it.
+Both were observed reporting `success` on a pull request's head (#193, head
+`1467da71`) before the ruleset required them — the step-3 evidence, gathered
+for a different gate.
 
 ## Consequences
 

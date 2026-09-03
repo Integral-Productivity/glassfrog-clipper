@@ -4,7 +4,11 @@ Date: 2026-09-02
 
 ## Status
 
-Accepted
+Accepted, amended 2026-09-03 — see [Amendment](#amendment-2026-09-03). The
+decision below stands; the count in its title and in "Decision" does not. `main`
+now requires three checks. The title is left as written because it records what
+was decided on 2026-09-02, and because renaming the file would break every link
+into it for no gain.
 
 Numbered 12 rather than 10 deliberately: `0007` landed on `main` with
 [#61](../../pull/61) while this was being written, and [#86](../../pull/86) is
@@ -50,6 +54,9 @@ instinct is to check the token — which is the wrong surface entirely.
 
 `main` requires exactly one status check: **`verify`**, the sole job in
 [`ci.yml`](../../.github/workflows/ci.yml).
+
+> **Amended 2026-09-03.** `main` requires three. The rule that decides which is
+> unchanged; only the count is. See [Amendment](#amendment-2026-09-03).
 
 Requiring one check is enough to arm auto-merge. Requiring *more* is where this
 gets dangerous, and the danger is not symmetric with the benefit:
@@ -136,3 +143,65 @@ offline half runs in `npm test`. The half that reads live GitHub state is opt-in
 behind `CHECK_LIVE_BRANCH_PROTECTION=1`, because CI's token has only
 `contents: read` and cannot read rulesets — a check that cannot run in CI is
 better declared opt-in than left to fail confusingly.
+
+> **Amended 2026-09-03.** That last sentence rests on an incomplete premise, and
+> the cost of it was paid before it was noticed. The rules endpoint answers
+> unauthenticated on a public repository, so the token was never the obstacle —
+> and while the live half sat skipped, the ruleset and the declared list
+> disagreed with nothing to say so. [#200](../../issues/200) carries the
+> decision about what to do with it.
+
+## Amendment (2026-09-03)
+
+`main` requires three status checks, not one:
+
+| context | source | reports on every PR? |
+|---|---|---|
+| `verify` | `ci.yml`, `pull_request`, unfiltered | yes |
+| `BDD / Scenarios` | `bdd-and-fitness.yml`, `pull_request`, unfiltered | yes |
+| `Software Fitness / Self-compliance` | `bdd-and-fitness.yml`, `pull_request`, unfiltered | yes |
+
+The two new contexts are the tier-1 gates that
+`devops-excellence/rulesets/self-governance-adopted.json` mandates. The slash in
+each name is load-bearing rather than a typo — a caller of a reusable workflow
+emits `<caller job> / <called job>`, and `bdd-and-fitness.yml` reproduces the
+org-canonical context from a local job by putting the whole string in `name:`.
+[`test/workflow-contexts.test.ts`](../../test/workflow-contexts.test.ts) holds
+that reasoning and pins both names against being tidied away.
+
+**What this amendment does not change is the rule.** "A check may be required
+only if it reports on every pull request" is why these two qualify and why the
+`Analyze (…)` jobs still do not. Both new contexts come from an unfiltered
+`pull_request` trigger, and both were observed reporting `success` on a pull
+request's head (#193, head `1467da71`) before being required — the precondition
+[ADR 0018](0018-the-cla-check-is-required-only-after-it-has-reported-once.md)
+adds on top of this ADR's test.
+
+**What it does change is the sentence "requiring exactly one check".** That was
+never the criterion, only the count that satisfied it on 2026-09-02. One check
+is what *arms* auto-merge; the number above one is set by which checks pass the
+rule, not by any property of auto-merge. Nothing in the auto-merge reasoning
+depends on the count, and neither does
+`REQUIRE_UP_TO_DATE_BRANCHES`: strictness is a property of *when* a required
+check is evaluated, not of how many there are.
+
+### How this was found, which is the part worth keeping
+
+The ruleset was changed to require all three under
+[#194](../../issues/194) while
+[`test/branch-protection.test.ts`](../../test/branch-protection.test.ts) still
+declared `REQUIRED_CHECKS = ['verify']`. That file carries a live test whose
+failure message is *"main's ruleset and REQUIRED_CHECKS disagree — one of them
+was changed without the other"*, which is precisely the condition that held. It
+did not fire. It is skipped unless `CHECK_LIVE_BRANCH_PROTECTION=1` is set, and
+no workflow sets it, so the disagreement stood green for as long as it took a
+human to notice.
+
+That is the same shape as [#179](../../issues/179): not a missing guard, a guard
+nothing runs. The offline half of that file is genuinely binding and did its job
+here — adding these two contexts made it check their triggers. The live half is
+documentation. Whether it can be made binding is
+[its own question](../../issues/200), because the reason it is opt-in — CI's
+`GITHUB_TOKEN` carries only `contents: read` — turns out not to be the whole
+story: `GET /repos/{slug}/rules/branches/main` answers unauthenticated on a
+public repository, at the price of a 60-per-hour shared rate limit.

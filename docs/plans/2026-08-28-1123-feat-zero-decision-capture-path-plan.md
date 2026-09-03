@@ -306,7 +306,7 @@ U1 first — the build is currently broken in a way that reports success, so eve
 - **Goal:** `npm run build` produces a bundle an MV3 service worker can actually load, against the current SDK.
 - **Requirements:** prerequisite for every unit; unblocks A1 and A4.
 - **Dependencies:** none.
-- **Files:** `tsup.config.ts`, `package.json`, `package-lock.json`, `.npmrc`, `public/manifest.json`, `scripts/check-bundle.mjs` *(added by the sweep — the bundle gate became a script, see the Verification Contract)*
+- **Files:** `tsup.config.ts`, `package.json`, `package-lock.json`, `.npmrc`, `public/manifest.json`, `scripts/check-bundle.mjs` *(added by the sweep — the bundle gate became a script, see the Verification Contract; the script was removed again in #88 once its rule lived in `fitness/checks/bundle-shape.ts`)*
 - **Approach:**
   1. Add `noExternal` to `tsup.config.ts` so the SDK is bundled rather than left as a bare specifier. tsup externalizes everything in `dependencies` by default.
   2. Bump `@integral-productivity/glassfrog` to `^0.6.0`; `^0.1.0` resolves to `<0.2.0` under npm's 0.x caret rule.
@@ -480,12 +480,14 @@ U1 first — the build is currently broken in a way that reports success, so eve
 | Types | `npm run typecheck` | all units | no errors under `strict` + `noUncheckedIndexedAccess` |
 | Tests | `npm test` (`node --test`) | U2, U3, U4, U5, U6, U7 | all scenarios above pass **and the run reports a non-zero test count** |
 | Build | `npm run build` | U1, U3, U7 | `dist/` loads unpacked with no service-worker registration error |
-| Bundle | `node scripts/check-bundle.mjs` | U1 | `dist/background.js` contains no bare import specifier and no DOM-only global |
+| Bundle | `npm run build && npm run fitness:self` (its `bundle-shape` check) | U1 | `dist/background.js` contains no bare import specifier and no DOM-only global |
 | Manual | load unpacked, capture on a real page | U4, U5, U6, U7 | a tension appears in GlassFrog carrying the marker, URL, and title |
 | Manual | capture on a `chrome://` tab | U5 | fails visibly rather than filing an empty tension |
 | CI | `.github/workflows/ci.yml` | U8 | green on a pull request and on a Dependabot pull request |
 
 **Swept 2026-08-31: every gate named here exists, under these names.** Two are implemented more strongly than described and their rows have been corrected. The Bundle gate became a script that matches *any* bare specifier rather than the package name — deliberately, since the SDK carries its own name in a User-Agent constant and esbuild leaves path comments, so a name search would fail a build with nothing wrong. The CI gate's Dependabot clause was untestable when this was written and is now backed by `.github/dependabot.yml`. The Tests gate's "non-zero test count" clause is enforced indirectly, by pinning Node 22.18 in CI so a silent drop below the `.ts`-discovery floor cannot report zero tests as a pass; no step asserts the count itself.
+
+**Swept again 2026-09-03 (#88): the Bundle gate's entry point moved; its assertion did not.** `scripts/check-bundle.mjs` was deleted. The rule had already graduated to `fitness/checks/bundle-shape.ts` (ADR 0010) and is now reported only by `npm run fitness:self` — whose `Software Fitness / Self-compliance` check had been made a required status check first, under #194, so the gate still blocks a merge.
 
 GlassFrog writes are not mocked at the boundary. Tests use a fake client behind a narrow local interface, mirroring the `SdkGlassFrogReader` adapter in `glassfrog-productboard-plugin` — it is what makes the capture path testable without network.
 
