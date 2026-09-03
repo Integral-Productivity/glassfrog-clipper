@@ -111,10 +111,22 @@ irreversible step goes last.
 
 **Google does not document a Gmail-less identity as a publisher owner.** Nothing
 found forbids it, and it satisfies every documented requirement — an account
-that signs in, and an address that receives mail. That is a reasoned position,
-not an observed one, and it is recorded as such. If the test in the paragraph
-above fails, the fallbacks are the committed spare seat or a licensed one, and
-the loss is minutes.
+that signs in, and an address that receives mail. When this was written that was
+a reasoned position rather than an observed one.
+
+**Half of it is now observed.** On 2026-09-03 the operator built the account this
+way: `chrome-store@integralproductivity.com` as a Cloud Identity Free user, and
+all four checks passed — it signs in independently in a clean profile, mail sent
+from outside arrives through the routing rule, Billing reports a Cloud Identity
+licence rather than a consumed Workspace seat, and Chrome Web Store is on for its
+organizational unit. So the identity half of the reasoning is no longer an
+assumption, and the $0 is real rather than projected.
+
+**The other half is still ahead of the evidence.** Nothing yet shows the *Chrome
+Web Store dashboard* accepting a Gmail-less account — that is first exercised at
+[#105](../../issues/105) step 3, before the fee at step 4, which is why the
+ordering puts sign-in and mail ahead of payment. The fallbacks if it refuses are
+unchanged: the committed spare seat or a licensed one, and the loss is minutes.
 
 **The identity is admin-recoverable, which the mailbox alternative also was.**
 Nothing about the free licence weakens the Admin console's control over the

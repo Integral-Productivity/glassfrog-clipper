@@ -117,6 +117,14 @@ mistake here with no remedy.
    outside and watch it arrive. This is the cheap moment to find it wrong. If an
    already-committed but unassigned Workspace seat exists, using it instead is
    equally free until renewal and skips both settings and this test.
+
+   **Done on 2026-09-03.** `chrome-store@integralproductivity.com` exists as a
+   Cloud Identity Free user; it signs in independently, mail reaches it through
+   the routing rule, Billing shows a Cloud Identity licence rather than a
+   consumed seat, and Chrome Web Store is on for its organizational unit. What
+   this has *not* yet shown is the developer dashboard accepting a Gmail-less
+   account — step 3 is where that is first seen, and it comes before the fee for
+   that reason.
 2. **Have a Google Voice number ready**, or note which existing business line
    can receive SMS. Trader verification will ask, and stalling mid-flow is
    avoidable.
