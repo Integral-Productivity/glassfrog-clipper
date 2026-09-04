@@ -1,0 +1,101 @@
+name: Operator runbook drift
+
+# docs/agents/operator-runbooks.md obliges an `operator-errand` issue to carry an
+# executable runbook and a block telling an agent to walk the operator through
+# it. Nothing checked that, and the document said so itself — a convention with
+# an artifact and no enforcement, which is #46's observation recurring against a
+# new document.
+#
+# This reads issue bodies, so it needs the GitHub API and cannot run in `npm
+# test`: there it would fail red on a fork and on any clone without a token.
+# That is the split label-drift.yml already sits in, and this reuses it rather
+# than inventing a third pattern — scheduled, reporting to a standing issue,
+# never blocking a pull request.
+#
+# Reporting rather than blocking is also the right severity. A missing runbook
+# is a debt to schedule, not a defect to fix now, and a check that blocked a
+# pull request over somebody else's issue body would be the wrong lever.
+
+on:
+  schedule:
+    # 07:50 UTC — after Label drift at 07:20, so a newly-applied
+    # `operator-errand` label is seen the same morning it lands.
+    - cron: '50 7 * * *'
+  workflow_dispatch:
+
+permissions:
+  # Reading issue bodies, and maintaining the standing issue below.
+  issues: write
+
+concurrency:
+  group: operator-runbook-drift
+  cancel-in-progress: false
+
+env:
+  # Matched exactly when finding the standing issue, so changing it orphans the
+  # existing one. If you must change it, close the old issue by hand.
+  ISSUE_TITLE: 'Operator errands without a runbook'
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      # No `npm ci`: the scripts use only node builtins and the preinstalled
+      # `gh`, so there is nothing to install and no registry token to resolve.
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22.18'
+
+      - name: Check open operator errands
+        id: check
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set +e
+          node scripts/check-operator-runbooks.ts > report.md 2>&1
+          echo "status=$?" >> "$GITHUB_OUTPUT"
+          cat report.md
+
+      - name: Find the standing issue
+        id: standing
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          number=$(gh issue list \
+            --repo "${{ github.repository }}" \
+            --state all --limit 100 \
+            --search "in:title \"$ISSUE_TITLE\"" \
+            --json number,title \
+            --jq "[.[] | select(.title == \"$ISSUE_TITLE\")] | sort_by(.number) | .[0].number // empty")
+          echo "number=${number}" >> "$GITHUB_OUTPUT"
+          echo "Standing issue: ${number:-none yet}"
+
+      - name: Report the drift
+        if: steps.check.outputs.status != '0'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          NUMBER: ${{ steps.standing.outputs.number }}
+        run: |
+          set -euo pipefail
+          if [ -z "${NUMBER}" ]; then
+            gh issue create --repo "${{ github.repository }}" \
+              --title "$ISSUE_TITLE" --body-file report.md --label ready-for-human
+          else
+            # Reopen before editing: a closed issue accepts a body edit silently,
+            # and the drift would sit in an issue nobody is looking at.
+            gh issue reopen --repo "${{ github.repository }}" "$NUMBER" 2>/dev/null || true
+            gh issue edit --repo "${{ github.repository }}" "$NUMBER" --body-file report.md
+          fi
+          exit 1
+
+      - name: Close the standing issue
+        if: steps.check.outputs.status == '0' && steps.standing.outputs.number != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh issue close --repo "${{ github.repository }}" \
+            "${{ steps.standing.outputs.number }}" \
+            --comment "Every open operator errand carries a runbook and an agent block again."

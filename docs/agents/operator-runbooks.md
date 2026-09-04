@@ -73,16 +73,42 @@ that made #105 easy to leave alone.
 
 ## Where this is enforced
 
-Nowhere automatically, today, and that is a known gap rather than an oversight:
-this is a convention with an artifact and no enforcement, which is precisely what
-[#46](https://github.com/Integral-Productivity/glassfrog-clipper/issues/46)
-observed about the triage vocabulary one document over. The failure is the silent
-kind — an `operator-errand` issue filed without a runbook produces no red signal
-anywhere.
+[`.github/workflows/operator-runbook-drift.yml`](../../.github/workflows/operator-runbook-drift.yml),
+nightly at 07:50 UTC and on demand. For every **open** issue carrying
+`operator-errand` it asserts two things, and reopens a standing issue naming
+what is missing when either fails:
 
-The check is tracked in
-[#196](https://github.com/Integral-Productivity/glassfrog-clipper/issues/196).
-It reads issue bodies, so it needs the GitHub API and therefore belongs on the
-scheduled, reporting side of the split that
-[`triage-labels.md`](triage-labels.md) already describes — never blocking a pull
-request, the way `label-manifest.test.ts` can afford to.
+1. a `## Runbook` heading with at least two numbered steps beneath it;
+2. a block addressed to agents — a heading naming them, as
+   [#164](https://github.com/Integral-Productivity/glassfrog-clipper/issues/164)
+   has, or the instruction to *walk the operator through* it wherever it appears.
+
+The rules are pure functions in [`scripts/operator-runbooks.ts`](../../scripts/operator-runbooks.ts)
+and are exercised offline by `test/operator-runbooks.test.ts`; only
+[`scripts/check-operator-runbooks.ts`](../../scripts/check-operator-runbooks.ts)
+talks to GitHub.
+
+**It reports; it does not block a pull request.** Reading issue bodies needs the
+API, and a check that needed a token could not run in `npm test` — it would fail
+red on a fork and on any clone without one. That is the split
+[`triage-labels.md`](triage-labels.md) already describes for labels, reused here
+rather than a third pattern invented. The severity is right too: a missing
+runbook is a debt to schedule, and blocking somebody's pull request over
+somebody else's issue body would be the wrong lever.
+
+Two decisions worth stating rather than leaving to be inferred:
+
+- **Open issues only.** A closed errand's runbook is history — nothing can act on
+  it, and re-reporting it nightly is noise that trains people to skip the report,
+  which is this check's own failure mode arrived at from the other side.
+- **Structure, not a heading.** A `## Runbook` heading alone is checkable and
+  gameable. A runbook is an ordered list of things to do; one that is not ordered
+  is a description, so two numbered steps is the floor.
+
+One deliberate loud edge: if **no** open issue carries `operator-errand`, the run
+emits a warning rather than passing quietly. The label had zero members until
+[#198](https://github.com/Integral-Productivity/glassfrog-clipper/issues/198)
+pushed it to GitHub and applied it, and a green run over an empty candidate set
+is exactly the shape
+[`a-gate-that-fails-green-is-the-one-you-will-not-find.md`](../solutions/workflow-issues/a-gate-that-fails-green-is-the-one-you-will-not-find.md)
+warns about.
