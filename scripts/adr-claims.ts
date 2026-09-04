@@ -135,6 +135,38 @@ export function collidingClaims(subject: AdrClaim, others: AdrClaim[]): ClaimCol
     .sort((a, b) => a.number.localeCompare(b.number));
 }
 
+/**
+ * A pull request number, or `undefined` if the input is not one.
+ *
+ * Exists because of a real asymmetry CodeQL found in the caller, not a
+ * hypothetical one. `scripts/check-adr-claims.ts` read the subject PR from two
+ * places: `--pr N`, which it validated with `Number.isInteger`, and the Actions
+ * event payload, which it did not. The payload arrives through
+ * `JSON.parse(...) as { pull_request?: { number?: number } }`, and that cast
+ * reads like a check while being none — it is a compile-time assertion over a
+ * value that is `any` at runtime. Nothing stopped a non-numeric `number` field
+ * from reaching a request path, and `"1/../../orgs/evil"` is a string that
+ * template interpolation is perfectly happy to substitute.
+ *
+ * The event file is written by the Actions runner, so this was not exploitable
+ * as it stood. That is a reason the risk was low; it is not a reason for one
+ * path to be validated and the other not. The asymmetry is the defect — it stays
+ * true right up until someone reuses the function somewhere the input is not
+ * the runner's.
+ *
+ * Rejects non-integers, non-positives, and the strings that coerce quietly:
+ * `Number('')` and `Number(' ')` are both `0`, and `Number(null)` is `0`, so a
+ * bare `Number(x)` with an `Number.isInteger` check would accept all three.
+ */
+export function pullRequestNumber(value: unknown): number | undefined {
+  if (typeof value !== 'number' && typeof value !== 'string') return undefined;
+  // `Number('')`, `Number('  ')` and `Number('\n')` are 0, not NaN.
+  if (typeof value === 'string' && value.trim() === '') return undefined;
+
+  const parsed = Number(value);
+  return Number.isInteger(parsed) && parsed > 0 ? parsed : undefined;
+}
+
 /** The failure text, kept beside the rule so the message is testable too. */
 export function describeCollisions(collisions: ClaimCollision[]): string {
   return collisions
