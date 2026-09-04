@@ -6,6 +6,7 @@ import {
   claimedAdrNumbers,
   collidingClaims,
   describeCollisions,
+  pullRequestNumber,
 } from '../scripts/adr-claims.ts';
 
 /**
@@ -165,4 +166,37 @@ test('the failure message names the other branch and the rule for resolving it',
 
 test('no collisions renders as no message', () => {
   assert.equal(describeCollisions([]), '');
+});
+
+test('a pull request number is accepted from either the flag or the payload', () => {
+  // Both shapes reach this: `--pr 117` arrives as a string, the Actions event
+  // payload as a JSON number.
+  assert.equal(pullRequestNumber(117), 117);
+  assert.equal(pullRequestNumber('117'), 117);
+});
+
+test('a path fragment dressed as a number is rejected', () => {
+  // The case CodeQL flagged. The event payload was read through
+  // `as { pull_request?: { number?: number } }`, which is a compile-time claim
+  // about a value that is `any` at runtime — it could not reject this, and the
+  // result was interpolated straight into a request path.
+  assert.equal(pullRequestNumber('1/../../orgs/evil'), undefined);
+  assert.equal(pullRequestNumber('117?per_page=1'), undefined);
+});
+
+test('the values that coerce quietly to zero are rejected', () => {
+  // `Number('')`, `Number('   ')`, `Number('\n')` and `Number(null)` are all 0,
+  // not NaN. A bare `Number(x)` guarded only by `Number.isInteger` accepts every
+  // one of them, which is why the empty-string check is separate.
+  for (const quiet of ['', '   ', '\n', null]) {
+    assert.equal(pullRequestNumber(quiet), undefined, `${JSON.stringify(quiet)} must not read as a PR number`);
+  }
+});
+
+test('non-integers and non-positives are rejected', () => {
+  // A PR number is a positive integer. 0 and negatives are not pull requests,
+  // and a float would render as `117.5` in a path.
+  for (const bad of [0, -1, 1.5, NaN, Infinity, undefined, {}, [], true]) {
+    assert.equal(pullRequestNumber(bad), undefined, `${JSON.stringify(bad) ?? String(bad)} must not read as a PR number`);
+  }
 });
