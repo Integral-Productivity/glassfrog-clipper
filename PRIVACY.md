@@ -55,6 +55,8 @@ Two consequences worth stating plainly rather than leaving you to infer:
   your organisation's settings make it visible to. This is deliberate: deciding
   which query parameters are secret means guessing, and a wrong guess would
   quietly destroy the evidence you clipped the page for.
+  [ADR 0024](docs/adr/0024-only-the-url-userinfo-is-stripped-from-a-capture.md)
+  records why the line is drawn there, and what enforces it.
 - **A popup draft persists until you file or clear it.** If you open the popup
   on a sensitive page and close it without filing, the page's content stays in
   local storage until the next capture replaces it. Tracked as
