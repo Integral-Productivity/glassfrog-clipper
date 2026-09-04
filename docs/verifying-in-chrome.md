@@ -33,8 +33,28 @@ BIN="$HOME/Library/Caches/ms-playwright/chromium-"*"/chrome-mac-arm64/Google Chr
        --headless=new --remote-debugging-port=9333 about:blank
 ```
 
-The extension id is derived from the absolute path of `dist`: SHA-256 of the
-path, first 16 bytes, each nibble mapped onto `a`–`p`.
+The extension id is derived from the **resolved** path of `dist` — symlinks
+expanded — as SHA-256 of that path, first 16 bytes, each nibble mapped onto
+`a`–`p`. Absolute is not enough: on macOS `/tmp` is a symlink to `/private/tmp`,
+so loading from `/tmp/…/packed` derives `oignamhoeojleoomankkbgjkockbiknh` while
+the id Chrome actually used was `epdolcmmjpckkncioigmjiclnnbjmmmj`, from
+`/private/tmp/…/packed`. Derive it rather than assuming it:
+
+```bash
+python3 -c "import hashlib,os; p=os.path.realpath('dist'); h=hashlib.sha256(p.encode()).digest()[:16]; print(''.join(chr(97+(b>>4))+chr(97+(b&15)) for b in h))"
+```
+
+Then cross-check it, because a wrong id fails quietly rather than loudly.
+Opening `chrome-extension://<wrong-id>/options.html` still creates a target that
+appears in `/json/list`, so a check that only lists targets reports success — the
+page merely has no title and no content. **The id is right only if the
+`service_worker` target in `/json/list` carries that same id.** Two different ids
+in one listing reads like some other extension's worker; it is the tell that
+yours is wrong.
+
+Loading from a repository-local `dist/` does not hit this. It appears as soon as
+you load the unzipped store artifact from a temp directory, which is exactly what
+verifying a release build involves.
 
 A service worker is lazy — it will not appear in `/json/list` until an event
 wakes it. Opening the options page and sending it a message is enough.
