@@ -413,10 +413,24 @@ struct ShareSheetSurfaceTests {
         #expect(empty.value == nil)
     }
 
-    // A share whose only attachment stalls still files whatever else arrived,
-    // rather than refusing the capture over one attachment.
-    @Test("a stalled attachment does not take the rest of the share with it")
-    func aStalledAttachmentStillFilesTheRest() async {
+    // A share carrying a title and a text selection but no URL attachment files
+    // both, rather than refusing the capture for want of a link.
+    //
+    // Read the name literally: there is no stall here, and there used not to be
+    // one when the name said otherwise. `textProvider` answers immediately, and
+    // `hasItemConformingToTypeIdentifier(UTType.url.identifier)` is false for
+    // it, so `load` is never entered for the URL slot — the deadline, its
+    // `Task`, and `ResumeOnce` are all untouched by this case. It would pass
+    // unchanged with that machinery deleted.
+    //
+    // The behaviour the old name claimed — one attachment stalls, the rest still
+    // file — is genuinely unspecified. `aSilentAttachmentIsBounded` covers the
+    // unit-level half; nothing yet asserts that `pageContext(from:)` returns
+    // what did arrive while a sibling attachment hangs. That needs a deadline
+    // seam on `pageContext(from:)`, matching `load(_:as:decode:deadline:)`, and
+    // it stays open as #167.
+    @Test("a share with no URL attachment still files its title and selection")
+    func aShareWithNoUrlAttachmentStillFilesTheRest() async {
         guard let page = await SharedItem.pageContext(from: [
             Self.item(title: "Policy draft", attachments: [Self.textProvider("the selection")])
         ]) else {
@@ -425,6 +439,9 @@ struct ShareSheetSurfaceTests {
 
         #expect(page.title == "Policy draft")
         #expect(page.selection == "the selection")
+        // The slot that was never loaded. Asserted so the name is fully paid
+        // for: no URL attachment means an empty url, not a missing capture.
+        #expect(page.url.isEmpty)
     }
 
     // MARK: A title with no content of its own is not a title
