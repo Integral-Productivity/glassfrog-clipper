@@ -41,6 +41,11 @@ tags:
 > the one document arguing against exactly that. Both commands still run — the
 > REST API and GraphQL each resolve the old name through the rename redirect
 > (verified on 2026-09-02).
+>
+> This blockquote is not the enforcement. A sweep run as
+> `grep -rl <old> | xargs sed -i` never reads prose, so both occurrences below
+> are registered in [`docs/agents/rewrite-exceptions.json`](../../agents/rewrite-exceptions.json)
+> and held there by `test/rewrite-exceptions.test.ts` (#160).
 
 Two claims were written into durable artifacts during this session — an ADR, a commit message, a PR body, a GitHub issue. Both were false. Both were reached by *valid* reasoning from a real artifact that was sitting right there locally. In neither case was the artifact an observation of the state being claimed.
 

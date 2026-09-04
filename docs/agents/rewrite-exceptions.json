@@ -1,0 +1,49 @@
+{
+  "note": "Strings a mechanical rename must not rewrite. Held by test/rewrite-exceptions.test.ts.",
+  "string": "glassfrog-clipper-chrome-extension",
+  "supersededBy": "glassfrog-clipper",
+  "exceptions": [
+    {
+      "file": "docs/solutions/workflow-issues/verify-the-event-not-the-artifact-that-implies-it.md",
+      "occurrences": 2,
+      "kind": "evidence",
+      "reason": "Two command transcripts pasted with the output they actually produced. Editing a command so it no longer matches the output beneath it fabricates evidence — in the one document that exists to argue against doing exactly that."
+    },
+    {
+      "file": "docs/adr/0008-the-apple-build-shares-this-repo-and-this-capture-path.md",
+      "occurrences": 1,
+      "kind": "decision-record",
+      "reason": "The Decision statement records the rename itself. A decision that names both sides of a change cannot have one side rewritten without becoming a different decision."
+    },
+    {
+      "file": "README.md",
+      "occurrences": 2,
+      "kind": "decision-record",
+      "reason": "The migration section tells a reader where the repository moved from, and warns that the old name is unclaimed and could be squatted. Both sentences are about the old name; rewriting them deletes their subject."
+    },
+    {
+      "file": "docs/plans/2026-08-28-1123-feat-zero-decision-capture-path-plan.md",
+      "occurrences": 1,
+      "kind": "historical-citation",
+      "reason": "A dated amendment note citing issue #8 by the URL as it stood that day. Weaker than the others — GitHub redirects, so rewriting it would be harmless rather than destructive. Listed because a guard needs the complete picture, and because a reader deserves to know which exceptions are load-bearing and which are merely old."
+    },
+    {
+      "file": "docs/solutions/workflow-issues/a-failing-command-blocks-a-phase-not-a-capability.md",
+      "occurrences": 2,
+      "kind": "local-path",
+      "reason": "Pasted shell transcripts in which the developer's own clone directory was named that. The path is a fact about the machine the commands ran on, not a reference to the repository, so rewriting it would misreport what was actually executed."
+    },
+    {
+      "file": "test/gitignore-symlink.test.ts",
+      "occurrences": 1,
+      "kind": "local-path",
+      "reason": "A doc comment quoting the same symlink command as it was run. Same reasoning as the transcript above; this one sits in a test file, where a reader is most likely to copy it verbatim."
+    },
+    {
+      "file": "docs/agents/repo-identity.md",
+      "occurrences": 1,
+      "kind": "decision-record",
+      "reason": "The agent-facing identity note tells a reader which superseded string this manifest is about. A guard that forced that sentence to name nothing would make the manifest harder to find than the prose it replaced — and this entry exists because the guard flagged the sentence as it was being written."
+    }
+  ]
+}

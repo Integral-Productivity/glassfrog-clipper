@@ -63,6 +63,20 @@ to name both sides of it. This file names it in full, at the top, on purpose.
 | Anything under `docs/` | prose has to name things | Nothing — and that is the decision |
 | `scripts/`, `test/` | **must not** — call `repoSlug()` | `test/repo-identity.test.ts` |
 
+## The *old* slug, where it is still correct
+
+A few places name `glassfrog-clipper-chrome-extension` on purpose — pasted
+command transcripts, the ADR whose Decision records the rename, the README
+section warning the old name is unclaimed, and local clone paths in shell
+output. Rewriting any of them would misreport something that actually happened.
+
+They are listed in [`rewrite-exceptions.json`](rewrite-exceptions.json), with a
+reason each, and [`test/rewrite-exceptions.test.ts`](../../test/rewrite-exceptions.test.ts)
+holds the tree to that list in both directions: a listed exception that gets
+swept goes red, and a *new* occurrence has to be classified rather than
+inherited. **If you are writing a stale-name guard, read that manifest rather
+than starting a second copy of it.**
+
 ## To rename this repository again
 
 Change `package.json`'s `repository.url` first, then `labels.json`'s `repo`, then
