@@ -11,7 +11,8 @@
   ],
   "markers": [
     { "name": "status:in-progress", "description": "Actively being worked by a session", "color": "0e8a16" },
-    { "name": "blocked-on-upstream", "description": "Cannot proceed until a fix lands in another repo", "color": "d4c5f9" }
+    { "name": "blocked-on-upstream", "description": "Cannot proceed until a fix lands in another repo", "color": "d4c5f9" },
+    { "name": "operator-errand", "description": "Resolved by a human errand outside the repository", "color": "006b75" }
   ],
   "tracks": [
     { "name": "track:capture-surface", "description": "STRATEGY.md track — Capture surface", "color": "5319e7" },
