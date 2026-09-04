@@ -36,6 +36,21 @@ import { repoSlug } from '../scripts/repo-slug.ts';
  * name to the wrong file would make this guard reason confidently about the wrong
  * trigger. Only names actually required on `main` need an entry.
  *
+ * There is a sharper version of that hazard, and it is measured rather than
+ * reasoned. A default-setup check name comes from a *mutable repository
+ * setting*, not from any file in `.github/workflows/`, so it can appear or
+ * vanish with no change to this repository at all. On 2026-09-02 default
+ * setup's language list gained `swift` and `python`, taking the `Analyze (…)`
+ * set from two names to four *underneath open pull requests* — no commit, no
+ * workflow edit. Requiring such a name means it can lose its source with
+ * nothing in the tree to explain the resulting deadlock, which is the same end
+ * state this guard already protects against for path-filtered `apple.yml`
+ * checks, reached by a route the rule below cannot see.
+ *
+ * So for a name owned by a setting, "reports on every pull request today" is
+ * necessary but not sufficient, and `CHECK_SOURCES` is where that assumption is
+ * pinned rather than inferred. ADR 0012 records the measurement.
+ *
  * So the rule is not "require the important checks". It is: a check may be
  * required only if its workflow runs on *every* pull request. That is a property
  * of the workflow files, which is why it can be checked here rather than trusted
