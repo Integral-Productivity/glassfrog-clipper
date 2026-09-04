@@ -1,0 +1,91 @@
+name: Update PR branches
+
+# `main` requires its checks to be up to date (ADR 0012/0013), so a pull request
+# that falls behind cannot merge until something brings it forward. Nothing did.
+# Auto-merge will not merge a behind branch, and no workflow updated one, so an
+# unattended pull request sat behind until a person typed the command — measured
+# over 30 days, 46% of merged pull requests went behind at least once and 16%
+# five or more times (#126).
+#
+# Shaped after label-drift.yml for the same reason: this needs the GitHub API, so
+# it cannot live in CI, where it would fail red on a fork and on any clone
+# without a token. A scheduled workflow runs only on the default branch of this
+# repository and never on a fork, so it can use the API freely and never blocks a
+# pull request.
+#
+# THE REBASE IS NOT OPTIONAL. `gh pr update-branch` without `--rebase` reconciles
+# with a *merge commit*, which turns a compliant one-commit pull request into a
+# two-commit one — and ADR 0009 says a multi-commit pull request lands with no
+# AI-authorship note rather than a wrong one. Nothing fails; the attribution is
+# just gone. That is #130, and #163 measures the cost. Automating the bare form
+# would industrialise it.
+#
+# The corollary is the reason `scripts/select-stale-prs.ts` exists and is
+# tested: `--rebase` rewrites every commit SHA on the head branch. Selecting the
+# wrong pull request force-pushes over somebody's work, so the selection is a
+# pure function with fixtures and a red half rather than a `jq` expression here.
+
+on:
+  schedule:
+    # 06:40 UTC, twenty minutes before Label drift, so the two scheduled
+    # workflows do not contend for the same API budget.
+    - cron: '40 6 * * *'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Report what would be updated without touching any branch'
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+  # `gh pr update-branch` writes to the head ref through the pull request.
+  pull-requests: write
+
+concurrency:
+  group: update-pr-branches
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      # No `npm ci`: the script uses only node builtins and the preinstalled
+      # `gh`, so there is nothing to install and no registry token to resolve.
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22.18'
+
+      - name: Bring behind pull requests forward
+        env:
+          GH_TOKEN: ${{ github.token }}
+          DRY_RUN: ${{ inputs.dry_run }}
+        run: |
+          set -euo pipefail
+
+          gh pr list --repo "${{ github.repository }}" --state open --limit 100 \
+            --json number,mergeStateStatus,isDraft,labels,headRefName,autoMergeRequest,statusCheckRollup \
+            > prs.json
+
+          # The selection and its reasons come from the tested module, so what
+          # runs here is exactly what the fixtures exercise.
+          node scripts/select-stale-prs.ts selected.txt < prs.json
+
+          if [ ! -s selected.txt ]; then
+            echo "Nothing behind that this may update."
+            exit 0
+          fi
+
+          while read -r number; do
+            [ -n "$number" ] || continue
+            if [ "${DRY_RUN}" = "true" ]; then
+              echo "dry run: would rebase #${number} onto ${{ github.event.repository.default_branch }}"
+              continue
+            fi
+            echo "::notice::Rebasing #${number} onto the base branch"
+            # --rebase, never the bare form. See the header.
+            gh pr update-branch --rebase "$number" --repo "${{ github.repository }}" \
+              || echo "::warning::#${number} could not be rebased — likely a conflict; a person needs to look"
+          done < selected.txt
