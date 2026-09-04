@@ -18,6 +18,22 @@ Nothing here is maintained by remembering to. Both disagreements are caught:
 |---|---|---|
 | This document vs. the manifest | `test/label-manifest.test.ts`, in `npm test` | Every pull request, before merge |
 | The manifest vs. the live GitHub labels | [`.github/workflows/label-drift.yml`](../../.github/workflows/label-drift.yml) | Daily, and whenever the manifest changes on `main` |
+| A closed issue still carrying `status:in-progress` | [`.github/workflows/retire-claim-on-closure.yml`](../../.github/workflows/retire-claim-on-closure.yml) | On every issue close |
+
+The third row is about label *application*, not label *definition*, which is why
+it acts rather than reports. The label carries no meaning on a closed issue in
+any state, so removing it needs no judgment — whereas drift between the manifest
+and GitHub needs a person to decide which side is right.
+
+**Long-held claims on *open* issues are deliberately not surfaced.** #190 raised
+it and the answer is not yet. A claim nobody released is the same erosion seen
+from the other side, but detecting it means picking a number of days, and the
+honest ones are not known: this repository has sessions that legitimately hold
+an issue across days and sessions that abandon one in an hour. A threshold
+guessed rather than grounded manufactures exactly the noise the row above exists
+to remove, and a signal people learn to ignore is the failure being fixed, not a
+smaller version of it. Worth revisiting once there is enough history to ground a
+number in.
 
 The split exists because labels live behind the GitHub API. A check that needed
 a token could not run in `npm test` — it would fail red on a fork, and on any
@@ -92,7 +108,7 @@ Compatible with any state, and with each other.
 
 | Marker | Description | Assign it when |
 |---|---|---|
-| `status:in-progress` | Actively being worked by a session | A session has claimed the issue and started. This is the claim signal: apply it *before* any code, alongside self-assigning and setting the GitHub Project item to In Progress, and remove it when the work lands or is abandoned. Work in progress is invisible on GitHub until a PR appears, so without this label a second session reads the issue as free and starts it too. |
+| `status:in-progress` | Actively being worked by a session | A session has claimed the issue and started. This is the claim signal: apply it *before* any code, alongside self-assigning and setting the GitHub Project item to In Progress. Work in progress is invisible on GitHub until a PR appears, so without this label a second session reads the issue as free and starts it too. You no longer have to remember to remove it on closure — [`retire-claim-on-closure.yml`](../../.github/workflows/retire-claim-on-closure.yml) does that. Still remove it by hand if you **abandon** work without closing the issue, which is the case no event announces. |
 | `blocked-on-upstream` | Cannot proceed until a fix lands in another repo | The blocker lives in another repository — the `@integral-productivity/glassfrog` SDK, a `devops-excellence` workflow. Distinct from `needs-info`, whose blocker is information a person can supply; this one waits on someone else's merge. Name the upstream issue or PR in a comment. |
 | `operator-errand` | Resolved by a human errand outside the repository | The next step is something a person does in the world — registering an account, paying a fee, taking screenshots, running a build on a device, configuring a developer portal. Distinct from `ready-for-human`, whose blocker is a *decision*; this one's blocker is an *action*, and the decision may already be made. An issue carrying it must also carry an executable runbook and a block telling an agent to walk the operator through it — see [operator-runbooks.md](operator-runbooks.md). |
 

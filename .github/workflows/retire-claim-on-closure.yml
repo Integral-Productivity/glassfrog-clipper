@@ -1,0 +1,66 @@
+name: Retire the claim label
+
+# `status:in-progress` is the cross-session claim signal: a session applies it
+# before starting so a second session does not pick the same issue up. That half
+# works, because applying it is step one and step one gets remembered. Removing
+# it is the last step of a session that has already reached its goal, so it does
+# not — sixteen closed issues carried a live claim when #190 was measured, two
+# thirds of the label's whole population.
+#
+# The damage is not on those issues; nobody was going to restart #2. It is that
+# the signal erodes. A session checking "is this claimed?" learns the label is
+# often stale, and the reasonable response to an unreliable signal is to stop
+# trusting it — which is the exact failure the label exists to prevent, reached
+# by a different route.
+#
+# So this removes the claim on closure. Nothing here needs judgment: the label
+# carries no meaning on a closed issue in any state, whatever the reason for
+# closing. That is what makes this different from `label-drift.yml`, which
+# deliberately only reports — drift between the manifest and GitHub needs a
+# person to decide which side is right, and this does not.
+#
+# Deliberately NOT here: surfacing long-held claims on *open* issues. See the
+# note in docs/agents/triage-labels.md — that one needs a threshold nobody has
+# grounded yet, and a wrong threshold manufactures the same noise this workflow
+# exists to remove.
+
+on:
+  issues:
+    types: [closed]
+
+permissions:
+  # Labels are part of the Issues API.
+  issues: write
+
+concurrency:
+  # Per issue, so two rapid closes of different issues do not serialise.
+  group: retire-claim-${{ github.event.issue.number }}
+  cancel-in-progress: false
+
+jobs:
+  retire:
+    runs-on: ubuntu-latest
+    # Cheap pre-filter so the ordinary close of an unclaimed issue costs nothing.
+    if: contains(github.event.issue.labels.*.name, 'status:in-progress')
+    steps:
+      - name: Remove the claim label
+        env:
+          GH_TOKEN: ${{ github.token }}
+          NUMBER: ${{ github.event.issue.number }}
+        run: |
+          set -euo pipefail
+
+          gh issue edit "$NUMBER" --repo "${{ github.repository }}" \
+            --remove-label 'status:in-progress'
+
+          # Read it back. `gh issue edit` exits 0 on a label that was already
+          # absent, so its exit code cannot distinguish "removed" from "no-op" —
+          # and this repository has a solutions doc about exactly that mistake.
+          remaining=$(gh issue view "$NUMBER" --repo "${{ github.repository }}" \
+            --json labels --jq '[.labels[].name] | index("status:in-progress")')
+
+          if [ "$remaining" != "null" ]; then
+            echo "::error::#${NUMBER} still carries status:in-progress after the edit"
+            exit 1
+          fi
+          echo "::notice::Retired the claim on #${NUMBER}"
