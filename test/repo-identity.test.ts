@@ -38,6 +38,55 @@ import { repoSlug, slugFromRepositoryUrl } from '../scripts/repo-slug.ts';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 
+/**
+ * Every `<owner>/<name>` this project could be, as named in a prose document.
+ *
+ * Scoped to the owner deliberately. A document naming
+ * `anthropics/claude-code` is citing somebody else's repository, which is
+ * ordinary; a document naming a *different* `Integral-Productivity/…` where it
+ * means this one is the drift worth catching.
+ *
+ * Returned in file order with duplicates collapsed, so the assertion below can
+ * report what it actually found rather than only that something was wrong.
+ */
+export function ownedSlugsNamedIn(markdown: string): string[] {
+  const found = [...markdown.matchAll(/\bIntegral-Productivity\/[A-Za-z0-9._-]+/g)].map((match) => match[0]);
+  return [...new Set(found)];
+}
+
+test('the agent-facing identity note names the repository package.json declares', async () => {
+  const doc = await readFile(join(root, 'docs', 'agents', 'repo-identity.md'), 'utf8');
+  const named = ownedSlugsNamedIn(doc);
+
+  // Reading the corpus, not an empty string: a moved or renamed file would
+  // throw above, but a document that stopped naming the repository at all would
+  // otherwise satisfy "names no wrong slug" vacuously.
+  assert.ok(named.length > 0, 'docs/agents/repo-identity.md names no repository at all');
+
+  assert.deepEqual(
+    named,
+    [repoSlug()],
+    `docs/agents/repo-identity.md names a repository package.json does not: ${named.join(', ')}`,
+  );
+});
+
+test('the guard detects an identity note naming the wrong repository', () => {
+  // The red half of red-then-green. Without it, `ownedSlugsNamedIn` could
+  // return [] unconditionally and the test above would pass forever over a
+  // document that had gone stale — which is the #62 failure mode exactly.
+  //
+  // The fixture is built from `repoSlug()`'s owner rather than written out,
+  // because `no script or test hard-codes the repository slug` below refuses a
+  // literal here too. It caught the first draft of this very test, which is a
+  // fair demonstration that it works.
+  const owner = repoSlug().split('/')[0];
+  const wrong = `${owner}/glassfrog-clip`;
+  const stale = `The slug is \`${wrong}\`, renamed from something else.`;
+
+  assert.deepEqual(ownedSlugsNamedIn(stale), [wrong]);
+  assert.notDeepEqual(ownedSlugsNamedIn(stale), [repoSlug()]);
+});
+
 test('slugFromRepositoryUrl reads both remote URL forms', () => {
   assert.equal(slugFromRepositoryUrl('git+https://github.com/o/n.git'), 'o/n');
   assert.equal(slugFromRepositoryUrl('https://github.com/o/n'), 'o/n');
