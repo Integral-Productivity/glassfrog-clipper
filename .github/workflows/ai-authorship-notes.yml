@@ -8,13 +8,24 @@
 # main, and all 12 were bootstrap commits predating the pull-request workflow.
 # See docs/adr/0009 and issue #71.
 #
-# Why only single-commit pull requests: a note records per-file LINE RANGES keyed
-# to one commit's diff. Squashing several commits collapses the intermediate
-# states, so ranges from several notes do not compose onto the squashed diff —
-# copying them would publish attribution that points at the wrong lines. On a
-# repository whose whole claim is a record you can check rather than trust, wrong
-# attribution is worse than absent attribution. So this copies only where the
-# transfer is provably sound, and records nothing otherwise.
+# What makes a transfer sound: a note records per-file LINE RANGES keyed to one
+# commit's diff. Ranges are only valid for the squashed commit if the squashed
+# commit introduces byte-identical changes. On a repository whose whole claim is
+# a record you can check rather than trust, wrong attribution is worse than
+# absent attribution — so the diff comparison below is the gate, and nothing is
+# recorded when it does not hold.
+#
+# It used to gate on `commits == 1` as well, at job level, and ADR 0023 removed
+# that. Two things were wrong with it. The count is a proxy for the diff check,
+# which is strictly stronger and already runs. And because the condition sat on
+# the job, a failing one skipped the whole job — no steps, no runner, no log —
+# so every ::warning:: in this file was unreachable and a forfeited note was
+# indistinguishable from a healthy no-op. Half of this workflow's runs were
+# skipped that way (#163).
+#
+# The note is also no longer read from `head.sha` alone. Bringing a branch up to
+# date creates a merge commit that becomes the new head and carries no note,
+# while the authored commit underneath it still does. See ADR 0023 and #147.
 name: AI authorship notes
 
 on:
@@ -35,9 +46,10 @@ jobs:
   copy-note:
     # A fork's notes live in the fork, never in this repository's refs/notes/ai,
     # so there is nothing to copy and the token would be read-only anyway.
+    # No commit-count condition here, deliberately: a job-level `if` that fails
+    # skips every step, so the forfeit it causes cannot be reported. See ADR 0023.
     if: >-
       github.event.pull_request.merged == true
-      && github.event.pull_request.commits == 1
       && github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     steps:
@@ -61,8 +73,11 @@ jobs:
 
       - name: Copy the authorship note onto the squashed commit
         env:
+          GH_TOKEN: ${{ github.token }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
           MERGE_SHA: ${{ github.event.pull_request.merge_commit_sha }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_COMMITS: ${{ github.event.pull_request.commits }}
         run: |
           set -euo pipefail
 
@@ -94,35 +109,70 @@ jobs:
             exit 0
           fi
 
-          if ! git cat-file -e "${HEAD_SHA}^{commit}" 2>/dev/null; then
-            echo "::warning::Head commit $HEAD_SHA is no longer served by origin;"
-            echo "::warning::its authorship note cannot be carried onto $MERGE_SHA."
-            exit 0
-          fi
-
-          if ! git notes --ref=ai show "$HEAD_SHA" >/dev/null 2>&1; then
-            echo "No authorship note on $HEAD_SHA — nothing to copy."
-            exit 0
-          fi
-
           if git notes --ref=ai show "$MERGE_SHA" >/dev/null 2>&1; then
             echo "$MERGE_SHA already carries a note — leaving it alone."
             exit 0
           fi
 
-          # THE correctness guard. The note's line ranges are only valid for the
-          # squashed commit if the squashed commit introduces byte-identical
-          # changes. That holds for a one-commit pull request merged without
-          # conflict resolution, and fails quietly if anything reshaped the diff.
-          # Verify it rather than trusting the commit count.
-          if ! diff -q \
-              <(git diff "${HEAD_SHA}^" "$HEAD_SHA") \
-              <(git diff "${MERGE_SHA}^" "$MERGE_SHA") >/dev/null; then
-            echo "::warning::The squashed diff differs from the head commit's diff,"
-            echo "::warning::so the note's line ranges would not describe $MERGE_SHA."
-            echo "::warning::Skipping rather than publishing wrong attribution."
+          # The commit count is an observation now, not a condition (ADR 0023).
+          # Reported so the skipped/success ratio #163 measured can be re-measured
+          # without reading every run's diff by hand.
+          echo "::notice::$(node scripts/authorship-note-source.ts --describe "$PR_COMMITS" 2>/dev/null || echo "${PR_COMMITS}-commit pull request")"
+
+          # Candidates, head first: on the ordinary one-commit pull request that
+          # is the answer and nothing else is read. The rest are the pull
+          # request's own commits, because bringing a branch up to date makes
+          # head.sha a merge commit that never carries a note while the authored
+          # commit underneath it still does (#147).
+          CANDIDATES="$HEAD_SHA"
+          for sha in $(gh api "repos/${GITHUB_REPOSITORY}/pulls/${PR_NUMBER}/commits" \
+                         --paginate --jq '.[].sha' 2>/dev/null | tac); do
+            case " $CANDIDATES " in *" $sha "*) ;; *) CANDIDATES="$CANDIDATES $sha";; esac
+          done
+
+          MERGE_DIGEST=$(git diff "${MERGE_SHA}^" "$MERGE_SHA" | sha256sum | cut -d' ' -f1)
+
+          # Measure each candidate, then let the tested module choose. The shape
+          # is deliberate: bash observes, the module decides, so the fixtures in
+          # test/authorship-notes-workflow.test.ts are evidence about what runs.
+          # Measure each candidate into a flat file: bash observes, the tested
+          # module parses and decides. Building JSON in a shell is where quoting
+          # bugs live, and this file is the seam that keeps them out.
+          : > /tmp/candidates.txt
+          for sha in $CANDIDATES; do
+            git fetch origin "$sha" 2>/dev/null || true
+            if git cat-file -e "${sha}^{commit}" 2>/dev/null; then
+              if git notes --ref=ai show "$sha" >/dev/null 2>&1; then HAS_NOTE=true; else HAS_NOTE=false; fi
+              DIGEST=$(git diff "${sha}^" "$sha" | sha256sum | cut -d' ' -f1)
+            else
+              HAS_NOTE=false
+              DIGEST='-'
+            fi
+            echo "$sha $HAS_NOTE $DIGEST" >> /tmp/candidates.txt
+          done
+
+          OUTCOME=$(node scripts/authorship-note-source.ts \
+            --candidates /tmp/candidates.txt --merge-digest "$MERGE_DIGEST")
+          KIND=$(printf '%s' "$OUTCOME" | python3 -c 'import json,sys; print(json.load(sys.stdin)["kind"])')
+
+          if [ "$KIND" = "none" ]; then
+            echo "No authorship note on any commit in this pull request — nothing to copy."
             exit 0
           fi
+
+          if [ "$KIND" = "forfeit" ]; then
+            # A note existed and could not be carried. That is a LOSS, and it
+            # used to be indistinguishable from a healthy no-op at a glance.
+            REASON=$(printf '%s' "$OUTCOME" | python3 -c 'import json,sys; print(json.load(sys.stdin)["reason"])')
+            LOST=$(printf '%s' "$OUTCOME" | python3 -c 'import json,sys; print(" ".join(json.load(sys.stdin)["candidates"]))')
+            echo "::warning::An authorship note exists on $LOST but was not carried onto $MERGE_SHA:"
+            echo "::warning::$REASON."
+            echo "::warning::Attribution is forfeited for this merge. See ADR 0023 and #163."
+            exit 0
+          fi
+
+          HEAD_SHA=$(printf '%s' "$OUTCOME" | python3 -c 'import json,sys; print(json.load(sys.stdin)["sha"])')
+          echo "Carrying the note from $HEAD_SHA (diff verified byte-identical to $MERGE_SHA)."
 
           # base_commit_sha names the commit the note describes. Carrying it over
           # verbatim would leave the note pointing at a commit that is not on main.

@@ -98,6 +98,15 @@ Coverage is deliberately partial, and the README says so rather than implying a
 complete record. Multi-commit pull requests land unattributed, silently by
 design — the workflow logs a notice, but no one is blocked.
 
+> **Correction, 2026-09-04 (#163, [ADR 0023](0023-the-diff-comparison-is-the-gate-for-carrying-an-authorship-note.md)).**
+> "The workflow logs a notice" was false when written. The conditions sat in a
+> job-level `if:`, so a failing one skipped the whole job — no steps, no runner,
+> an empty log — and nothing was logged at all. That is why the loss went
+> uncounted until it was measured at half of all runs. ADR 0023 moves the
+> conditions inside the job and makes a forfeited note announce itself, and it
+> retires conditions 1 and 3 above in favour of condition 4, which this ADR
+> already named as the actual correctness guard.
+
 The 62 notes already orphaned are **not** recovered by this and are not deleted.
 Their commits remain fetchable from `origin` by explicit SHA even though the
 branches were auto-deleted, so the data is not lost, merely absent from a normal
