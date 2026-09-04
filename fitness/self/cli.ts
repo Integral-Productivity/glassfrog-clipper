@@ -22,6 +22,7 @@ import { pathToFileURL } from 'node:url';
 import { runAccountDisclosureCheck } from '../checks/account-disclosure.ts';
 import { runAdrNumberingCheck } from '../checks/adr-numbering.ts';
 import { runBundleShapeCheck } from '../checks/bundle-shape.ts';
+import { runCaptureCredentialStripCheck } from '../checks/capture-credential-strip.ts';
 import { runCredentialConfinementCheck } from '../checks/credential-confinement.ts';
 import { runManifestPermissionsCheck } from '../checks/manifest-permissions.ts';
 import { runRequirementsTraceabilityCheck } from '../checks/requirements-traceability.ts';
@@ -36,6 +37,7 @@ import { type CheckResult, renderMarkdown } from '../report.ts';
 export const CHECKS: Array<() => Promise<CheckResult>> = [
   runBundleShapeCheck,
   runCredentialConfinementCheck,
+  runCaptureCredentialStripCheck,
   runManifestPermissionsCheck,
   runSdkBoundaryCheck,
   runAdrNumberingCheck,
