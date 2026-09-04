@@ -129,6 +129,14 @@ the document explains it, `npm test` holds the document to it, and
 the live GitHub labels to it. Edit the manifest, not the prose and not the
 labels in the GitHub UI.
 
+## Which repository this is
+
+[`docs/agents/repo-identity.md`](docs/agents/repo-identity.md) names the current
+slug and says which copy of it is authoritative. Worth opening before citing an
+issue URL or scaffolding a document that names the repository — this one was
+renamed once, and the old name is still correct in a handful of places on
+purpose.
+
 ## Everything else
 
 Not repeated here, because these files say it better and going stale in two
