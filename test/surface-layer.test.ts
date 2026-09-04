@@ -21,9 +21,9 @@ import { dirname, join } from 'node:path';
  * Swift half is not. Measured on 2026-09-02, both premises behind that are
  * false: `npm run bdd` does not run inside `verify` — it runs in
  * `bdd-and-fitness.yml` as `BDD / Scenarios`, which is unfiltered and therefore
- * *requirable*, but is not among what `main` actually requires ([#91](../../issues/91)
- * owns that divergence). Deleting `features/surface/chrome.feature` and running
- * the required suite passes, 354 of 354. `test/requirements-coverage.test.ts`
+ * *requirable*, but was not then among what `main` actually required. Deleting
+ * `features/surface/chrome.feature` and running the required suite passes,
+ * 354 of 354. `test/requirements-coverage.test.ts`
  * does trace `features/`, but no requirement loses its last citation when that
  * file goes.
  *
@@ -44,11 +44,18 @@ import { dirname, join } from 'node:path';
  *
  * BE PRECISE ABOUT WHAT THAT BUYS, because the header on `SharedItem.swift`
  * once overclaimed in exactly this direction and had to be corrected. This
- * proves each surface layer is still *wired up*. It cannot prove either suite
- * is green: `swift test` needs a macOS runner, and `npm run bdd` reports from a
- * job `main` does not require. Deletion, gutting, and silent unwiring are what
- * this catches. A red suite is not — that is [#133](../../issues/133) for
- * Safari and [#91](../../issues/91) for Chrome.
+ * proves each surface layer is still *wired up*; deletion, gutting and silent
+ * unwiring are what it catches. It cannot itself prove either suite is green.
+ *
+ * Whether a *red* suite blocks a merge is a separate question, and the two
+ * halves no longer answer it the same way. `BDD / Scenarios` is now required on
+ * `main` (#194, landed by #202; ADR 0012's amendment records it), so a red
+ * Chrome run does block a merge — the Chrome half of what
+ * [#91](../../issues/91) described is closed. `Swift core` is still not
+ * required, because ADR 0012 explains that requiring a path-filtered check
+ * would pin every non-Apple pull request at "waiting for status to be
+ * reported"; a red Safari run therefore still blocks nothing, which remains
+ * [#133](../../issues/133).
  *
  * Five ways a surface layer stops being specified, four of which leave every
  * other check green:
