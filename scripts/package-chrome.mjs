@@ -21,9 +21,22 @@
  *     npm run package        # build, validate, zip
  *
  * The zip is written deterministically: entries in sorted order, every timestamp
- * pinned to the DOS epoch. Two runs from the same tree produce byte-identical
- * archives, so "did this change?" is answerable with a checksum rather than by
- * unzipping and diffing.
+ * pinned to the DOS epoch, deflate level pinned at 9 (`:142`). Two runs from the
+ * same tree *on the same zlib* produce byte-identical archives, so "did this
+ * change?" is answerable with a checksum rather than by unzipping and diffing.
+ *
+ * The zlib scope is the whole caveat, and it is measured rather than theoretical:
+ * `deflateRawSync` is only as stable as the zlib Node bundles. Measured
+ * 2026-09-02 against one unchanged `dist/` — Node 20.20.2, 22.22.3, 22.23.2 and
+ * 25.9.0 all carry zlib 1.3.1-e00f703 and agree byte for byte at 87942 bytes;
+ * Node 26.7.0 carries 1.2.12 and emits 87697. Same ten entries, same order, same
+ * uncompressed lengths, same DOS-epoch timestamps — only the deflate output
+ * differs.
+ *
+ * So a checksum *mismatch* proves "not the same bytes"; it does not prove the
+ * tree changed. Two matching digests prove "same tree, same zlib", which is the
+ * question worth asking only when both sides ran on one runtime. Compare digests
+ * within a runtime, not across two.
  */
 import { deflateRawSync, crc32 } from 'node:zlib';
 import { readFile, readdir, mkdir, writeFile, stat } from 'node:fs/promises';
