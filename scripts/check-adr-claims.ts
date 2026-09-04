@@ -18,7 +18,14 @@
  * token or on this file. Failing open here loses an early, legible warning. It
  * does not let a duplicate reach `main`.
  */
-import { claimedAdrNumbers, collidingClaims, describeCollisions, type AdrClaim, type ChangedFile } from './adr-claims.ts';
+import {
+  claimedAdrNumbers,
+  collidingClaims,
+  describeCollisions,
+  pullRequestNumber,
+  type AdrClaim,
+  type ChangedFile,
+} from './adr-claims.ts';
 import { repoSlug } from './repo-slug.ts';
 
 const SLUG = process.env.GITHUB_REPOSITORY ?? repoSlug();
@@ -47,21 +54,35 @@ async function api<T>(path: string): Promise<T> {
 async function subjectNumber(): Promise<number | undefined> {
   const flag = process.argv.indexOf('--pr');
   if (flag !== -1) {
-    const value = Number(process.argv[flag + 1]);
-    if (Number.isInteger(value)) return value;
+    const fromFlag = pullRequestNumber(process.argv[flag + 1]);
+    if (fromFlag !== undefined) return fromFlag;
   }
 
   const eventPath = process.env.GITHUB_EVENT_PATH;
   if (eventPath === undefined) return undefined;
 
   const { readFile } = await import('node:fs/promises');
-  const event = JSON.parse(await readFile(eventPath, 'utf8')) as { pull_request?: { number?: number } };
-  return event.pull_request?.number;
+  // `as` on a JSON.parse is a compile-time claim about a runtime `any`. The
+  // field is read as `unknown` and validated, rather than trusted because it
+  // was declared.
+  const event = JSON.parse(await readFile(eventPath, 'utf8')) as { pull_request?: { number?: unknown } };
+  return pullRequestNumber(event.pull_request?.number);
 }
 
 async function claimsFor(pullRequest: number): Promise<AdrClaim> {
-  const files = await api<ChangedFile[]>(`/repos/${SLUG}/pulls/${pullRequest}/files?per_page=${PAGE}`);
-  return { pullRequest, numbers: claimedAdrNumbers(files) };
+  // Validated at the sink rather than only at each source. Both callers already
+  // hold a checked number — `subjectNumber()` validates, and the listing's
+  // numbers come from the API — but this is the one function that puts a value
+  // into a request path, so it is the one place a new caller cannot route
+  // around. A guard on every source is a guard someone forgets to add to the
+  // next source.
+  const number = pullRequestNumber(pullRequest);
+  if (number === undefined) {
+    throw new Error(`refusing to request files for a non-pull-request-number: ${JSON.stringify(pullRequest)}`);
+  }
+
+  const files = await api<ChangedFile[]>(`/repos/${SLUG}/pulls/${number}/files?per_page=${PAGE}`);
+  return { pullRequest: number, numbers: claimedAdrNumbers(files) };
 }
 
 async function main(): Promise<void> {
