@@ -252,10 +252,12 @@ These are human steps. None can be done from a terminal.
       is not somewhere to rely on a redirect.
       [#62](https://github.com/Integral-Productivity/glassfrog-clipper/issues/62)
       swept the rest of the tree for the same reason.
-- [ ] **Screenshots** —
-      [#104](https://github.com/Integral-Productivity/glassfrog-clipper/issues/104).
-      See [Graphic assets](#graphic-assets); they need a real browser and a real
-      GlassFrog org, so they cannot be generated from the source tree.
+- [x] **Screenshots** — one shipped, which is what the store requires
+      ([#104](https://github.com/Integral-Productivity/glassfrog-clipper/issues/104)).
+      Two more are worth adding and are tracked separately in
+      [#215](https://github.com/Integral-Productivity/glassfrog-clipper/issues/215);
+      they do not block submission, since a listing's screenshots can be updated
+      afterwards. See [Graphic assets](#graphic-assets).
 
 ## Building the upload
 
@@ -361,7 +363,7 @@ prerequisite above.
 | Asset | Spec | Status |
 |---|---|---|
 | Store icon | 128×128 PNG | **Ready** — `public/icon128.png`, rendered from [`scripts/render-icons.py`](../../scripts/render-icons.py). Vector source at [`icon.svg`](icon.svg). |
-| Screenshots | 1280×800 or 640×400 PNG, 1–5, at least one required | **Outstanding.** See the recipe below. |
+| Screenshots | 1280×800 or 640×400 PNG, 1–5, at least one required | **Ready** — [`screenshots/2-options.png`](screenshots/2-options.png), 1280×800. Two more tracked in [#215](https://github.com/Integral-Productivity/glassfrog-clipper/issues/215). |
 | Small promo tile | 440×280 PNG | Optional; only needed to be eligible for featuring, which an unlisted listing is not. Skip for this submission. |
 | Marquee promo tile | 1400×560 PNG | Optional. Skip. |
 
@@ -372,21 +374,65 @@ produced from the source tree. Use the Chrome for Testing setup already
 documented in [`docs/verifying-in-chrome.md`](../verifying-in-chrome.md) — the
 same one the manual verification gates use — with a 1280×800 window.
 
-Four that earn their place, in order:
-
-1. **The popup, mid-capture**, on a recognisable page, with role and work type
-   visible but obviously optional. This is the product's actual claim; lead with
-   it.
-2. **The options page**, showing the API key field and capture-role picker — the
-   one-time configuration that makes the keystroke path possible.
-3. **The filed item in GlassFrog**, showing the provenance marker and the page
-   link. Proves the round trip rather than asserting it.
-4. **The measurement panel** on the options page, showing capture timings.
-   Distinctive, and it demonstrates the local-telemetry claim the privacy policy
-   makes.
-
 Use a demonstration GlassFrog org, not a client one. Screenshots are public even
 on an unlisted listing.
+
+**Shipped:** [`screenshots/2-options.png`](screenshots/2-options.png) — the options
+page, showing the API key field (masked) and the capture-role picker populated from
+a live organisation. That combination is not stageable: `config.ts` KTD8 validates
+the key and fills the picker in a single call, so a populated picker proves a
+working key.
+
+**Still wanted**, tracked in
+[#215](https://github.com/Integral-Productivity/glassfrog-clipper/issues/215) —
+the popup mid-capture on a recognisable page, and the filed item in GlassFrog
+showing the provenance marker and page link. Neither blocks submission; the store
+requires one screenshot and a listing's screenshots can be updated later.
+
+The measurement panel was considered and dropped. Until roughly twenty captures
+exist it reports `0 captures in the last 30 days` and renders every metric as an
+em-dash, which demonstrates that the panel exists without demonstrating that it
+measures anything.
+
+#### What the capture actually takes
+
+Two mechanics, and one trap worth knowing before you spend an evening on it.
+
+For an **extension page on its own** — the options page — drive CDP directly:
+`Emulation.setDeviceMetricsOverride` at `{width: 1280, height: 800,
+deviceScaleFactor: 2}`, then `Page.captureScreenshot`, then `sips -z 800 1280` to
+bring the 2× capture down to the size the store accepts. No OS-level capture, no
+window positioning, pixel-exact.
+
+For anything that must show **browser chrome** — the popup floating over a page —
+you need a real screen capture. Set the window with CDP `Browser.setWindowBounds`
+to `{left: 0, top: 30, width: 1280, height: 800}` (macOS clamps the top below the
+menu bar), then `screencapture -x -R0,30,1280,800` and resample as above.
+
+Two things that cost time on the first run:
+
+- **`--test-type`** suppresses Chrome's "only for automated testing" infobar, which
+  otherwise sits across the top of every screenshot.
+- **Do not put `--user-data-dir` under `/private/tmp`.** Temp cleanup wiped the
+  configured profile twice mid-session, taking the API key and the GlassFrog login
+  with it each time.
+
+#### The popup needs a real gesture
+
+`chrome.action.openPopup()` opens the popup but is **not a user gesture**, so Chrome
+does not grant `activeTab`. `captureActiveTab()` returns null and the popup renders
+*"Chrome does not allow extensions to read this tab."* with the file button disabled
+([`src/popup.ts:189`](../../src/popup.ts)). That is correct behaviour — the manifest
+asks for `activeTab`, not broad host permissions — so the answer is a genuine
+gesture, never widening permissions.
+
+Either gesture works: click the toolbar icon, or press the manifest's
+`_execute_action` binding, **Cmd+Shift+Y**. Neither can be synthesised — CDP's
+`Input.dispatchKeyEvent` reaches the page, not browser-level extension commands.
+A human has to press it.
+
+The filed-item shot additionally needs a **GlassFrog web session signed in** in that
+same throwaway profile, not merely a configured extension. Do both in one sitting.
 
 ## Privacy practices tab
 
@@ -468,7 +514,7 @@ Source, including the architecture decisions behind the permission set, is publi
 - [x] Repository public ([#72](https://github.com/Integral-Productivity/glassfrog-clipper/issues/72)) — read back as `visibility: public`, and topics added ([#70](https://github.com/Integral-Productivity/glassfrog-clipper/issues/70))
 - [x] URLs filled in and loading for a signed-out visitor ([#107](https://github.com/Integral-Productivity/glassfrog-clipper/issues/107)) — all three HTTP 200 anonymous; `homepage_url` declared in the manifest
 - [x] `npm run package` clean against the real bundle — `verify` does this on every PR ([#103](https://github.com/Integral-Productivity/glassfrog-clipper/issues/103)); take the SHA-256 from that run's log
-- [ ] Screenshots taken at 1280×800 against a demonstration org ([#104](https://github.com/Integral-Productivity/glassfrog-clipper/issues/104))
+- [x] Screenshots taken at 1280×800 against a demonstration org ([#104](https://github.com/Integral-Productivity/glassfrog-clipper/issues/104)) — one shipped; upload `docs/store/screenshots/2-options.png`
 - [ ] Listing fields pasted from this document
 - [ ] Privacy tab completed from this document
 - [ ] Visibility set to **Unlisted**
